@@ -1,0 +1,33 @@
+Registro de Horas Jogadas  -  versao $versao
+================================================
+
+COMO USAR
+  1. Extraia esta pasta inteira em qualquer lugar (nao rode de dentro do ZIP).
+  2. De dois cliques em HorasJogadas.exe.
+  Nao precisa instalar nada nem ter o Python.
+
+SEUS DADOS
+  Ficam em  %APPDATA%\HorasJogadas  (cole isso na barra do Explorer).
+  Atualizar ou apagar esta pasta NAO apaga seus jogos e historico.
+  O app faz backups automaticos ali (pasta "backups").
+
+PRIVACIDADE
+  O app nao usa a internet, nao envia nada e nao tem telemetria.
+  Tudo fica no seu computador.
+
+AVISO DO WINDOWS (SmartScreen)
+  Como o app ainda nao tem assinatura digital paga, o Windows pode mostrar
+  "O Windows protegeu o computador". Clique em "Mais informacoes" e depois
+  em "Executar assim mesmo". Para conferir que o arquivo e o original,
+  compare o SHA-256 do HorasJogadas.exe com o publicado na pagina do app:
+      certutil -hashfile HorasJogadas.exe SHA256
+  (rode no Prompt de Comando, dentro desta pasta).
+
+DESINSTALAR
+  Apague esta pasta. (Para apagar tambem os dados: %APPDATA%\HorasJogadas)
+
+ATUALIZAR
+  Baixe a versao nova na pagina do app. (Pelo aplicativo do itch.io a
+  atualizacao e automatica.) Seus dados sao mantidos.
+
+Idioma: Configuracoes > Idioma / Language (Portugues ou English).

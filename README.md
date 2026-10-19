@@ -1,0 +1,119 @@
+# Registro de Horas Jogadas
+
+App de desktop (Python + Tkinter, sem dependências externas) para cronometrar e registrar horas jogadas.
+
+## Executar
+```
+python app.py
+```
+
+## Testes
+```
+python -m unittest discover -s tests -t .      # biblioteca padrão
+pytest                                          # opcional (requirements-dev.txt)
+```
+
+## Estrutura
+```
+app.py                       lançador (o .exe é feito a partir dele; carrega horas_jogadas/)
+build_exe.bat                cria o HorasJogadas.exe (só 1 vez)
+Iniciar.bat                  abre o app sem o .exe (usa pythonw)
+horas_jogadas/
+  constants.py               constantes, cores, nomes de arquivos
+  models.py                  dataclasses Jogo, Sessao, EstadoSessao
+  storage.py                 Repositorio: escrita atômica, backup, leitura segura, migração
+  stats.py                   estatísticas (funções puras)
+  utils.py                   formatação e normalização de texto
+  i18n.py                    traduções (Português do Brasil / English)
+  main.py                    inicialização (chamada pelo lançador)
+  updater.py                 atualização por ZIP, backup e restauração do código
+  backups.py                 backups dos dados (diário, antes de apagar, manual)
+  instancia.py               trava de instância única
+  icone_barra.py             selo no ícone da barra de tarefas (🔴 rodando / ⏸ pausado)
+  edicao_sessao.py           validação da edição/adição manual de sessões
+  exportacao.py              exportação para CSV
+  logging_setup.py           log em DATA_DIR/app.log (com rotação)
+  ui/                        theme, widgets (ScrollableFrame), card, janela principal,
+                             histórico, dashboard, configurações
+tests/                       testes de storage, stats e utils
+```
+
+## Onde ficam os dados
+`%APPDATA%\HorasJogadas` (Windows) ou `~/HorasJogadas`:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `cronometros.json` | biblioteca de jogos (com `id`, `nome`, `status`) |
+| `registros.json` | sessões (`sessao_id`, `jogo_id`, `jogo`, `segundos`, `tempo`, `data`, `inicio`, `fim`) |
+| `config.json` | modo de navegação, ordenação e idioma (`pt` ou `en`) |
+| `backups/` | cópias dos dados: `diario/` (7 últimos dias), `antes_de_apagar/`, `manual/`, `antes_de_restaurar/` |
+| `app.lock` | trava que impede abrir o app duas vezes ao mesmo tempo |
+| `em_andamento.json` | sessões abertas, para recuperação após falha (some quando tudo é salvo) |
+| `*.bak` | backup da versão anterior de cada arquivo |
+| `*.pre-migracao` | cópia do arquivo original antes da migração para o formato novo |
+| `*.corrompido-AAAAMMDD-HHMMSS` | cópia preservada de um arquivo que ficou ilegível |
+| `app.log` | log de erros |
+
+Arquivos do formato antigo (lista de nomes em `cronometros.json`, registros sem `jogo_id`) são migrados automaticamente na primeira abertura.
+
+## Idioma
+Em **Configurações → Idioma / Language** escolha Português (Brasil) ou English. A troca é imediata (sem reiniciar e sem
+interromper cronômetros em andamento) e fica salva em `config.json`. Os dados em disco não mudam com o idioma
+(ex.: o status continua gravado como `Zerado`), então os arquivos funcionam nos dois idiomas.
+
+Para adicionar um idioma: inclua um código em `IDIOMAS_DISPONIVEIS` (`constants.py`) e um dicionário completo em
+`TEXTOS` (`i18n.py`); `tests/test_i18n.py` falha se faltar alguma chave ou marcador.
+
+## Instalação e atualizações
+
+**Uma vez só** (para ter o `.exe`): dê dois cliques em `build_exe.bat`. Ele gera `HorasJogadas.exe` nesta mesma pasta.
+(Se preferir não usar `.exe`, use `Iniciar.bat`.) Se houver um `icon.ico` na pasta, ele vira o ícone do app.
+
+**Atualizar** (sempre que receber um ZIP novo):
+1. Abra o app → **Configurações → Atualizar app…**
+2. Escolha o ZIP baixado (a janela já abre na pasta Downloads).
+3. Confirme. O app valida o arquivo, guarda a versão atual, troca o código e **reinicia sozinho**.
+
+Você não apaga nem substitui nenhuma pasta. Seus jogos e histórico ficam em `%APPDATA%\HorasJogadas` e não são alterados.
+
+- **Voltar atrás:** Configurações → **↩ Restaurar versão anterior** (guarda as 3 últimas, em `_versoes_anteriores/`).
+- **Segurança:** o ZIP é validado antes (integridade, caminhos, arquivos obrigatórios e sintaxe de todos os `.py`).
+  Se algo falhar durante a troca, tudo volta ao estado anterior. Se a versão nova nem abrir, o lançador oferece
+  restaurar a anterior automaticamente.
+- **Quando refazer o `.exe`:** só se o `app.py` (lançador) ou as bibliotecas do Python usadas mudarem. O teste
+  `tests/test_launcher.py` avisa se o código passar a precisar de algo que o `.exe` não inclui.
+
+## Segurança dos dados
+- **Instância única:** abrir o app de novo não cria outra janela: a que já está aberta vem para a frente. (Duas janelas
+  poderiam sobrescrever os dados uma da outra.)
+- **Backups automáticos:** uma cópia por dia (guarda 7) e uma cópia **antes de qualquer exclusão em massa**
+  (apagar todo o histórico ou os registros de um jogo).
+- **Desfazer:** ao excluir uma sessão no Histórico aparece "↩ Desfazer" por 10 segundos.
+- **Restaurar:** Configurações → **🗂 Backups…** lista as cópias (com jogos, sessões e horas) e restaura a escolhida.
+  Antes de restaurar, os dados atuais também são guardados. Há ainda o botão "Criar backup agora".
+
+## Exportar CSV
+Configurações (ou a tela de Histórico) → **Exportar histórico (CSV)…** ou **Exportar resumo por jogo (CSV)…**.
+Em português o arquivo usa `;` e vírgula decimal (abre certo no Excel do Brasil); em inglês, `,` e ponto.
+
+## Ícone e selo na barra de tarefas
+O app usa o `icon.ico` que estiver ao lado do `.exe` (ou embutido, na versão do itch.io) em todas as janelas.
+Como no OBS, o botão do app na barra de tarefas do Windows ganha um **selo** sobre o ícone original:
+**🔴 bolinha vermelha** = há um cronômetro rodando · **⏸ pause amarelo** = nenhum rodando, mas há um pausado ·
+**sem selo** = nada ativo. (Se houver um rodando e outro pausado, vale o vermelho.) Só aparece no Windows.
+
+## Sessões que atravessam a meia-noite
+O gráfico "Horas jogadas" (e a sequência de dias) conta o tempo no dia em que ele foi **realmente jogado**: uma sessão
+que começou na sexta às 19h e terminou no sábado às 3h tem a parte da sexta na sexta e a parte do sábado no sábado.
+- **Sessões novas:** o app acumula o tempo por dia enquanto o cronômetro roda (inclusive ao contar uma pausa ou
+  ajustar o tempo à mão, e na recuperação depois de uma queda) e grava o detalhe em `registros.json` (campo `dias`).
+- **Sessões antigas** (sem o detalhe): se começaram e terminaram em dias diferentes (até 36 h de intervalo), o tempo é
+  repartido proporcionalmente ao relógio de cada dia; se não há horário de início, ou o intervalo é maior, fica no dia em que terminou.
+
+## Corrigir e adicionar sessões
+- **Histórico → ✏️ Editar:** muda jogo, duração e término de qualquer sessão. Sessões acima de 12 h ganham o aviso
+  "⚠ sessão muito longa: confira". **Histórico → ➕ Adicionar sessão** lança uma sessão manual com data (para quando
+  você esqueceu de ligar o timer).
+- **Dashboard → "Sessão mais longa" → ✏️ Editar sessão:** abre direto a sessão suspeita.
+- Ao editar, o início passa a ser (término − duração) e o tempo é repartido pelos dias que esse intervalo toca.
+- Durações acima de 24 h pedem confirmação, e o término não pode estar no futuro.
