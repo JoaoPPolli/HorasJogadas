@@ -79,6 +79,8 @@ class ScrollableFrame(ttk.Frame):
     def __init__(self, parent: tk.Misc, gerenciador: GerenciadorScroll, bg: str = COR_BG):
         super().__init__(parent)
         self.gerenciador = gerenciador
+        self._largura_janela = None
+        self._scrollregion_pendente = None
         self.canvas = tk.Canvas(self, bg=bg, highlightthickness=0)
         self.vbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vbar.set)
@@ -89,14 +91,37 @@ class ScrollableFrame(ttk.Frame):
         self._janela = self.canvas.create_window((0, 0), window=self.interior, anchor="nw")
         self.canvas.bind("<Configure>", self._ao_redimensionar)
         self.interior.bind("<Configure>", self._atualizar_scrollregion)
-        self.canvas.bind("<Destroy>", lambda e: self.gerenciador.remover(self.canvas))
+        self.canvas.bind("<Destroy>", self._ao_destruir)
         gerenciador.registrar(self.canvas)
 
     def _ao_redimensionar(self, event: tk.Event) -> None:
-        self.canvas.itemconfig(self._janela, width=event.width)
+        if event.width != self._largura_janela:
+            self._largura_janela = event.width
+            self.canvas.itemconfig(self._janela, width=event.width)
 
     def _atualizar_scrollregion(self, _event: tk.Event = None) -> None:
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        # Muitos filhos avisam <Configure> durante a montagem/reflow de uma tela.
+        # Só mede a região uma vez, depois que o Tk terminar esse lote de geometria.
+        if self._scrollregion_pendente is None:
+            self._scrollregion_pendente = self.after_idle(self._aplicar_scrollregion)
+
+    def _aplicar_scrollregion(self) -> None:
+        self._scrollregion_pendente = None
+        try:
+            self.canvas.configure(scrollregion=self.canvas.bbox("all") or (0, 0, 0, 0))
+        except tk.TclError:
+            log.debug("Scrollregion ignorada: canvas não está mais disponível", exc_info=True)
+
+    def _ao_destruir(self, event: tk.Event) -> None:
+        if event.widget is not self.canvas:
+            return
+        self.gerenciador.remover(self.canvas)
+        if self._scrollregion_pendente is not None:
+            try:
+                self.after_cancel(self._scrollregion_pendente)
+            except tk.TclError:
+                pass
+            self._scrollregion_pendente = None
 
     def limpar(self) -> None:
         """Remove todo o conteúdo do frame interno."""

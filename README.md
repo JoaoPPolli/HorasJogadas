@@ -2,6 +2,13 @@
 
 App de desktop (Python + Tkinter, sem dependências externas) para cronometrar e registrar horas jogadas.
 
+## Desempenho (2.6.4)
+
+O loop de atualização dos cronômetros acompanha a precisão mostrada na tela, reduzindo
+trabalho repetido enquanto o app está aberto. As telas roláveis também agrupam as
+medições de layout e evitam recalcular a largura quando ela não mudou. A interface,
+os cartões e seus controles mantêm o visual da versão 2.6.1.
+
 ## Executar
 ```
 python app.py
