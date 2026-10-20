@@ -7,13 +7,23 @@ App de desktop (Python + Tkinter, sem dependências externas) para cronometrar e
 python app.py
 ```
 
-## Fluidez (2.6.2)
+## Pintura dos blocos (2.6.3)
+
+Dashboard, histórico e zerados desenham seus blocos completos em uma superfície
+única. Fundos, títulos, informações e ações se movem juntos, sem remontar controles
+filhos a cada rolagem. A página é apresentada depois de concluir o desenho, em vez
+de exibir lotes de blocos chegando separadamente.
+
+Os botões desenhados aceitam clique, Tab/Shift+Tab e Enter/Espaço. A área também
+aceita as setas, Page Up/Down e Home/End. Os formulários de edição e os dados salvos
+mantêm o mesmo funcionamento.
+
+## Rolagem suave (2.6.2)
 
 A roda do mouse agora move as listas em pixels, com transição curta e suave.
-Histórico, dashboard e zerados montam listas grandes em pequenos lotes para
-permitir que a janela pinte e responda durante o carregamento. Trocar o filtro
-ou fechar a página cancela o trabalho antigo. Gráficos e textos não recalculam
-o layout apenas porque a lista foi rolada.
+Gráficos e textos não recalculam o layout apenas porque a lista foi rolada.
+Na versão 2.6.3 a montagem em lotes foi substituída por um desenho único das
+páginas para eliminar a apresentação fragmentada.
 
 Instale pelo mesmo botão **Configurações → Atualizar app…**. Os formatos dos
 dados e o funcionamento dos cronômetros permanecem compatíveis.

@@ -14,6 +14,7 @@ from horas_jogadas.storage import Repositorio
 from horas_jogadas.models import Sessao
 from horas_jogadas.ui.main_window import App
 from horas_jogadas.ui.zerados import editar_registro, revisar_importacao
+from horas_jogadas.ui.pagina_desenhada import PaginaDesenhada
 from horas_jogadas.zerados import Conclusao, interpretar_txt
 
 
@@ -45,7 +46,14 @@ class TesteZeradosUI(unittest.TestCase):
         i18n.definir_idioma('pt')
 
     def botao(self, widget, texto):
-        return next(w for w in descendentes(widget) if isinstance(w, ttk.Button) and w.cget('text') == texto)
+        for w in descendentes(widget):
+            if isinstance(w, ttk.Button) and w.cget('text') == texto:
+                return w
+            if isinstance(w, PaginaDesenhada):
+                for acao in w.acoes:
+                    if acao.texto == texto:
+                        return acao
+        raise AssertionError(f'Ação ausente: {texto}')
 
     def test_status_copia_sessao_aberta_sem_parar_salvar_ou_reescrever(self):
         jogo = self.repo.adicionar_jogo('Exemplo')
@@ -143,7 +151,7 @@ class TesteZeradosUI(unittest.TestCase):
         limite = time.monotonic() + 5
         while time.monotonic() < limite:
             self.root.update()
-            botoes = [w for w in descendentes(self.app.frame_conteudo) if isinstance(w, ttk.Button) and '30' in w.cget('text')]
+            botoes = [a for w in descendentes(self.app.frame_conteudo) if isinstance(w, PaginaDesenhada) for a in w.acoes if '30' in a.texto]
             if botoes:
                 break
             time.sleep(.003)
@@ -151,6 +159,30 @@ class TesteZeradosUI(unittest.TestCase):
         self.assertEqual(self.repo.sessoes, originais)
         self.assertEqual(card.tempo_acumulado, 90)
         self.assertEqual(len(self.app.zerados.registros), 70)
+        self.assertEqual(self.erros, [])
+
+    def test_dashboard_pinta_junto_e_periodos_usam_cache_sem_alterar_sessoes(self):
+        self.app.config['modo_navegacao'] = 'navegacao'
+        jogo = self.repo.adicionar_jogo('Exemplo do gráfico')
+        self.app._criar_cronometro(jogo)
+        self.repo.sessoes = [Sessao.nova(jogo.id, jogo.nome, 3600, None, datetime.now())]
+        originais = list(self.repo.sessoes)
+        from horas_jogadas import stats
+        with patch('horas_jogadas.ui.dashboard.stats.horas_por_periodo', wraps=stats.horas_por_periodo) as calcular:
+            self.app.abrir_dashboard()
+            self.root.update()
+            area = next(w for w in descendentes(self.app.frame_conteudo) if isinstance(w, PaginaDesenhada))
+            self.assertEqual(calcular.call_count, 1)
+            self.assertFalse(area.canvas.winfo_children())
+            self.botao(self.app.frame_conteudo, i18n.t('periodo.' + stats.PERIODO_8_SEMANAS)).invoke()
+            self.root.update()
+            self.assertEqual(calcular.call_count, 2)
+            self.botao(self.app.frame_conteudo, i18n.t('periodo.' + stats.PERIODO_7_DIAS)).invoke()
+            self.root.update()
+            area.atualizar()
+            self.root.update()
+            self.assertEqual(calcular.call_count, 2)
+        self.assertEqual(self.repo.sessoes, originais)
         self.assertEqual(self.erros, [])
 
 

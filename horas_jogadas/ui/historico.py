@@ -1,5 +1,4 @@
 """Tela de histórico de sessões (com paginação e exclusão estável por id)."""
-import tkinter as tk
 from tkinter import messagebox, ttk
 from typing import TYPE_CHECKING, Dict, List, Tuple
 
@@ -9,7 +8,7 @@ from ..i18n import t
 from ..models import Sessao
 from .dados import exportar_historico_csv
 from .sessao_dialogo import abrir_dialogo_sessao
-from .widgets import ScrollableFrame
+from .pagina_desenhada import PaginaDesenhada
 
 if TYPE_CHECKING:
     from .main_window import App
@@ -20,11 +19,11 @@ def abrir_historico(app: "App") -> None:
 
     topo = ttk.Frame(parent)
     topo.pack(fill="x", pady=8, padx=8)
-    area = ScrollableFrame(parent, app.scroll)
+    area = PaginaDesenhada(parent, app.scroll)
     area.pack(fill="both", expand=True, padx=(8, 0), pady=(6, 8))
 
     sessoes: List[Sessao] = []                 # snapshot, da mais recente para a mais antiga
-    estado: Dict[str, object] = {"mostradas": 0, "botao_mais": None, "timer": None}
+    estado: Dict[str, object] = {"mostradas": TAMANHO_PAGINA_HISTORICO, "timer": None}
     excluidas: List[Tuple[int, Sessao]] = []   # pilha do "Desfazer" (posição original, sessão)
 
     # Barra "Sessão excluída. [Desfazer]" (aparece por alguns segundos após cada exclusão)
@@ -62,51 +61,30 @@ def abrir_historico(app: "App") -> None:
 
     ttk.Button(barra, text=t("hist.desfazer"), style="Accent.TButton", command=desfazer).pack(side="right")
 
-    def criar_bloco(sessao: Sessao) -> None:
-        bloco = ttk.Frame(area.interior, style="Card.TFrame", padding=8)
-        bloco.pack(fill="x", pady=6, padx=6)
-        bloco.grid_columnconfigure(0, weight=1)
-        ttk.Label(bloco, text=f"🎮  {sessao.jogo or t('hist.sem_nome')}", font=("Segoe UI", 10, "bold"),
-                  style="Card.TLabel").grid(row=0, column=0, sticky="w")
-        aviso = f"   {t('hist.longa_aviso')}" if sessao.segundos > LIMITE_AVISO_S else ""
-        ttk.Label(bloco, text=f"⏱  {sessao.tempo or '00:00:00'}{aviso}",
-                  style="CardSmall.TLabel").grid(row=1, column=0, sticky="w")
-        ttk.Label(bloco, text=f"📅  {sessao.data}", style="CardSmall.TLabel").grid(row=2, column=0, sticky="w")
-        acoes = ttk.Frame(bloco, style="Card.TFrame")
-        acoes.grid(row=0, column=1, rowspan=3, sticky="e", padx=6)
-        ttk.Button(acoes, text=t("hist.editar"), width=10,
-                   command=lambda: abrir_dialogo_sessao(app, parent, sessao, renderizar)).pack(pady=(0, 3))
-        ttk.Button(acoes, text=t("btn.excluir"), width=10,
-                   command=lambda: excluir(sessao, bloco)).pack()
-
     def anexar_pagina() -> None:
-        if estado["botao_mais"] is not None:
-            estado["botao_mais"].destroy()
-            estado["botao_mais"] = None
-        inicio = int(estado["mostradas"])
-        pagina = sessoes[inicio:inicio + TAMANHO_PAGINA_HISTORICO]
-        estado["mostradas"] = min(len(sessoes), inicio + TAMANHO_PAGINA_HISTORICO)
+        estado['mostradas'] = int(estado['mostradas']) + TAMANHO_PAGINA_HISTORICO
+        area.atualizar()
 
-        def concluir():
-            restantes = len(sessoes) - int(estado["mostradas"])
-            if restantes > 0:
-                botao = ttk.Button(area.interior, text=t("hist.mais", n=restantes), command=anexar_pagina)
-                botao.pack(pady=10)
-                estado["botao_mais"] = botao
-
-        area.renderizador.preencher(pagina, criar_bloco, concluir)
+    def pintar(p):
+        if not sessoes:
+            p.titulo(t('hist.vazio'))
+        for sessao in sessoes[:int(estado['mostradas'])]:
+            aviso = f"   {t('hist.longa_aviso')}" if sessao.segundos > LIMITE_AVISO_S else ''
+            p.cartao(f"🎮  {sessao.jogo or t('hist.sem_nome')}",
+                     [f"⏱  {sessao.tempo or '00:00:00'}{aviso}", f'📅  {sessao.data}'],
+                     [(t('hist.editar'), lambda s=sessao: abrir_dialogo_sessao(app, parent, s, renderizar)),
+                      (t('btn.excluir'), lambda s=sessao: excluir(s))])
+        restantes = len(sessoes) - int(estado['mostradas'])
+        if restantes > 0:
+            p.botao(12, p.y, t('hist.mais', n=restantes), anexar_pagina)
+            p.y += 42
 
     def renderizar() -> None:
-        area.limpar()
         sessoes[:] = list(reversed(app.repo.sessoes))
-        estado["mostradas"], estado["botao_mais"] = 0, None
-        if not sessoes:
-            ttk.Label(area.interior, text=t("hist.vazio"), style="Small.TLabel",
-                      font=("Segoe UI", 11)).pack(pady=40)
-            return
-        anexar_pagina()
+        estado['mostradas'] = TAMANHO_PAGINA_HISTORICO
+        area.atualizar()
 
-    def excluir(sessao: Sessao, bloco: tk.Misc) -> None:
+    def excluir(sessao: Sessao) -> None:
         try:
             indice = app.repo.sessoes.index(sessao)
         except ValueError:
@@ -115,12 +93,9 @@ def abrir_historico(app: "App") -> None:
             excluidas.append((indice, sessao))
             if sessao in sessoes:
                 sessoes.remove(sessao)
-                estado["mostradas"] = int(estado["mostradas"]) - 1
-            bloco.destroy()
             app.recarregar_totais()
             mostrar_barra()
-            if not sessoes:
-                renderizar()
+            area.atualizar()
 
     def apagar_tudo() -> None:
         if messagebox.askyesno(t("dlg.confirmar"), t("hist.apagar_tudo_confirma"), parent=parent):
@@ -138,3 +113,4 @@ def abrir_historico(app: "App") -> None:
     ttk.Button(topo, text=t("hist.apagar_tudo"), style="Danger.TButton",
                command=apagar_tudo).pack(side="left")
     renderizar()
+    area.mostrar(pintar)

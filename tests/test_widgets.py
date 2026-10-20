@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from horas_jogadas.ui.widgets import GerenciadorScroll, ScrollableFrame
-from horas_jogadas.ui.dashboard import _bloco_grafico, PERIODOS
+from horas_jogadas.ui.pagina_desenhada import PaginaDesenhada
 
 
 class TesteFluidez(unittest.TestCase):
@@ -113,20 +113,75 @@ class TesteFluidez(unittest.TestCase):
             self.assertIsNone(self.scroll._canvas_alvo(evento))
         popup.destroy()
 
-    def test_grafico_nao_recalcula_sessoes_ao_rolar_ou_redimensionar(self):
-        with patch('horas_jogadas.ui.dashboard.stats.horas_por_periodo', return_value=[('dia', 3600)]) as calcular:
-            _bloco_grafico(self.area.interior, [], {'periodo': PERIODOS[0]})
+    def test_blocos_inteiros_no_mesmo_canvas_sem_remontagem_ao_rolar(self):
+        self.area.destroy()
+        pagina = PaginaDesenhada(self.root, self.scroll)
+        pagina.pack(fill='both', expand=True)
+        desenhos = []
+
+        def pintar(p):
+            desenhos.append(True)
+            for i in range(100):
+                p.cartao(f'Jogo {i}', ['Zerado em: 2h'], [('Editar', lambda: None)])
+
+        pagina.mostrar(pintar)
+        self.root.update()
+        total = len(desenhos)
+        itens = pagina.canvas.find_all()
+        self.assertEqual(len(pagina.acoes), 100)
+        self.assertFalse(pagina.canvas.winfo_children())
+        self.assertNotIn('window', [pagina.canvas.type(i) for i in itens])
+        pagina.canvas.yview_moveto(.5)
+        self.root.update()
+        self.assertEqual(len(desenhos), total)
+        self.assertEqual(pagina.canvas.find_all(), itens)
+        pagina.destroy()
+        self.root.update()
+        self.assertEqual(self.erros, [])
+
+    def test_clique_em_acao_rolada_e_navegacao_pelo_teclado(self):
+        self.area.destroy()
+        pagina = PaginaDesenhada(self.root, self.scroll)
+        pagina.pack(fill='both', expand=True)
+        chamadas = []
+
+        def pintar(p):
+            for i in range(15):
+                p.cartao(f'Jogo {i}', ['Detalhe'], [('Editar', lambda n=i: chamadas.append(n))])
+
+        pagina.mostrar(pintar)
+        self.root.update()
+        pagina.canvas.yview_moveto(.5)
+        topo = pagina.canvas.canvasy(0)
+        indice = next(i for i, a in enumerate(pagina.acoes) if topo + 10 < a.limites[1] < topo + 180)
+        alvo = pagina.acoes[indice]
+        pagina.canvas.event_generate('<Button-1>', x=int(alvo.limites[0] + 10), y=int(alvo.limites[1] - topo + 10))
+        self.root.update()
+        self.assertEqual(chamadas, [indice])
+        pagina._navegar(1)
+        pagina._ativar(None)
+        pagina._navegar(-1)
+        pagina._ativar(None)
+        self.assertEqual(chamadas, [indice, indice + 1, indice])
+        self.assertEqual(self.erros, [])
+
+    def test_redesenho_nao_acumula_callbacks_e_botoes_cabem_em_janela_estreita(self):
+        self.area.destroy()
+        pagina = PaginaDesenhada(self.root, self.scroll)
+        pagina.pack(fill='both', expand=True)
+        pagina.mostrar(lambda p: p.cartao('Nome longo ' * 15, ['Observação longa ' * 20],
+                                        [('Editar', lambda: None), ('Nova jogada', lambda: None), ('Excluir', lambda: None)]))
+        self.root.update()
+        comandos = len(pagina.canvas._tclCommands)
+        for _ in range(20):
+            pagina.atualizar()
             self.root.update()
-            graficos = [w for card in self.area.interior.winfo_children() for w in card.winfo_children() if isinstance(w, tk.Canvas)]
-            grafico = graficos[0]
-            with patch('horas_jogadas.ui.dashboard.desenhar_barras') as desenhar:
-                grafico.event_generate('<Configure>', width=grafico.winfo_width(), height=grafico.winfo_height())
-                self.root.update()
-                desenhar.assert_not_called()
-                self.root.geometry('560x300')
-                self.root.update()
-                self.assertTrue(desenhar.called)
-            self.assertEqual(calcular.call_count, 1)
+        self.assertEqual(len(pagina.canvas._tclCommands), comandos)
+        self.assertEqual(len(pagina.acoes), 3)
+        for a in pagina.acoes:
+            self.assertGreaterEqual(a.limites[0], 0)
+            self.assertLessEqual(a.limites[2], pagina.largura)
+            self.assertLess(a.limites[3], pagina.y)
         self.assertEqual(self.erros, [])
 
 

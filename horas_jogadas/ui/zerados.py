@@ -12,7 +12,7 @@ from ..models import novo_id
 from ..zerados import (Conclusao, MESES, MESES_EN, TIPOS, ano_do_texto, duracao_texto,
                        exportar_txt, interpretar_txt, ler_duracao, ler_txt)
 from .theme import aplicar_tema_moderno
-from .widgets import ScrollableFrame
+from .pagina_desenhada import PaginaDesenhada
 
 
 def meses():
@@ -117,7 +117,7 @@ def abrir_zerados(app):
     ttk.Label(parent, text=t('zer.independente'), style='Small.TLabel', wraplength=680).pack(anchor='w', padx=12)
     resumo = ttk.Label(parent, style='Small.TLabel')
     resumo.pack(anchor='w', padx=12, pady=(8, 0))
-    area = ScrollableFrame(parent, app.scroll)
+    area = PaginaDesenhada(parent, app.scroll)
     area.pack(fill='both', expand=True, padx=8, pady=8)
     rodape = ttk.Frame(parent, padding=(12, 6))
     rodape.pack(fill='x')
@@ -173,50 +173,31 @@ def abrir_zerados(app):
         registros = [r for r in repo.registros if r.ano == int(ano.get())]
         n = sum(r.tipo == 'zerado' for r in registros)
         resumo.config(text=t('zer.resumo', n=n, extras=len(registros) - n))
-        area.limpar()
-        if not registros:
-            ttk.Label(area.interior, text=t('zer.vazio'), wraplength=600, style='Small.TLabel').pack(padx=12, pady=35)
-        ultimo_mes = [None]
+        def pintar(p):
+            if not registros:
+                p.titulo(t('zer.vazio'))
+            ultimo_mes = None
+            for r in sorted(registros, key=lambda item: item.mes):
+                if ultimo_mes != r.mes:
+                    ultimo_mes = r.mes
+                    p.titulo(meses()[r.mes - 1])
+                detalhes = [t('zer.tempo_linha', tempo=duracao_texto(r.segundos)) if r.segundos is not None else t('zer.sem_tempo')]
+                if r.platina_segundos is not None:
+                    detalhes.append(t('zer.extra_linha', tempo=duracao_texto(r.platina_segundos)))
+                    if r.segundos is not None:
+                        detalhes.append(t('zer.total_linha', tempo=duracao_texto(r.segundos + r.platina_segundos)))
+                if r.dia is not None:
+                    detalhes.append(date(r.ano, r.mes, r.dia).strftime(t('fmt.data')))
+                if r.tipo != 'zerado':
+                    detalhes.append(t('zer.tipo.' + r.tipo))
+                if r.notas:
+                    detalhes.append(r.notas)
+                p.cartao(r.nome, detalhes,
+                         [(t('hist.editar'), lambda item=r: editar_registro(parent, item, guardar)),
+                          (t('zer.rejogada'), lambda item=r: nova_jogada(item)),
+                          (t('btn.excluir'), lambda item=r: excluir(item))])
 
-        def criar(r):
-            if ultimo_mes[0] != r.mes:
-                ultimo_mes[0] = r.mes
-                ttk.Label(area.interior, text=meses()[r.mes - 1], font=('Segoe UI', 11, 'bold')).pack(anchor='w', padx=8, pady=(14, 4))
-            bloco = ttk.Frame(area.interior, style='Card.TFrame', padding=12)
-            bloco.pack(fill='x', padx=6, pady=4)
-            bloco.columnconfigure(0, weight=1)
-            conteudo = ttk.Frame(bloco, style='Card.TFrame')
-            conteudo.grid(row=0, column=0, sticky='new')
-            nome = ttk.Label(conteudo, text=r.nome, style='CardTitle.TLabel', wraplength=480)
-            nome.pack(anchor='w')
-            detalhes = [t('zer.tempo_linha', tempo=duracao_texto(r.segundos)) if r.segundos is not None else t('zer.sem_tempo')]
-            if r.platina_segundos is not None:
-                detalhes.append(t('zer.extra_linha', tempo=duracao_texto(r.platina_segundos)))
-                if r.segundos is not None:
-                    detalhes.append(t('zer.total_linha', tempo=duracao_texto(r.segundos + r.platina_segundos)))
-            if r.dia is not None:
-                detalhes.append(date(r.ano, r.mes, r.dia).strftime(t('fmt.data')))
-            if r.tipo != 'zerado':
-                detalhes.append(t('zer.tipo.' + r.tipo))
-            if r.notas:
-                detalhes.append(r.notas)
-            info = ttk.Label(conteudo, text='\n'.join(detalhes), style='Card.TLabel', wraplength=480)
-            info.pack(anchor='w', pady=(6, 0))
-            acoes = ttk.Frame(bloco, style='Card.TFrame')
-            acoes.grid(row=0, column=1, sticky='ne', padx=(12, 0))
-            ttk.Button(acoes, text=t('hist.editar'), command=lambda item=r: editar_registro(parent, item, guardar)).pack(side='left')
-            ttk.Button(acoes, text=t('zer.rejogada'), command=lambda item=r: nova_jogada(item)).pack(side='left', padx=6)
-            ttk.Button(acoes, text=t('btn.excluir'), command=lambda item=r: excluir(item)).pack(side='left')
-
-            def ajustar(event):
-                largura = max(1, event.width)
-                if int(nome.cget('wraplength')) != largura:
-                    nome.configure(wraplength=largura)
-                    info.configure(wraplength=largura)
-
-            conteudo.bind('<Configure>', ajustar)
-
-        area.renderizador.preencher(sorted(registros, key=lambda r: r.mes), criar)
+        area.mostrar(pintar)
 
     def exportar():
         caminho = filedialog.asksaveasfilename(parent=parent, title=t('zer.exportar'), defaultextension='.txt',
