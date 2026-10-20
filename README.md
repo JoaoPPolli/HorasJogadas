@@ -2,6 +2,25 @@
 
 App de desktop (Python + Tkinter, sem dependências externas) para cronometrar e registrar horas jogadas.
 
+## Resumo anual, DLC e busca (2.7.0)
+
+Em **Zerados**, o ano selecionado agora tem um resumo de jogos zerados, DLCs
+concluídas, tempo registrado e horas adicionais de platina. O tempo registrado soma
+os tempos informados de todos os registros daquele ano, incluindo as horas extras
+de platina e as experiências sem zerar. Cada jogada conta separadamente; tempos
+desconhecidos continuam sem valor e são indicados no resumo.
+
+Ao adicionar ou editar um registro, marque **DLC / expansão** para exibir a etiqueta
+**DLC** junto ao nome. A categoria fica somente na Lista de Zerados, sem alterar os
+cronômetros, histórico ou dashboard. A exportação TXT preserva essa marcação com
+uma linha `@dlc: sim` abaixo do jogo; a importação também reconhece esse formato.
+Nomes com “DLC” não são classificados automaticamente, pois podem representar o
+jogo base e a expansão juntos. Reimportar o TXT original não duplica um registro
+que já foi categorizado no app.
+
+Na tela principal, clicar fora de **Buscar** libera o teclado sem apagar o filtro.
+**Esc** limpa a busca e sai do campo; **Ctrl+F** volta a focá-lo.
+
 ## Desempenho (2.6.4)
 
 O loop de atualização dos cronômetros acompanha a precisão mostrada na tela, reduzindo

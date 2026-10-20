@@ -10,7 +10,7 @@ from unittest.mock import patch
 from horas_jogadas.models import EstadoSessao
 from horas_jogadas.storage import Repositorio
 from horas_jogadas.zerados import (Conclusao, RepositorioZerados, ano_do_texto, duracao_texto,
-                                  exportar_txt, interpretar_txt, ler_duracao, ler_txt)
+                                  exportar_txt, interpretar_txt, ler_duracao, ler_txt, resumo_ano)
 
 
 class TesteImportacao(unittest.TestCase):
@@ -134,9 +134,10 @@ class TesteArquivoIndependente(unittest.TestCase):
                 return f.read()
         antes = {c: ler(c) for c in caminhos}
         r = self.repo.registrar_automatico(jogo.id, jogo.nome, 90, date(2024, 1, 2))
-        self.repo.guardar(replace(r, nome='Outro', segundos=5000, platina_segundos=100))
+        self.repo.guardar(replace(r, nome='Outro', segundos=5000, platina_segundos=100, dlc=True))
         self.repo.importar([Conclusao('Manual', 2025, 1, 500)])
         exportar_txt(self.repo.registros, 2024)
+        self.assertEqual(resumo_ano(self.repo.registros, 2024).dlcs_zeradas, 1)
         self.repo.excluir(r.id)
         self.assertEqual({c: ler(c) for c in caminhos}, antes)
         self.assertEqual(principal.totais_por_jogo_id(), {jogo.id: 60})

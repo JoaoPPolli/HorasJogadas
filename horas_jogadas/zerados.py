@@ -5,7 +5,7 @@ import re
 import shutil
 from dataclasses import asdict, dataclass, field, replace
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 from .i18n import t
 from .models import novo_id
@@ -60,6 +60,7 @@ class Conclusao:
     tipo: str = 'zerado'
     id: str = field(default_factory=novo_id)
     origem: str = 'manual'
+    dlc: bool = False
 
     def validar(self):
         if not isinstance(self.nome, str) or not self.nome.strip():
@@ -79,15 +80,44 @@ class Conclusao:
         for tempo in (self.segundos, self.platina_segundos):
             if tempo is not None and (type(tempo) is not int or tempo < 0):
                 raise ValueError(t('zer.erro_tempo'))
+        if type(self.dlc) is not bool:
+            raise ValueError(t('zer.erro_dlc'))
         if (self.tipo not in TIPOS or not isinstance(self.notas, str)
                 or not isinstance(self.id, str) or not self.id or not isinstance(self.origem, str)):
             raise ValueError(t('zer.erro_arquivo'))
         return self
 
     def assinatura(self):
-        # Dia não entra: um TXT pode informar só o mês da mesma conclusão.
+        # Dia e categoria não entram: um TXT antigo pode omitir esses metadados
+        # da mesma conclusão que já foi editada no app.
         return (normalizar_texto(self.nome), self.ano, self.mes, self.segundos,
                 self.platina_segundos, self.tipo, normalizar_texto(self.notas))
+
+
+@dataclass(frozen=True)
+class ResumoAno:
+    jogos_zerados: int = 0
+    dlcs_zeradas: int = 0
+    experiencias: int = 0
+    segundos_registrados: int = 0
+    platina_segundos: int = 0
+    sem_tempo: int = 0
+    registros: int = 0
+
+
+def resumo_ano(registros: Iterable[Conclusao], ano: int) -> ResumoAno:
+    """Conta cada jogada e soma apenas tempos conhecidos do arquivo de conclusões."""
+    itens = [r for r in registros if r.ano == ano]
+    platina = sum(r.platina_segundos for r in itens if r.platina_segundos is not None)
+    return ResumoAno(
+        jogos_zerados=sum(r.tipo == 'zerado' and not r.dlc for r in itens),
+        dlcs_zeradas=sum(r.tipo == 'zerado' and r.dlc for r in itens),
+        experiencias=sum(r.tipo == 'experiencia' for r in itens),
+        segundos_registrados=sum(r.segundos for r in itens if r.segundos is not None) + platina,
+        platina_segundos=platina,
+        sem_tempo=sum(r.segundos is None for r in itens),
+        registros=len(itens),
+    )
 
 
 class RepositorioZerados:
@@ -108,9 +138,10 @@ class RepositorioZerados:
             raise ValueError(t('zer.erro_arquivo'))
         raw = dados.get('registros')
         automaticos = dados.get('automaticos')
-        if not isinstance(raw, list) or not isinstance(automaticos, list):
+        dlcs = dados.get('dlcs', [])
+        if not isinstance(raw, list) or not isinstance(automaticos, list) or not isinstance(dlcs, list):
             raise ValueError(t('zer.erro_arquivo'))
-        if not all(isinstance(i, str) for i in automaticos):
+        if not all(isinstance(i, str) for i in automaticos + dlcs):
             raise ValueError(t('zer.erro_arquivo'))
         try:
             registros = [Conclusao(**item).validar() for item in raw]
@@ -118,6 +149,10 @@ class RepositorioZerados:
             raise ValueError(t('zer.erro_arquivo')) from None
         if len({r.id for r in registros}) != len(registros):
             raise ValueError(t('zer.erro_arquivo'))
+        if len(set(dlcs)) != len(dlcs) or not set(dlcs).issubset({r.id for r in registros}):
+            raise ValueError(t('zer.erro_arquivo'))
+        ids_dlc = set(dlcs)
+        registros = [replace(r, dlc=r.id in ids_dlc) for r in registros]
         return registros, automaticos
 
     def _carregar(self):
@@ -140,8 +175,16 @@ class RepositorioZerados:
     def _salvar(self, registros, automaticos=None):
         automaticos = list(self.automaticos if automaticos is None else automaticos)
         registros = [r.validar() for r in registros]
-        escrever_json_atomico(self.caminho, {'versao': 1, 'registros': [asdict(r) for r in registros],
-                                            'automaticos': automaticos})
+        # O leitor anterior aceita campos extras na raiz, mas não dentro dos registros.
+        # Assim, um downgrade continua abrindo as conclusões normalmente.
+        raw = []
+        for registro in registros:
+            item = asdict(registro)
+            del item['dlc']
+            raw.append(item)
+        escrever_json_atomico(self.caminho, {'versao': 1, 'registros': raw,
+                                            'automaticos': automaticos,
+                                            'dlcs': [r.id for r in registros if r.dlc]})
         self.registros, self.automaticos = list(registros), automaticos
 
     def guardar(self, registro: Conclusao):
@@ -226,16 +269,24 @@ def interpretar_txt(texto: str, ano_padrao: Optional[int] = None) -> List[ItemIm
         if not linha:
             continue
         norm = normalizar_texto(linha)
-        if linha.startswith(('@dia:', '@nota:')) and resultado and resultado[-1].registro:
+        if norm.startswith(('@dia:', '@nota:', '@dlc:')) and resultado and resultado[-1].registro:
             anterior = resultado[-1]
+            anterior.texto += '\n' + original
             try:
-                if linha.startswith('@dia:'):
+                if norm.startswith('@dia:'):
                     anterior.registro = replace(anterior.registro, dia=int(linha[5:].strip())).validar()
+                elif norm.startswith('@dlc:'):
+                    valor = normalizar_texto(linha[5:])
+                    opcoes = {'sim': True, 'true': True, 'yes': True,
+                              'nao': False, 'false': False, 'no': False}
+                    if valor not in opcoes:
+                        raise ValueError(t('zer.erro_dlc'))
+                    anterior.registro = replace(anterior.registro, dlc=opcoes[valor]).validar()
                 else:
                     notas = anterior.registro.notas
                     anterior.registro = replace(anterior.registro, notas=(notas + '\n' if notas else '') + linha[6:].strip())
             except ValueError:
-                anterior.aviso = t('zer.erro_data')
+                anterior.aviso = t('zer.erro_dlc' if norm.startswith('@dlc:') else 'zer.erro_data')
                 anterior.selecionado = False
             continue
         cabecalho = re.fullmatch(r'(?:zerados?(?: em)?|jogos zerados(?: em)?|completed(?: in)?|finished(?: in)?)?\s*(19\d{2}|20\d{2})\s*[:.!]?', norm)
@@ -302,6 +353,8 @@ def exportar_txt(registros: List[Conclusao], ano: int) -> str:
                 linha += f' | Platina * {duracao_texto(r.platina_segundos)}'
             # Notas são preservadas em linhas próprias reconhecidas pelo importador.
             linhas.append(linha)
+            if r.dlc:
+                linhas.append('  @dlc: sim')
             if r.dia is not None:
                 linhas.append(f'  @dia: {r.dia}')
             if r.notas:

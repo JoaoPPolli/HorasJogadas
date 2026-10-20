@@ -75,6 +75,7 @@ class App:
         root.protocol("WM_DELETE_WINDOW", self.ao_fechar)
         root.bind("<Control-f>", self._focar_busca)
         root.bind("<Control-F>", self._focar_busca)
+        root.bind("<Button-1>", self._desfocar_busca_ao_clicar_fora, add="+")
 
         root.update_idletasks()
         self._mostrar_avisos()
@@ -275,9 +276,21 @@ class App:
         self.entry_busca.select_range(0, tk.END)
         return "break"
 
-    def _limpar_busca(self, _event: tk.Event = None) -> None:
+    def _desfocar_busca_ao_clicar_fora(self, event: tk.Event) -> None:
+        # Labels, cartões e o fundo não recebem foco ao clicar no Tk. O binding
+        # da janela roda depois do binding do controle, respeitando quem já o recebeu.
+        destino = event.widget
+        if (destino is self.entry_busca or destino.winfo_toplevel() is not self.root
+                or str(self.root.tk.call('focus')) != str(self.entry_busca)):
+            return
+        if isinstance(destino, (tk.Entry, ttk.Entry, tk.Text, tk.Spinbox, ttk.Spinbox)):
+            return
+        self.root.focus_set()
+
+    def _limpar_busca(self, _event: tk.Event = None) -> str:
         self.var_busca.set("")
         self.root.focus_set()
+        return "break"
 
     def _ao_mudar_ordenacao(self, _event: tk.Event = None) -> None:
         rotulo = self.combo_ordem.get()

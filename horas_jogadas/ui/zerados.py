@@ -6,11 +6,11 @@ from dataclasses import replace
 from datetime import date
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
-from ..constants import COR_BG, COR_CARD, COR_TEXTO
+from ..constants import COR_ACCENT, COR_BG, COR_CARD, COR_TEXTO
 from ..i18n import idioma_atual, t
 from ..models import novo_id
 from ..zerados import (Conclusao, MESES, MESES_EN, TIPOS, ano_do_texto, duracao_texto,
-                       exportar_txt, interpretar_txt, ler_duracao, ler_txt)
+                       exportar_txt, interpretar_txt, ler_duracao, ler_txt, resumo_ano)
 from .theme import aplicar_tema_moderno
 from .widgets import ScrollableFrame
 
@@ -21,6 +21,61 @@ def meses():
 
 def mostrar_erro(parent, erro):
     messagebox.showerror(t('zer.titulo'), t('zer.falha', erro=erro), parent=parent)
+
+
+def criar_resumo_anual(parent, registros, ano):
+    dados = resumo_ano(registros, ano)
+    quadro = ttk.Frame(parent, style='Card.TFrame', padding=12)
+    quadro.pack(fill='x', padx=6, pady=(4, 8))
+    ttk.Label(quadro, text=t('zer.resumo_ano', ano=ano), style='CardTitle.TLabel').pack(anchor='w')
+    grade = ttk.Frame(quadro, style='Card.TFrame')
+    grade.pack(fill='x', pady=(10, 8))
+    tempos = any(r.segundos is not None or r.platina_segundos is not None for r in registros if r.ano == ano)
+    extras = any(r.platina_segundos is not None for r in registros if r.ano == ano)
+    valores = (
+        ('zer.resumo_jogos', str(dados.jogos_zerados)),
+        ('zer.resumo_dlcs', str(dados.dlcs_zeradas)),
+        ('zer.resumo_tempo', duracao_texto(dados.segundos_registrados) if tempos else '—'),
+        ('zer.resumo_platina', duracao_texto(dados.platina_segundos) if extras else '—'),
+    )
+    blocos = []
+    for chave, valor in valores:
+        bloco = ttk.Frame(grade, style='Card.TFrame')
+        ttk.Label(bloco, text=t(chave), style='CardSmall.TLabel').pack(anchor='w')
+        ttk.Label(bloco, text=valor, style='CardValue.TLabel').pack(anchor='w', pady=(2, 0))
+        blocos.append(bloco)
+    colunas_atuais = [None]
+
+    def posicionar(event):
+        colunas = 4 if event.width >= 720 else 2
+        if colunas == colunas_atuais[0]:
+            return
+        colunas_atuais[0] = colunas
+        for i in range(4):
+            grade.columnconfigure(i, weight=1 if i < colunas else 0,
+                                  uniform='resumo' if i < colunas else '', minsize=0)
+        for i, bloco in enumerate(blocos):
+            bloco.grid(row=i // colunas, column=i % colunas, sticky='nw', padx=(0, 12), pady=(0, 6))
+
+    grade.bind('<Configure>', posicionar)
+    # Layout inicial; o evento ajusta as colunas à largura disponível.
+    for i, bloco in enumerate(blocos):
+        bloco.grid(row=i // 2, column=i % 2, sticky='nw', padx=(0, 12), pady=(0, 6))
+    detalhe = ttk.Label(quadro, text=t('zer.resumo_detalhe', registros=dados.registros,
+                        experiencias=dados.experiencias, sem_tempo=dados.sem_tempo), style='CardSmall.TLabel')
+    detalhe.pack(anchor='w', fill='x')
+    dica = ttk.Label(quadro, text=t('zer.resumo_dica'), style='CardSmall.TLabel')
+    dica.pack(anchor='w', fill='x', pady=(3, 0))
+    largura = [None]
+
+    def ajustar(event):
+        if event.width != largura[0]:
+            largura[0] = event.width
+            for rotulo in (detalhe, dica):
+                rotulo.configure(wraplength=max(1, event.width - 24))
+
+    quadro.bind('<Configure>', ajustar)
+    return quadro
 
 
 def editar_registro(parent, registro, ao_salvar, ano=None):
@@ -66,9 +121,14 @@ def editar_registro(parent, registro, ao_salvar, ano=None):
     extra = campo('zer.platina', duracao_texto(base.platina_segundos))
     ttk.Label(quadro, text=t('zer.dica_tempo'), style='Small.TLabel', wraplength=540).grid(sticky='ew', pady=6)
     ttk.Label(quadro, text=t('zer.tipo')).grid(sticky='w', pady=(6, 3))
-    tipo = ttk.Combobox(quadro, state='readonly', values=[t('zer.tipo.' + x) for x in TIPOS])
+    linha_tipo = ttk.Frame(quadro)
+    linha_tipo.grid(sticky='ew')
+    tipo = ttk.Combobox(linha_tipo, state='readonly', values=[t('zer.tipo.' + x) for x in TIPOS])
     tipo.current(TIPOS.index(base.tipo))
-    tipo.grid(sticky='ew')
+    tipo.pack(side='left', fill='x', expand=True)
+    dlc = tk.BooleanVar(master=jan, value=base.dlc)
+    ttk.Checkbutton(linha_tipo, text=t('zer.dlc_opcao'), variable=dlc,
+                    style='Zerados.TCheckbutton').pack(side='left', padx=(12, 0))
     ttk.Label(quadro, text=t('zer.notas')).grid(sticky='w', pady=(10, 3))
     notas = tk.Text(quadro, height=4, wrap='word', bg=COR_CARD, fg=COR_TEXTO,
                     insertbackground=COR_TEXTO, font=('Segoe UI', 10), relief='flat')
@@ -85,7 +145,7 @@ def editar_registro(parent, registro, ao_salvar, ano=None):
             novo = replace(base, nome=nome.get().strip(), ano=valor_ano, mes=mes.current() + 1,
                            dia=valor_dia, segundos=ler_duracao(tempo.get()),
                            platina_segundos=ler_duracao(extra.get()), notas=notas.get('1.0', 'end-1c').strip(),
-                           tipo=TIPOS[tipo.current()]).validar()
+                           tipo=TIPOS[tipo.current()], dlc=dlc.get()).validar()
             ao_salvar(novo)
         except (ValueError, OSError) as erro:
             mostrar_erro(jan, erro)
@@ -115,8 +175,6 @@ def abrir_zerados(app):
     ano.set(str(date.today().year))
     ano.pack(side='left')
     ttk.Label(parent, text=t('zer.independente'), style='Small.TLabel', wraplength=680).pack(anchor='w', padx=12)
-    resumo = ttk.Label(parent, style='Small.TLabel')
-    resumo.pack(anchor='w', padx=12, pady=(8, 0))
     area = ScrollableFrame(parent, app.scroll)
     area.pack(fill='both', expand=True, padx=8, pady=8)
     rodape = ttk.Frame(parent, padding=(12, 6))
@@ -173,9 +231,8 @@ def abrir_zerados(app):
         anos = sorted({date.today().year, int(ano.get())} | {r.ano for r in repo.registros}, reverse=True)
         ano.config(values=[str(a) for a in anos])
         registros = [r for r in repo.registros if r.ano == int(ano.get())]
-        n = sum(r.tipo == 'zerado' for r in registros)
-        resumo.config(text=t('zer.resumo', n=n, extras=len(registros) - n))
         area.limpar()
+        criar_resumo_anual(area.interior, registros, int(ano.get()))
         if not registros:
             ttk.Label(area.interior, text=t('zer.vazio'), wraplength=600, style='Small.TLabel').pack(padx=12, pady=35)
         for mes in range(1, 13):
@@ -189,8 +246,15 @@ def abrir_zerados(app):
                 bloco.columnconfigure(0, weight=1)
                 conteudo = ttk.Frame(bloco, style='Card.TFrame')
                 conteudo.grid(row=0, column=0, sticky='new')
-                nome = ttk.Label(conteudo, text=r.nome, style='CardTitle.TLabel', wraplength=480)
-                nome.pack(anchor='w')
+                titulo = ttk.Frame(conteudo, style='Card.TFrame')
+                titulo.pack(anchor='w')
+                nome = ttk.Label(titulo, text=r.nome, style='CardTitle.TLabel', wraplength=480)
+                nome.pack(side='left')
+                selo = None
+                if r.dlc:
+                    selo = tk.Label(titulo, text='DLC', bg=COR_ACCENT, fg='white',
+                                    font=('Segoe UI', 8, 'bold'), bd=0, padx=6, pady=2)
+                    selo.pack(side='left', anchor='n', padx=(8, 0), pady=(2, 0))
                 detalhes = [t('zer.tempo_linha', tempo=duracao_texto(r.segundos)) if r.segundos is not None else t('zer.sem_tempo')]
                 if r.platina_segundos is not None:
                     detalhes.append(t('zer.extra_linha', tempo=duracao_texto(r.platina_segundos)))
@@ -209,7 +273,14 @@ def abrir_zerados(app):
                 ttk.Button(acoes, text=t('hist.editar'), command=lambda item=r: editar_registro(parent, item, guardar)).pack(side='left')
                 ttk.Button(acoes, text=t('zer.rejogada'), command=lambda item=r: nova_jogada(item)).pack(side='left', padx=6)
                 ttk.Button(acoes, text=t('btn.excluir'), command=lambda item=r: excluir(item)).pack(side='left')
-                conteudo.bind('<Configure>', lambda e, a=nome, b=info: (a.configure(wraplength=max(1, e.width)), b.configure(wraplength=max(1, e.width))))
+                def ajustar(event, a=nome, b=info, badge=selo, largura=[None]):
+                    if event.width != largura[0]:
+                        largura[0] = event.width
+                        extra = badge.winfo_reqwidth() + 8 if badge is not None else 0
+                        a.configure(wraplength=max(1, event.width - extra))
+                        b.configure(wraplength=max(1, event.width))
+
+                conteudo.bind('<Configure>', ajustar)
 
     def exportar():
         caminho = filedialog.asksaveasfilename(parent=parent, title=t('zer.exportar'), defaultextension='.txt',
@@ -324,6 +395,8 @@ def revisar_importacao(parent, repo, itens, ao_importar):
             if item.registro:
                 r = item.registro
                 texto += f'\n{meses()[r.mes - 1]} / {r.ano} · {duracao_texto(r.segundos) or t("zer.sem_tempo")}'
+                if r.dlc:
+                    texto += ' · DLC'
                 if r.platina_segundos is not None:
                     texto += '\n' + t('zer.extra_linha', tempo=duracao_texto(r.platina_segundos))
             if item.aviso:
