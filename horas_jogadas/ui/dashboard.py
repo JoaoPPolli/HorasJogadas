@@ -14,7 +14,7 @@ from ..i18n import lista, rotulo_filtro, t, t_status
 from ..models import Sessao
 from ..utils import ellipsizar, formatar_duracao, formatar_hhmmss, horas_curto
 from .sessao_dialogo import abrir_dialogo_sessao
-from .widgets import ScrollableFrame, criar_rotulo_elastico
+from .widgets import RenderizadorEmLotes, ScrollableFrame, criar_rotulo_elastico
 
 if TYPE_CHECKING:
     from .main_window import App
@@ -157,15 +157,25 @@ def _bloco_grafico(parent: tk.Misc, sessoes: Sequence[Sessao], estado: Dict[str,
     ttk.Label(cabecalho, text=t("dash.horas"), style="CardTitle.TLabel").pack(side="left")
     canvas = tk.Canvas(card, height=ALTURA_GRAFICO, bg=COR_CARD, highlightthickness=0)
     botoes: Dict[str, tk.Button] = {}
+    dados = []
+    tamanho = [None]
 
     def redesenhar(_event: Optional[tk.Event] = None) -> None:
-        desenhar_barras(canvas, stats.horas_por_periodo(
+        atual = (canvas.winfo_width(), canvas.winfo_height())
+        if _event is not None and tamanho[0] == atual:
+            return
+        tamanho[0] = atual
+        desenhar_barras(canvas, dados)
+
+    def calcular():
+        dados[:] = stats.horas_por_periodo(
             sessoes, estado["periodo"], date.today(), dias_semana=lista("dias_semana"),
-            meses_nomes=lista("meses"), formato_semana=t("fmt.semana")))
+            meses_nomes=lista("meses"), formato_semana=t("fmt.semana"))
 
     def escolher(periodo: str) -> None:
         estado["periodo"] = periodo
         _marcar(botoes, periodo)
+        calcular()
         redesenhar()
 
     barra = ttk.Frame(cabecalho, style="Card.TFrame")
@@ -174,6 +184,7 @@ def _bloco_grafico(parent: tk.Misc, sessoes: Sequence[Sessao], estado: Dict[str,
         botoes[chave] = _botao_toggle(barra, t(f"periodo.{chave}"), lambda p=chave: escolher(p))
     _marcar(botoes, estado["periodo"])
     canvas.pack(fill="x", pady=(6, 0))
+    calcular()
     canvas.bind("<Configure>", redesenhar)
 
 
@@ -186,7 +197,15 @@ def _bloco_top(parent: tk.Misc, grupos: Sequence[stats.GrupoJogo]) -> None:
         return
     canvas = tk.Canvas(card, height=len(top) * ALTURA_LINHA_TOP + 8, bg=COR_CARD, highlightthickness=0)
     canvas.pack(fill="x")
-    canvas.bind("<Configure>", lambda e: desenhar_top(canvas, top))
+    tamanho = [None]
+
+    def redesenhar(event):
+        atual = (event.width, event.height)
+        if tamanho[0] != atual:
+            tamanho[0] = atual
+            desenhar_top(canvas, top)
+
+    canvas.bind("<Configure>", redesenhar)
 
 
 def _bloco_lista(parent: tk.Misc, grupos: Sequence[stats.GrupoJogo], estado: Dict[str, str],
@@ -197,16 +216,17 @@ def _bloco_lista(parent: tk.Misc, grupos: Sequence[stats.GrupoJogo], estado: Dic
     lista = ttk.Frame(parent)
     lista.pack(fill="x")
     botoes: Dict[str, tk.Button] = {}
+    renderizador = RenderizadorEmLotes(lista)
 
     def renderizar(filtro: str) -> None:
         estado["filtro"] = filtro
         _marcar(botoes, filtro)
+        renderizador.cancelar()
         for widget in lista.winfo_children():
             widget.destroy()
-        for g in grupos:
+
+        def criar(g):
             status = (g.status or "DESCONHECIDO").upper()
-            if filtro != "TODOS" and status != filtro:
-                continue
             bloco = ttk.Frame(lista, style="Card.TFrame", padding=8)
             bloco.pack(fill="x", pady=6, padx=6)
             bloco.grid_columnconfigure(0, weight=1)
@@ -226,6 +246,8 @@ def _bloco_lista(parent: tk.Misc, grupos: Sequence[stats.GrupoJogo], estado: Dic
                           activebackground="#402b2b", cursor="hand2",
                           command=lambda grupo=g: ao_excluir(grupo)).grid(row=0, column=2, rowspan=4,
                                                                           padx=8, sticky="e")
+
+        renderizador.preencher((g for g in grupos if filtro == 'TODOS' or (g.status or 'DESCONHECIDO').upper() == filtro), criar)
 
     for f in FILTROS_STATUS:
         botoes[f] = _botao_toggle(barra, rotulo_filtro(f), lambda opt=f: renderizar(opt))

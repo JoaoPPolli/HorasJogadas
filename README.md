@@ -7,6 +7,17 @@ App de desktop (Python + Tkinter, sem dependências externas) para cronometrar e
 python app.py
 ```
 
+## Fluidez (2.6.2)
+
+A roda do mouse agora move as listas em pixels, com transição curta e suave.
+Histórico, dashboard e zerados montam listas grandes em pequenos lotes para
+permitir que a janela pinte e responda durante o carregamento. Trocar o filtro
+ou fechar a página cancela o trabalho antigo. Gráficos e textos não recalculam
+o layout apenas porque a lista foi rolada.
+
+Instale pelo mesmo botão **Configurações → Atualizar app…**. Os formatos dos
+dados e o funcionamento dos cronômetros permanecem compatíveis.
+
 ## Zerados por ano (2.6.0)
 
 Abra **🏆 Zerados** ao lado de Histórico e Dash. Escolha o ano para ver as conclusões

@@ -84,15 +84,17 @@ def abrir_historico(app: "App") -> None:
             estado["botao_mais"].destroy()
             estado["botao_mais"] = None
         inicio = int(estado["mostradas"])
-        for sessao in sessoes[inicio:inicio + TAMANHO_PAGINA_HISTORICO]:
-            criar_bloco(sessao)
+        pagina = sessoes[inicio:inicio + TAMANHO_PAGINA_HISTORICO]
         estado["mostradas"] = min(len(sessoes), inicio + TAMANHO_PAGINA_HISTORICO)
-        restantes = len(sessoes) - int(estado["mostradas"])
-        if restantes > 0:
-            botao = ttk.Button(area.interior, text=t("hist.mais", n=restantes),
-                               command=anexar_pagina)
-            botao.pack(pady=10)
-            estado["botao_mais"] = botao
+
+        def concluir():
+            restantes = len(sessoes) - int(estado["mostradas"])
+            if restantes > 0:
+                botao = ttk.Button(area.interior, text=t("hist.mais", n=restantes), command=anexar_pagina)
+                botao.pack(pady=10)
+                estado["botao_mais"] = botao
+
+        area.renderizador.preencher(pagina, criar_bloco, concluir)
 
     def renderizar() -> None:
         area.limpar()

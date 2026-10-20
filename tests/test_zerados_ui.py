@@ -2,6 +2,7 @@
 import os
 import tempfile
 import tkinter as tk
+import time
 import unittest
 from dataclasses import replace
 from datetime import datetime
@@ -10,6 +11,7 @@ from unittest.mock import patch
 
 from horas_jogadas import i18n
 from horas_jogadas.storage import Repositorio
+from horas_jogadas.models import Sessao
 from horas_jogadas.ui.main_window import App
 from horas_jogadas.ui.zerados import editar_registro, revisar_importacao
 from horas_jogadas.zerados import Conclusao, interpretar_txt
@@ -119,6 +121,36 @@ class TesteZeradosUI(unittest.TestCase):
         self.app.mostrar_home()
         self.app.abrir_dashboard()
         self.root.update()
+        self.assertEqual(self.erros, [])
+
+    def test_trocas_rapidas_cancelam_listas_antigas_sem_mudar_dados(self):
+        jogo = self.repo.adicionar_jogo('Teste de navegação')
+        card = self.app._criar_cronometro(jogo)
+        card.tempo_acumulado = 90
+        self.repo.sessoes = [Sessao.nova(jogo.id, jogo.nome, 60, None, datetime(2024, 1, 1)) for _ in range(230)]
+        self.app.obter_zerados().registros = [Conclusao(f'Jogo {i}', 2024, 1, 60) for i in range(70)]
+        originais = list(self.repo.sessoes)
+        for modo in ('navegacao', 'janela'):
+            self.app.config['modo_navegacao'] = modo
+            for abrir in (self.app.abrir_historico, self.app.abrir_dashboard, self.app.abrir_zerados):
+                abrir()
+                if modo == 'janela':
+                    self.app._popups[-1].destroy()
+                self.root.update()
+            self.app.mostrar_home()
+        self.app.config['modo_navegacao'] = 'navegacao'
+        self.app.abrir_historico()
+        limite = time.monotonic() + 5
+        while time.monotonic() < limite:
+            self.root.update()
+            botoes = [w for w in descendentes(self.app.frame_conteudo) if isinstance(w, ttk.Button) and '30' in w.cget('text')]
+            if botoes:
+                break
+            time.sleep(.003)
+        self.assertTrue(botoes, 'A primeira página de 200 sessões não terminou')
+        self.assertEqual(self.repo.sessoes, originais)
+        self.assertEqual(card.tempo_acumulado, 90)
+        self.assertEqual(len(self.app.zerados.registros), 70)
         self.assertEqual(self.erros, [])
 
 

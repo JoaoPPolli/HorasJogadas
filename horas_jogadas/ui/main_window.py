@@ -141,7 +141,8 @@ class App:
     def mostrar_home(self) -> None:
         self.frame_conteudo.pack_forget()
         self.frame_home.pack(fill="both", expand=True)
-        self.root.update_idletasks()               # largura real do canvas antes de medir
+        # O evento Configure aplica a grade quando o canvas recebe sua largura real.
+        # Evita forçar uma pintura completa durante a troca de página.
         self.reorganizar_grid()
 
     def mostrar_conteudo(self) -> None:
