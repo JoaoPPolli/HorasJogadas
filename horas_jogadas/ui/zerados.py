@@ -187,8 +187,10 @@ def abrir_zerados(app):
                 bloco = ttk.Frame(area.interior, style='Card.TFrame', padding=12)
                 bloco.pack(fill='x', padx=6, pady=4)
                 bloco.columnconfigure(0, weight=1)
-                nome = ttk.Label(bloco, text=r.nome, style='CardTitle.TLabel', wraplength=480)
-                nome.grid(row=0, column=0, sticky='w')
+                conteudo = ttk.Frame(bloco, style='Card.TFrame')
+                conteudo.grid(row=0, column=0, sticky='new')
+                nome = ttk.Label(conteudo, text=r.nome, style='CardTitle.TLabel', wraplength=480)
+                nome.pack(anchor='w')
                 detalhes = [t('zer.tempo_linha', tempo=duracao_texto(r.segundos)) if r.segundos is not None else t('zer.sem_tempo')]
                 if r.platina_segundos is not None:
                     detalhes.append(t('zer.extra_linha', tempo=duracao_texto(r.platina_segundos)))
@@ -200,14 +202,14 @@ def abrir_zerados(app):
                     detalhes.append(t('zer.tipo.' + r.tipo))
                 if r.notas:
                     detalhes.append(r.notas)
-                info = ttk.Label(bloco, text='\n'.join(detalhes), style='Card.TLabel', wraplength=480)
-                info.grid(row=1, column=0, sticky='w', pady=(6, 0))
+                info = ttk.Label(conteudo, text='\n'.join(detalhes), style='Card.TLabel', wraplength=480)
+                info.pack(anchor='w', pady=(6, 0))
                 acoes = ttk.Frame(bloco, style='Card.TFrame')
-                acoes.grid(row=0, column=1, rowspan=2, sticky='ne', padx=(12, 0))
-                ttk.Button(acoes, text=t('hist.editar'), command=lambda item=r: editar_registro(parent, item, guardar)).pack(fill='x')
-                ttk.Button(acoes, text=t('zer.rejogada'), command=lambda item=r: nova_jogada(item)).pack(fill='x', pady=4)
-                ttk.Button(acoes, text=t('btn.excluir'), command=lambda item=r: excluir(item)).pack(fill='x')
-                bloco.bind('<Configure>', lambda e, a=nome, b=info: (a.configure(wraplength=max(180, e.width - 160)), b.configure(wraplength=max(180, e.width - 160))))
+                acoes.grid(row=0, column=1, sticky='ne', padx=(12, 0))
+                ttk.Button(acoes, text=t('hist.editar'), command=lambda item=r: editar_registro(parent, item, guardar)).pack(side='left')
+                ttk.Button(acoes, text=t('zer.rejogada'), command=lambda item=r: nova_jogada(item)).pack(side='left', padx=6)
+                ttk.Button(acoes, text=t('btn.excluir'), command=lambda item=r: excluir(item)).pack(side='left')
+                conteudo.bind('<Configure>', lambda e, a=nome, b=info: (a.configure(wraplength=max(1, e.width)), b.configure(wraplength=max(1, e.width))))
 
     def exportar():
         caminho = filedialog.asksaveasfilename(parent=parent, title=t('zer.exportar'), defaultextension='.txt',
