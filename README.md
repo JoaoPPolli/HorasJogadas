@@ -7,6 +7,41 @@ App de desktop (Python + Tkinter, sem dependências externas) para cronometrar e
 python app.py
 ```
 
+## Zerados por ano (2.6.0)
+
+Abra **🏆 Zerados** ao lado de Histórico e Dash. Escolha o ano para ver as conclusões
+agrupadas pelo mês em que terminou. Adicione ou edite nome, ano/mês, dia opcional,
+tempo para zerar, horas **adicionais** para platinar, tipo e observações.
+O campo de tempo aceita `13h45m`, `40min` ou `01:30:00`; vazio significa desconhecido.
+
+- Ao mudar um cronômetro para **Zerado**, o app copia o nome, a data atual e o tempo
+  total (incluindo a sessão aberta) para a lista. Não para nem salva a sessão por conta própria.
+- O registro é independente: edições e exclusões na lista não alteram cronômetros,
+  sessões, histórico ou dashboard. Alterações posteriores no cronômetro também não
+  reescrevem conclusões já registradas.
+- Cada cronômetro gera uma entrada automática uma vez. Alternar seu status, inclusive
+  após excluir ou desfazer a entrada, não cria duplicatas. Use **Nova jogada** na lista
+  para outra campanha e informe o tempo daquela jogada.
+- Jogos que já estavam zerados antes do update não recebem uma data inventada.
+  Use a importação ou adicione-os manualmente.
+- Platina tem duração adicional: 6h35m para zerar + 8h30m para platinar = 15h05m.
+  Uma anotação “Platina” sem duração adicional continua sendo apenas uma observação.
+- **Importar TXT…** aceita vários arquivos, UTF-8, UTF-16 ou ANSI do Windows, com
+  título `ZERADOS EM 2024`, meses como `Março:` e entradas `-Jogo * 13h45m`.
+  O ano também pode vir do nome do arquivo ou ser informado. Revise a prévia, edite
+  linhas não reconhecidas e selecione as que deseja importar. Repetidos são ignorados.
+  Datas com apenas mês continuam sem dia. `(())` identifica experiências sem zerar.
+- **Exportar TXT…** salva o ano selecionado. Linhas `@dia:` e `@nota:` preservam dia
+  e observações na reimportação. O export não altera nenhum dado do aplicativo.
+
+Tudo fica em `%APPDATA%\HorasJogadas\zerados.json`, com backup automático da gravação
+anterior em `zerados.json.bak`. A lista tem armazenamento e recuperação próprios;
+o botão de restaurar backups dos jogos/histórico não substitui a lista de zerados.
+Para guardar uma cópia legível de cada ano, use **Exportar TXT…**.
+
+Instale o ZIP de atualização em **Configurações → Atualizar app…**. O executável
+existente continua compatível; não é necessário refazê-lo para a versão 2.6.0.
+
 ## Testes
 ```
 python -m unittest discover -s tests -t .      # biblioteca padrão
