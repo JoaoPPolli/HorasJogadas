@@ -18,6 +18,7 @@ from ..i18n import rotulo_filtro, t
 from ..models import Jogo
 from ..stats import ultima_sessao_por_jogo_id
 from ..storage import Repositorio
+from ..zerados import RepositorioZerados
 from ..utils import formatar_hhmmss, normalizar_texto
 from .configuracao import abrir_configuracao
 from .cronometro_card import Cronometro
@@ -25,6 +26,7 @@ from .dashboard import abrir_dashboard
 from .historico import abrir_historico
 from .theme import aplicar_tema_moderno
 from .widgets import GerenciadorScroll, ScrollableFrame
+from .zerados import abrir_zerados, editar_registro, mostrar_erro
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +45,7 @@ class App:
             janela_id=root.winfo_id, descricao=lambda estado: t(f"icone.{estado}"),
             backend=icone_barra.criar_backend() if backend_icone == "auto" else backend_icone)
         self.repo = repo or Repositorio()
+        self.zerados = None                       # carregado apenas quando usado; arquivo independente
         self.repo.notificar_erro = lambda msg: messagebox.showerror(t("dlg.erro_salvar"), msg)
         self.config = self.repo.carregar_config()
         i18n.definir_idioma(self.config["idioma"])         # antes de criar qualquer texto
@@ -72,6 +75,7 @@ class App:
         root.protocol("WM_DELETE_WINDOW", self.ao_fechar)
         root.bind("<Control-f>", self._focar_busca)
         root.bind("<Control-F>", self._focar_busca)
+        root.bind("<Button-1>", self._desfocar_busca_ao_clicar_fora, add="+")
 
         root.update_idletasks()
         self._mostrar_avisos()
@@ -95,6 +99,8 @@ class App:
         self.btn_historico.pack(side="left", padx=2)
         self.btn_dashboard = ttk.Button(top, text=t("btn.dashboard"), command=self.abrir_dashboard)
         self.btn_dashboard.pack(side="left", padx=2)
+        self.btn_zerados = ttk.Button(top, text=t('zer.titulo'), command=self.abrir_zerados)
+        self.btn_zerados.pack(side='left', padx=2)
         ttk.Button(top, text="⚙️", width=3, command=self.abrir_configuracao).pack(side="left", padx=2)
 
         barra = ttk.Frame(self.frame_home, padding=(10, 0))
@@ -126,6 +132,7 @@ class App:
         self.scroll_home.pack(fill="both", expand=True, padx=8, pady=(5, 12))
         self.canvas_home = self.scroll_home.canvas
         self.inner_frame = self.scroll_home.interior
+        self.barra_zerados = ttk.Frame(self.frame_home, padding=8, style='Card.TFrame')
         self.canvas_home.bind("<Configure>", self._ao_redimensionar, add="+")
         self.lbl_vazio = ttk.Label(self.inner_frame, text="", style="Small.TLabel", font=("Segoe UI", 11))
 
@@ -171,6 +178,60 @@ class App:
     def abrir_configuracao(self) -> None:
         abrir_configuracao(self)
 
+    def obter_zerados(self):
+        if self.zerados is None:
+            try:
+                self.zerados = RepositorioZerados(self.repo.data_dir)
+            except (OSError, ValueError) as erro:
+                mostrar_erro(self.root, erro)
+                return None
+            for aviso in self.zerados.avisos:
+                messagebox.showwarning(t('zer.titulo'), aviso, parent=self.root)
+        return self.zerados
+
+    def abrir_zerados(self):
+        return abrir_zerados(self)
+
+    def registrar_conclusao(self, card):
+        """Só envia uma cópia. Nada na lista escreve de volta no cronômetro ou nas sessões."""
+        repo = self.obter_zerados()
+        if repo is None:
+            return
+        try:
+            registro = repo.registrar_automatico(card.jogo.id, card.nome, card.total_atual())
+        except (OSError, ValueError) as erro:
+            mostrar_erro(self.root, erro)
+            return
+        for widget in self.barra_zerados.winfo_children():
+            widget.destroy()
+        texto = t('zer.automatico', nome=registro.nome) if registro else t('zer.existente')
+        ttk.Label(self.barra_zerados, text=texto, wraplength=520, style='Card.TLabel').pack(side='left', fill='x', expand=True)
+        ttk.Button(self.barra_zerados, text='×', width=3, command=self.barra_zerados.pack_forget).pack(side='right', padx=3)
+        ttk.Button(self.barra_zerados, text=t('zer.ver'), command=self.abrir_zerados).pack(side='right', padx=3)
+        if registro:
+            def atualizar(novo):
+                repo.guardar(novo)
+                self.root.event_generate('<<ZeradosAlterados>>', when='tail')
+
+            def editar():
+                atual = next((r for r in repo.registros if r.id == registro.id), None)
+                if atual:
+                    editar_registro(self.root, atual, atualizar)
+
+            def desfazer():
+                try:
+                    repo.excluir(registro.id)
+                except (OSError, ValueError) as erro:
+                    mostrar_erro(self.root, erro)
+                    return
+                self.barra_zerados.pack_forget()
+                self.root.event_generate('<<ZeradosAlterados>>', when='tail')
+
+            ttk.Button(self.barra_zerados, text=t('hist.editar'), command=editar).pack(side='right', padx=3)
+            ttk.Button(self.barra_zerados, text=t('hist.desfazer'), command=desfazer).pack(side='right', padx=3)
+        self.barra_zerados.pack(fill='x', padx=12, pady=4, before=self.scroll_home)
+        self.root.event_generate('<<ZeradosAlterados>>', when='tail')
+
     # ------------------------------------------------------------------
     # Idioma
     # ------------------------------------------------------------------
@@ -180,6 +241,8 @@ class App:
         self.btn_adicionar.config(text=t("btn.adicionar"))
         self.btn_historico.config(text=t("btn.historico"))
         self.btn_dashboard.config(text=t("btn.dashboard"))
+        self.btn_zerados.config(text=t('zer.titulo'))
+        self.barra_zerados.pack_forget()
         for chave, btn in self.botoes_filtro.items():
             btn.config(text=rotulo_filtro(chave))
         self.lbl_busca.config(text=t("busca.rotulo"))
@@ -213,9 +276,21 @@ class App:
         self.entry_busca.select_range(0, tk.END)
         return "break"
 
-    def _limpar_busca(self, _event: tk.Event = None) -> None:
+    def _desfocar_busca_ao_clicar_fora(self, event: tk.Event) -> None:
+        # Labels, cartões e o fundo não recebem foco ao clicar no Tk. O binding
+        # da janela roda depois do binding do controle, respeitando quem já o recebeu.
+        destino = event.widget
+        if (destino is self.entry_busca or destino.winfo_toplevel() is not self.root
+                or str(self.root.tk.call('focus')) != str(self.entry_busca)):
+            return
+        if isinstance(destino, (tk.Entry, ttk.Entry, tk.Text, tk.Spinbox, ttk.Spinbox)):
+            return
+        self.root.focus_set()
+
+    def _limpar_busca(self, _event: tk.Event = None) -> str:
         self.var_busca.set("")
         self.root.focus_set()
+        return "break"
 
     def _ao_mudar_ordenacao(self, _event: tk.Event = None) -> None:
         rotulo = self.combo_ordem.get()

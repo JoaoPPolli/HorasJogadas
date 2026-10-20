@@ -2,10 +2,71 @@
 
 App de desktop (Python + Tkinter, sem dependências externas) para cronometrar e registrar horas jogadas.
 
+## Resumo anual, DLC e busca (2.7.0)
+
+Em **Zerados**, o ano selecionado agora tem um resumo de jogos zerados, DLCs
+concluídas, tempo registrado e horas adicionais de platina. O tempo registrado soma
+os tempos informados de todos os registros daquele ano, incluindo as horas extras
+de platina e as experiências sem zerar. Cada jogada conta separadamente; tempos
+desconhecidos continuam sem valor e são indicados no resumo.
+
+Ao adicionar ou editar um registro, marque **DLC / expansão** para exibir a etiqueta
+**DLC** junto ao nome. A categoria fica somente na Lista de Zerados, sem alterar os
+cronômetros, histórico ou dashboard. A exportação TXT preserva essa marcação com
+uma linha `@dlc: sim` abaixo do jogo; a importação também reconhece esse formato.
+Nomes com “DLC” não são classificados automaticamente, pois podem representar o
+jogo base e a expansão juntos. Reimportar o TXT original não duplica um registro
+que já foi categorizado no app.
+
+Na tela principal, clicar fora de **Buscar** libera o teclado sem apagar o filtro.
+**Esc** limpa a busca e sai do campo; **Ctrl+F** volta a focá-lo.
+
+## Desempenho (2.6.4)
+
+O loop de atualização dos cronômetros acompanha a precisão mostrada na tela, reduzindo
+trabalho repetido enquanto o app está aberto. As telas roláveis também agrupam as
+medições de layout e evitam recalcular a largura quando ela não mudou. A interface,
+os cartões e seus controles mantêm o visual da versão 2.6.1.
+
 ## Executar
 ```
 python app.py
 ```
+
+## Zerados por ano (2.6.0)
+
+Abra **🏆 Zerados** ao lado de Histórico e Dash. Escolha o ano para ver as conclusões
+agrupadas pelo mês em que terminou. Adicione ou edite nome, ano/mês, dia opcional,
+tempo para zerar, horas **adicionais** para platinar, tipo e observações.
+O campo de tempo aceita `13h45m`, `40min` ou `01:30:00`; vazio significa desconhecido.
+
+- Ao mudar um cronômetro para **Zerado**, o app copia o nome, a data atual e o tempo
+  total (incluindo a sessão aberta) para a lista. Não para nem salva a sessão por conta própria.
+- O registro é independente: edições e exclusões na lista não alteram cronômetros,
+  sessões, histórico ou dashboard. Alterações posteriores no cronômetro também não
+  reescrevem conclusões já registradas.
+- Cada cronômetro gera uma entrada automática uma vez. Alternar seu status, inclusive
+  após excluir ou desfazer a entrada, não cria duplicatas. Use **Nova jogada** na lista
+  para outra campanha e informe o tempo daquela jogada.
+- Jogos que já estavam zerados antes do update não recebem uma data inventada.
+  Use a importação ou adicione-os manualmente.
+- Platina tem duração adicional: 6h35m para zerar + 8h30m para platinar = 15h05m.
+  Uma anotação “Platina” sem duração adicional continua sendo apenas uma observação.
+- **Importar TXT…** aceita vários arquivos, UTF-8, UTF-16 ou ANSI do Windows, com
+  título `ZERADOS EM 2024`, meses como `Março:` e entradas `-Jogo * 13h45m`.
+  O ano também pode vir do nome do arquivo ou ser informado. Revise a prévia, edite
+  linhas não reconhecidas e selecione as que deseja importar. Repetidos são ignorados.
+  Datas com apenas mês continuam sem dia. `(())` identifica experiências sem zerar.
+- **Exportar TXT…** salva o ano selecionado. Linhas `@dia:` e `@nota:` preservam dia
+  e observações na reimportação. O export não altera nenhum dado do aplicativo.
+
+Tudo fica em `%APPDATA%\HorasJogadas\zerados.json`, com backup automático da gravação
+anterior em `zerados.json.bak`. A lista tem armazenamento e recuperação próprios;
+o botão de restaurar backups dos jogos/histórico não substitui a lista de zerados.
+Para guardar uma cópia legível de cada ano, use **Exportar TXT…**.
+
+Instale o ZIP de atualização em **Configurações → Atualizar app…**. O executável
+existente continua compatível; não é necessário refazê-lo para a versão 2.6.0.
 
 ## Testes
 ```

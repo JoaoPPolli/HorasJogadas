@@ -27,6 +27,7 @@ cronometros.json
 registros.json
 config.json
 em_andamento.json
+zerados.json
 backups/
 *.bak
 *.pre-migracao

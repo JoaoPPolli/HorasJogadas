@@ -162,10 +162,13 @@ class Cronometro:
         self.lbl_status.config(bg=cores["cor_bg"], fg=cores["cor_fg"], text=t_status(self.status).upper())
 
     def mudar_status(self, novo_status: str) -> None:
+        anterior = self.jogo.status
         self.jogo.status = novo_status
         self.atualizar_visual_status()
         self.app.salvar_tudo()
         self.app.reorganizar_grid()
+        if novo_status == 'Zerado' and anterior != 'Zerado':
+            self.app.registrar_conclusao(self)
 
     def atualizar_nome(self) -> None:
         self.lbl_nome.config(text=self.nome)
