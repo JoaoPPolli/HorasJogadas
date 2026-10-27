@@ -132,6 +132,11 @@ class CatalogTests(unittest.TestCase):
         self.assertLess(similarity('Civilization VI', 'Civilization V'), .93)
         self.assertEqual(similarity('Hades 2', 'Hades II'), 1)
 
+    def test_wikipedia_retains_year_to_distinguish_homonymous_games(self):
+        results=search_artwork('Prey',lambda *a,**k:response(wiki('Prey (2017 video game)')),source='Wikipedia')
+        self.assertEqual(results[0].name,'Prey (2017)')
+        self.assertLess(results[0].score,.93)
+
     def test_image_host_validation_does_not_accept_spoofed_domains(self):
         for source, good in [('GOG', GOG_IMAGE), ('Wikipedia', WIKI_IMAGE), ('Steam', STEAM_ICON)]:
             item = Candidate(42, 'Demo', good, 1, source)
@@ -263,4 +268,13 @@ class ArtworkUiTests(unittest.TestCase):
         with patch.object(dialog, 'show_preview'):
             dialog.found([(0, [candidate(42, 'Demo', .95), candidate(43, 'Demo DLC', .94)], None)])
         self.assertIsNone(dialog.selected(0))
+        dialog.reject(); dialog.deleteLater()
+
+    def test_same_title_with_different_ids_in_same_store_needs_manual_choice(self):
+        dialog = CoverDialog(self.w)
+        with patch.object(dialog, 'show_preview'):
+            dialog.found([(0, [candidate(42, 'Prey', 1), candidate(43, 'Prey', 1)], None)])
+        self.assertIsNone(dialog.selected(0))
+        self.assertIn('#42',dialog.selectors[0].itemText(1))
+        self.assertIn('#43',dialog.selectors[0].itemText(2))
         dialog.reject(); dialog.deleteLater()

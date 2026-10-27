@@ -39,6 +39,16 @@ for kind, source, query, expected in [
             from horas_jogadas_qt.network import urlopen
             raw=_read('https://steamcommunity.com/app/292030/',urlopen).decode('utf-8',errors='replace')
             entry['diagnostic_tags']=re.findall(r'<[^>]*(?:292030|apphub_AppIcon)[^>]*>',raw)[:25]
+            from urllib.parse import urlencode
+            endpoints={
+                'community':'https://api.steampowered.com/ICommunityService/GetApps/v1/?'+urlencode({'input_json':json.dumps({'appids':[292030]})}),
+                'store_browse':'https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?'+urlencode({'input_json':json.dumps({'ids':[{'appid':292030}],'context':{'language':'english','country_code':'US'},'data_request':{'include_assets':True}})}),
+                'community_ajax':'https://steamcommunity.com/actions/ajaxgetappdetails/?appids=292030',
+            }
+            entry['diagnostic_api']={}
+            for label,endpoint in endpoints.items():
+                try:entry['diagnostic_api'][label]=json.loads(_read(endpoint,urlopen))
+                except Exception as exc:entry['diagnostic_api'][label]={'error':str(exc)}
     result['checks'].append(entry)
 Path('artwork-catalogs.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
 print(json.dumps(result, indent=2))

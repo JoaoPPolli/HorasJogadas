@@ -28,3 +28,4 @@ Aplicativo desktop em Python e PySide6/Qt. Leia README.md antes de alterar o pro
 - O workflow release.yml testa Windows/Linux e o instalador antes de criar a Release. pages.yml publica a página a partir de main. Publique somente quando autorizado pelo usuário; mantenha versões e tags coerentes.
 
 - Capas são opcionais, desativadas por padrão. Preserve registros e IDs; imagens/índice ficam em covers/. Não faça buscas de capas sem ação do usuário nem inclua artes de jogos nos pacotes ou commits.
+- Ícones substituem as iniciais independentemente das capas; imagens/índice ficam em icons/. Preserve transparência, preferências, backups e diários antigos. Catálogos públicos são consultados somente por ação do usuário e usam o transporte HTTPS compartilhado com certificados portáteis.

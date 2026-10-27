@@ -116,7 +116,8 @@ def _wiki(query, opener, cancel, fuzzy=False):
             continue
         if not re.search(r'(?:video|computer|arcade|role-playing) game|expansion pack', description):
             continue
-        name = re.sub(r'\s*\((?:\d{4} )?(?:video|computer|arcade) game\)$', '', item.get('title', ''))
+        name = re.sub(r'\s*\((?:video|computer|arcade) game\)$', '', item.get('title', ''))
+        name = re.sub(r'\((\d{4}) (?:video|computer|arcade) game\)$', r'(\1)', name)
         key = item.get('pageid'); image = item.get('thumbnail', {}).get('source', '')
         if type(key) is not int or key <= 0 or not name:
             continue

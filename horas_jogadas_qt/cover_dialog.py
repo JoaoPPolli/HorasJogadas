@@ -137,9 +137,12 @@ class CoverDialog(QDialog):
         try:
             for row,candidates,error in results:
                 combo=self.selectors[row];combo.clear();combo.addItem(self.text('covers_choose_result'),None)
-                for candidate in candidates:combo.addItem(candidate.name+' · '+candidate.source,candidate)
+                for candidate in candidates:
+                    duplicated=sum(item.source==candidate.source and item.name==candidate.name for item in candidates)>1
+                    combo.addItem(candidate.name+' · '+candidate.source+(' #'+str(candidate.app_id) if duplicated else ''),candidate)
                 exact=bool(candidates and candidates[0].score>=.93 and not any(
-                    item.score>=candidates[0].score-.03 and normalized(item.name)!=normalized(candidates[0].name)
+                    item.score>=candidates[0].score-.03 and (normalized(item.name)!=normalized(candidates[0].name)
+                        or item.source==candidates[0].source and item.app_id!=candidates[0].app_id)
                     for item in candidates[1:]))
                 combo.setCurrentIndex(1 if exact else 0)
                 self.table.item(row,0).setCheckState(Qt.Checked if exact else Qt.Unchecked)
