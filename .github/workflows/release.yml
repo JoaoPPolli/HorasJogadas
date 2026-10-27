@@ -59,7 +59,7 @@ jobs:
       - name: Evaluate public cover source
         if: runner.os == 'Linux'
         continue-on-error: true
-        run: python scripts/probe_cover_sources.py
+        run: python scripts/probe_artwork_sources.py
       - name: Build and test Windows bundle
         if: runner.os == 'Windows'
         env:

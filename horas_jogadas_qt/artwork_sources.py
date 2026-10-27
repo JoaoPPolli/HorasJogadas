@@ -6,7 +6,6 @@ import json
 import re
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
-from html.parser import HTMLParser
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request
 
@@ -24,9 +23,9 @@ def _check(cancel):
         raise Cancelled()
 
 
-def _read(url, opener, cancel=None, limit=2*1024*1024, headers=None):
+def _read(url, opener, cancel=None, limit=2*1024*1024):
     _check(cancel)
-    with opener(Request(url, headers={'User-Agent': USER_AGENT, **(headers or {})}), timeout=10) as response:
+    with opener(Request(url, headers={'User-Agent': USER_AGENT}), timeout=10) as response:
         chunks = []; size = 0
         while True:
             _check(cancel)
@@ -203,21 +202,31 @@ def search_artwork(query, opener=urlopen, *, source=None, kind='cover', cancel=N
     return SearchResults(selected, warnings)
 
 
-class _SteamIcon(HTMLParser):
-    def __init__(self):
-        super().__init__(); self.depth = 0; self.urls = []
-    def handle_starttag(self, tag, attrs):
-        attrs = dict(attrs)
-        if tag == 'div':
-            if self.depth:
-                self.depth += 1
-            elif 'apphub_AppIcon' in attrs.get('class', '').split():
-                self.depth = 1
-        if tag == 'img' and self.depth:
-            self.urls.append(attrs.get('src', ''))
-    def handle_endtag(self, tag):
-        if tag == 'div' and self.depth:
-            self.depth -= 1
+def _steam_icon_url(app_id, opener, cancel):
+    # APIs oficiais públicas retornam o hash do ícone sem conta, chave ou HTML.
+    inputs = [
+        ('ICommunityService/GetApps', {'appids': [app_id]}),
+        ('IStoreBrowseService/GetItems', {'ids': [{'appid': app_id}],
+          'context': {'language': 'english', 'country_code': 'US'},
+          'data_request': {'include_assets': True}}),
+    ]
+    for method, payload in inputs:
+        _check(cancel)
+        try:
+            endpoint = 'https://api.steampowered.com/' + method + '/v1/?' + urlencode({'input_json': json.dumps(payload)})
+            value = _json(endpoint, opener, cancel).get('response', {})
+            items = value.get('apps', []) if method.startswith('ICommunity') else value.get('store_items', [])
+            for item in items:
+                if not isinstance(item, dict) or item.get('appid') != app_id:
+                    continue
+                digest = item.get('icon') if method.startswith('ICommunity') else item.get('assets', {}).get('community_icon')
+                if isinstance(digest, str) and re.fullmatch(r'[a-fA-F0-9]{40}', digest):
+                    return 'https://shared.fastly.steamstatic.com/steamcommunity/public/images/apps/' + str(app_id) + '/' + digest + '.jpg'
+        except Cancelled:
+            raise
+        except Exception:
+            continue
+    raise ValueError('Ícone indisponível na Steam / Steam icon unavailable')
 
 
 def download_artwork(candidate, cancel, opener=urlopen, kind='cover'):
@@ -227,11 +236,7 @@ def download_artwork(candidate, cancel, opener=urlopen, kind='cover'):
     url = candidate.image_url
     if kind == 'icon':
         if candidate.source == 'Steam':
-            # A página oficial fornece o hash verdadeiro do ícone. Não recorta a capa.
-            raw = _read('https://steamcommunity.com/app/' + str(candidate.app_id) + '/', opener, cancel,
-                        headers={'Cookie': 'wants_mature_content=1'})
-            parser = _SteamIcon(); parser.feed(raw.decode('utf-8', errors='replace'))
-            url = next((u for u in parser.urls if image_url_valid(candidate, u, kind)), '')
+            url = _steam_icon_url(candidate.app_id, opener, cancel)
         elif candidate.source == 'GOG':
             value = _json('https://api.gog.com/products/' + str(candidate.app_id), opener, cancel)
             images = value.get('images', {})

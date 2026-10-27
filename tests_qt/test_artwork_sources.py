@@ -152,12 +152,12 @@ class CatalogTests(unittest.TestCase):
 
 
 class IconDataTests(unittest.TestCase):
-    def test_steam_icon_uses_official_hash_from_app_hub(self):
+    def test_steam_icon_uses_verified_hash_from_public_api(self):
         calls = []
         def opener(request, timeout):
             calls.append(request.full_url)
-            if 'steamcommunity.com/app/' in request.full_url:
-                return io.BytesIO(('<img src="https://evil.example/wrong.png"><div class="apphub_AppIcon"><img src="'+STEAM_ICON+'"></div>').encode())
+            if 'api.steampowered.com' in request.full_url:
+                return response({'response':{'apps':[{'appid':42,'icon':'a'*40}]}})
             self.assertEqual(request.full_url, STEAM_ICON)
             return io.BytesIO(image_bytes())
         data = download(candidate(), threading.Event(), opener, kind='icon')
@@ -166,9 +166,23 @@ class IconDataTests(unittest.TestCase):
         self.assertLessEqual(max(image.width(), image.height()), 256)
         self.assertEqual(len(calls), 2)
 
+    def test_steam_icon_falls_back_to_store_api_and_rejects_wrong_app_id(self):
+        calls=[]
+        def opener(request,timeout):
+            calls.append(request.full_url)
+            if 'ICommunityService' in request.full_url:
+                return response({'response':{'apps':[{'appid':43,'icon':'a'*40}]}})
+            if 'IStoreBrowseService' in request.full_url:
+                return response({'response':{'store_items':[{'appid':42,'assets':{'community_icon':'a'*40}}]}})
+            self.assertEqual(request.full_url,STEAM_ICON)
+            return io.BytesIO(image_bytes())
+        data=download(candidate(),threading.Event(),opener,kind='icon')
+        self.assertTrue(data.startswith(b'\x89PNG'))
+        self.assertEqual(len(calls),3)
+
     def test_steam_has_no_icon_never_crops_header_as_substitute(self):
         with self.assertRaises(ValueError):
-            download(candidate(), threading.Event(), lambda *a, **k: io.BytesIO(b'<html>no icon</html>'), kind='icon')
+            download(candidate(), threading.Event(), lambda *a, **k: response({'response':{}}), kind='icon')
 
     def test_gog_icon_uses_product_metadata_and_protocol_relative_url(self):
         calls = []
