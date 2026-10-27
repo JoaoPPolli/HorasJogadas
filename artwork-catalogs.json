@@ -1,0 +1,221 @@
+{
+  "commit": "0eb98e34c34d217c1247db771474bf93a52c48df",
+  "checks": [
+    {
+      "kind": "cover",
+      "source": "Steam",
+      "query": "DAVE THE DIVER",
+      "matches": [
+        {
+          "source": "Steam",
+          "name": "DAVE THE DIVER",
+          "score": 1.0
+        },
+        {
+          "source": "Steam",
+          "name": "DAVE THE DIVER Soundtrack",
+          "score": 0.718
+        },
+        {
+          "source": "Steam",
+          "name": "DAVE THE DIVER Digital Extra",
+          "score": 0.667
+        },
+        {
+          "source": "Steam",
+          "name": "DAVE THE DIVER - GGST Content Pack",
+          "score": 0.609
+        },
+        {
+          "source": "Steam",
+          "name": "DAVE THE DIVER - DREDGE Content Pack",
+          "score": 0.583
+        }
+      ],
+      "ok": true,
+      "image_bytes": 22071,
+      "width": 460,
+      "height": 215
+    },
+    {
+      "kind": "cover",
+      "source": "GOG",
+      "query": "The Witcher 3 Wild Hunt",
+      "matches": [
+        {
+          "source": "GOG",
+          "name": "The Witcher 3 REDkit",
+          "score": 0.744
+        },
+        {
+          "source": "GOG",
+          "name": "The Witcher: Enhanced Edition",
+          "score": 0.647
+        },
+        {
+          "source": "GOG",
+          "name": "The Witcher Adventure Game",
+          "score": 0.612
+        },
+        {
+          "source": "GOG",
+          "name": "The Witcher 2: Assassins of Kings Enhanced Edition",
+          "score": 0.582
+        },
+        {
+          "source": "GOG",
+          "name": "Reigns: The Witcher",
+          "score": 0.537
+        }
+      ],
+      "ok": true,
+      "image_bytes": 159649,
+      "width": 1280,
+      "height": 592
+    },
+    {
+      "kind": "cover",
+      "source": "Wikipedia",
+      "query": "Hollow Knight",
+      "matches": [
+        {
+          "source": "Wikipedia",
+          "name": "Hollow Knight",
+          "score": 1.0
+        },
+        {
+          "source": "Wikipedia",
+          "name": "Hollow Knight: Silksong",
+          "score": 0.743
+        }
+      ],
+      "ok": true,
+      "image_bytes": 36508,
+      "width": 316,
+      "height": 316
+    },
+    {
+      "kind": "icon",
+      "source": "Steam",
+      "query": "The Witcher 3 Wild Hunt",
+      "matches": [
+        {
+          "source": "Steam",
+          "name": "The Witcher 3: Wild Hunt \u2014 Remastered",
+          "score": 1.0
+        },
+        {
+          "source": "Steam",
+          "name": "The Witcher 3: Wild Hunt \u2014 Remastered Soundtrack",
+          "score": 0.807
+        },
+        {
+          "source": "Steam",
+          "name": "The Witcher 3: Wild Hunt \u2014 Songs of the Past",
+          "score": 0.719
+        },
+        {
+          "source": "Steam",
+          "name": "The Witcher 3: Wild Hunt - Blood and Wine Soundtrack",
+          "score": 0.639
+        },
+        {
+          "source": "Steam",
+          "name": "The Witcher 3: Wild Hunt - Hearts of Stone Soundtrack",
+          "score": 0.63
+        }
+      ],
+      "ok": false,
+      "error": "Imagem indispon\u00edvel nesta fonte / Image unavailable from this source"
+    },
+    {
+      "kind": "icon",
+      "source": "GOG",
+      "query": "The Witcher 3 Wild Hunt",
+      "matches": [
+        {
+          "source": "GOG",
+          "name": "The Witcher 3 REDkit",
+          "score": 0.744
+        },
+        {
+          "source": "GOG",
+          "name": "The Witcher: Enhanced Edition",
+          "score": 0.647
+        },
+        {
+          "source": "GOG",
+          "name": "The Witcher Adventure Game",
+          "score": 0.612
+        },
+        {
+          "source": "GOG",
+          "name": "The Witcher 2: Assassins of Kings Enhanced Edition",
+          "score": 0.582
+        },
+        {
+          "source": "GOG",
+          "name": "Reigns: The Witcher",
+          "score": 0.537
+        }
+      ],
+      "ok": true,
+      "image_bytes": 63177,
+      "width": 125,
+      "height": 125
+    },
+    {
+      "kind": "cover",
+      "source": "all",
+      "query": "stardew valey",
+      "matches": [
+        {
+          "source": "GOG",
+          "name": "Stardew Valley",
+          "score": 0.963
+        }
+      ],
+      "ok": true,
+      "image_bytes": 158112,
+      "width": 1280,
+      "height": 592
+    },
+    {
+      "kind": "cover",
+      "source": "all",
+      "query": "hollo knigt",
+      "matches": [
+        {
+          "source": "Steam",
+          "name": "Hollow Knight",
+          "score": 0.917
+        },
+        {
+          "source": "GOG",
+          "name": "Hollow Knight",
+          "score": 0.917
+        },
+        {
+          "source": "Wikipedia",
+          "name": "Hollow Knight",
+          "score": 0.917
+        },
+        {
+          "source": "Steam",
+          "name": "Hollow Knight: Silksong",
+          "score": 0.667
+        },
+        {
+          "source": "GOG",
+          "name": "Hollow Knight: Silksong",
+          "score": 0.667
+        }
+      ],
+      "ok": true,
+      "image_bytes": 41073,
+      "width": 460,
+      "height": 215
+    }
+  ],
+  "ok": false
+}
