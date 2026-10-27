@@ -26,7 +26,9 @@ from horas_jogadas_qt.preview import inventory
 from horas_jogadas_qt.widgets import GameAvatar
 from horas_jogadas_qt import preferences
 from horas_jogadas_qt.tasks import Cancelled
-from tests_qt.test_covers import CoverUiTests, candidate, image_bytes
+from tests_qt import test_covers as cover_tests
+candidate = cover_tests.candidate
+image_bytes = cover_tests.image_bytes
 
 APP = QApplication.instance() or QApplication([])
 GOG_IMAGE = 'https://images.gog-statics.com/' + 'a'*64 + '.jpg'
@@ -203,9 +205,9 @@ class IconDataTests(unittest.TestCase):
 
 
 class ArtworkUiTests(unittest.TestCase):
-    setUp = CoverUiTests.setUp
-    tearDown = CoverUiTests.tearDown
-    wait = CoverUiTests.wait
+    setUp = cover_tests.CoverUiTests.setUp
+    tearDown = cover_tests.CoverUiTests.tearDown
+    wait = cover_tests.CoverUiTests.wait
     def test_icons_work_without_covers_and_toggle_preserves_timer_and_images(self):
         key = self.c.repo.jogos[0].id; timer = self.c.timers[key]; timer.start()
         store = CoverStore(self.folder, 'icon')

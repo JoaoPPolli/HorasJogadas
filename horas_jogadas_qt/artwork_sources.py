@@ -81,7 +81,7 @@ def _steam(query, opener, cancel):
 
 
 def _gog(query, opener, cancel):
-    url = 'https://catalog.gog.com/v1/catalog?' + urlencode({'query': query, 'limit': 20, 'productType': 'in:game'})
+    url = 'https://catalog.gog.com/v1/catalog?' + urlencode({'query': query, 'limit': 48})
     value = _json(url, opener, cancel)
     result = []
     for item in value.get('products', [])[:48]:
