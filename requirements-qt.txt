@@ -1,0 +1,2 @@
+# Interface de revisão; o aplicativo Tkinter continua independente.
+PySide6==6.8.3

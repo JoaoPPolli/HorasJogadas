@@ -48,3 +48,10 @@ mostrar.sinal
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Interface Qt de revisão
+.venv_qt/
+.qt-transaction.json
+.qt-preferences.json
+.horasjogadas-preview.json
+full-backups/
