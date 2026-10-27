@@ -1,269 +1,87 @@
 {
   "phase": "release",
-  "version": "3.2.0",
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40602263616",
-  "commit": "076722b2c0375c9c45995749c58dfbdea4e254b7",
+  "version": "3.2.1",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40605191847",
+  "commit": "300db627060d024256363777f829200699c10b63",
   "build": "success",
   "publish": "success",
   "pages": "separate-workflow",
-  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.2.0",
+  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.2.1",
   "site_url": "https://joaoppolli.github.io/HorasJogadas/",
   "diagnostics": {
+    "tests-tests_qt-linux": {
+      "ok": true,
+      "exit_code": 0,
+      "log_tail": " plugin does not support grabbing the keyboard\n.................This plugin does not support propagateSizeHints()\n.......This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 122 tests in 21.216s\n\nOK\n"
+    },
+    "linux-arch-update": {
+      "version": "3.2.1",
+      "ok": true,
+      "frozen_environment": true,
+      "stage_test": true,
+      "swapped": true,
+      "reopened": true,
+      "previous_preserved": true,
+      "records_unchanged": true
+    },
+    "linux": {
+      "platform": "linux",
+      "ok": true,
+      "exit_code": 0
+    },
+    "tests-tests_qt-windows": {
+      "ok": true,
+      "exit_code": 0,
+      "log_tail": "...........................................................................................................s..s.....ss....\n----------------------------------------------------------------------\nRan 122 tests in 52.920s\n\nOK (skipped=4)\n"
+    },
+    "tests-tests-windows": {
+      "ok": true,
+      "exit_code": 0,
+      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.780s\n\nOK\n"
+    },
+    "installer-windows": {
+      "ok": true,
+      "run_url": "",
+      "checksum": true,
+      "installed": true,
+      "bundle": {
+        "version": "3.2.1",
+        "ok": true,
+        "covers": true,
+        "covers_optional": true,
+        "game_icons": true,
+        "icons_optional": true,
+        "icons_backup": true,
+        "pages": 5,
+        "seconds_saved": 90,
+        "source_unchanged": true,
+        "svg": true
+      },
+      "uninstalled": true,
+      "existing_data_unchanged": true
+    },
     "windows": {
       "platform": "windows",
       "ok": true,
       "exit_code": 0
     },
-    "tests-tests-windows": {
+    "linux-update": {
+      "version": "3.2.1",
+      "ok": true,
+      "frozen_environment": true,
+      "stage_test": true,
+      "swapped": true,
+      "reopened": true,
+      "previous_preserved": true,
+      "records_unchanged": true
+    },
+    "tests-tests-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.115s\n\nOK\n"
+      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 0.716s\n\nOK\n"
     },
-    "tests-tests_qt-linux": {
-      "ok": true,
-      "exit_code": 0,
-      "log_tail": "\nThis plugin does not support grabbing the keyboard\n.................This plugin does not support propagateSizeHints()\n.......This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n...............\n----------------------------------------------------------------------\nRan 117 tests in 36.860s\n\nOK\n"
-    },
-    "jobs": [
-      {
-        "conclusion": "success",
-        "name": "build (windows-latest, windows)",
-        "steps": [
-          {
-            "conclusion": "success",
-            "name": "Set up job"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Linux desktop prerequisites"
-          },
-          {
-            "conclusion": "success",
-            "name": "Dependencies"
-          },
-          {
-            "conclusion": "success",
-            "name": "Validate tag version"
-          },
-          {
-            "conclusion": "success",
-            "name": "Core tests"
-          },
-          {
-            "conclusion": "success",
-            "name": "Qt and data transition tests"
-          },
-          {
-            "conclusion": "success",
-            "name": "Dependency license texts"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Evaluate public cover source"
-          },
-          {
-            "conclusion": "success",
-            "name": "Build and test Windows bundle"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Build and test Linux bundle"
-          },
-          {
-            "conclusion": "success",
-            "name": "Windows installer"
-          },
-          {
-            "conclusion": "success",
-            "name": "Verify installer before publication"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Complete job"
-          }
-        ]
-      },
-      {
-        "conclusion": "success",
-        "name": "build (ubuntu-22.04, linux)",
-        "steps": [
-          {
-            "conclusion": "success",
-            "name": "Set up job"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Linux desktop prerequisites"
-          },
-          {
-            "conclusion": "success",
-            "name": "Dependencies"
-          },
-          {
-            "conclusion": "success",
-            "name": "Validate tag version"
-          },
-          {
-            "conclusion": "success",
-            "name": "Core tests"
-          },
-          {
-            "conclusion": "success",
-            "name": "Qt and data transition tests"
-          },
-          {
-            "conclusion": "success",
-            "name": "Dependency license texts"
-          },
-          {
-            "conclusion": "success",
-            "name": "Evaluate public cover source"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Build and test Windows bundle"
-          },
-          {
-            "conclusion": "success",
-            "name": "Build and test Linux bundle"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Windows installer"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Verify installer before publication"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Complete job"
-          }
-        ]
-      },
-      {
-        "conclusion": "success",
-        "name": "publish",
-        "steps": [
-          {
-            "conclusion": "success",
-            "name": "Set up job"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/download-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Checksums"
-          },
-          {
-            "conclusion": "success",
-            "name": "Publish release"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Complete job"
-          }
-        ]
-      },
-      {
-        "conclusion": null,
-        "name": "status",
-        "steps": [
-          {
-            "conclusion": "success",
-            "name": "Set up job"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": null,
-            "name": "Run actions/download-artifact@v4"
-          },
-          {
-            "conclusion": null,
-            "name": "Collect job outcomes"
-          },
-          {
-            "conclusion": null,
-            "name": "Collect result"
-          },
-          {
-            "conclusion": null,
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": null,
-            "name": "Persist publication result"
-          },
-          {
-            "conclusion": null,
-            "name": "Post Run actions/checkout@v4"
-          }
-        ]
-      }
-    ],
     "artwork-catalogs": {
-      "commit": "076722b2c0375c9c45995749c58dfbdea4e254b7",
+      "commit": "300db627060d024256363777f829200699c10b63",
       "checks": [
         {
           "kind": "cover",
@@ -475,41 +293,259 @@
       ],
       "ok": true
     },
-    "linux": {
-      "platform": "linux",
-      "ok": true,
-      "exit_code": 0
-    },
-    "tests-tests-linux": {
-      "ok": true,
-      "exit_code": 0,
-      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 1.286s\n\nOK\n"
-    },
-    "tests-tests_qt-windows": {
-      "ok": true,
-      "exit_code": 0,
-      "log_tail": "...............................................................................................................ss....\n----------------------------------------------------------------------\nRan 117 tests in 52.341s\n\nOK (skipped=2)\n"
-    },
-    "installer-windows": {
-      "ok": true,
-      "run_url": "",
-      "checksum": true,
-      "installed": true,
-      "bundle": {
-        "version": "3.2.0",
-        "ok": true,
-        "covers": true,
-        "covers_optional": true,
-        "game_icons": true,
-        "icons_optional": true,
-        "icons_backup": true,
-        "pages": 5,
-        "seconds_saved": 90,
-        "source_unchanged": true,
-        "svg": true
+    "jobs": [
+      {
+        "conclusion": "success",
+        "name": "build (ubuntu-22.04, linux)",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Linux desktop prerequisites"
+          },
+          {
+            "conclusion": "success",
+            "name": "Dependencies"
+          },
+          {
+            "conclusion": "success",
+            "name": "Validate tag version"
+          },
+          {
+            "conclusion": "success",
+            "name": "Core tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Qt and data transition tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Dependency license texts"
+          },
+          {
+            "conclusion": "success",
+            "name": "Evaluate public cover source"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Build and test Windows bundle"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build and test Linux bundle"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify Linux update and actual restart"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify update on Arch Linux"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Windows installer"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify installer before publication"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
       },
-      "uninstalled": true,
-      "existing_data_unchanged": true
-    }
+      {
+        "conclusion": "success",
+        "name": "build (windows-latest, windows)",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Linux desktop prerequisites"
+          },
+          {
+            "conclusion": "success",
+            "name": "Dependencies"
+          },
+          {
+            "conclusion": "success",
+            "name": "Validate tag version"
+          },
+          {
+            "conclusion": "success",
+            "name": "Core tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Qt and data transition tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Dependency license texts"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Evaluate public cover source"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build and test Windows bundle"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Build and test Linux bundle"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify Linux update and actual restart"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify update on Arch Linux"
+          },
+          {
+            "conclusion": "success",
+            "name": "Windows installer"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify installer before publication"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "name": "publish",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/download-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Checksums"
+          },
+          {
+            "conclusion": "success",
+            "name": "Publish release"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
+      {
+        "conclusion": null,
+        "name": "status",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/download-artifact@v4"
+          },
+          {
+            "conclusion": null,
+            "name": "Collect job outcomes"
+          },
+          {
+            "conclusion": null,
+            "name": "Collect result"
+          },
+          {
+            "conclusion": null,
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": null,
+            "name": "Persist publication result"
+          },
+          {
+            "conclusion": null,
+            "name": "Post Run actions/checkout@v4"
+          }
+        ]
+      }
+    ]
   }
 }
