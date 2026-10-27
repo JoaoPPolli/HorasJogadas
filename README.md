@@ -1,119 +1,123 @@
-# Registro de Horas Jogadas
+<div align="center">
 
-App de desktop (Python + Tkinter, sem dependências externas) para cronometrar e registrar horas jogadas.
+![HorasJogadas — seu tempo de jogo, sua história](docs/assets/banner.svg)
 
-## Executar
-```
+**Cronometre suas partidas. Organize sua biblioteca. Celebre cada jogo zerado.**
+
+Um aplicativo desktop em Python e Tkinter, com dados locais e interface em português e inglês.
+
+![Versão 2.7.0](https://img.shields.io/badge/vers%C3%A3o-2.7.0-8b5cf6)
+![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![Interface Tkinter](https://img.shields.io/badge/interface-Tkinter-14b8a6)
+![Dados locais](https://img.shields.io/badge/dados-no_seu_computador-334155)
+
+[Começar](#-comece-a-jogar) · [Recursos](#-o-que-você-pode-fazer) · [Guia de uso](docs/GUIA_DE_USO.md) · [Desenvolvimento](docs/DESENVOLVIMENTO.md) · [Novidades](CHANGELOG.md)
+
+</div>
+
+## 🎮 O que você pode fazer
+
+| Recurso | Como ajuda no dia a dia |
+| --- | --- |
+| **Biblioteca de jogos** | Organize os títulos em Jogando, Zerado, Backlog e Dropado. Busque, filtre e ordene seus cartões. |
+| **Cronômetros por jogo** | Inicie, pause e encerre sessões; ajuste o tempo quando precisar. |
+| **Histórico e dashboard** | Consulte sessões, veja estatísticas e corrija registros esquecidos. |
+| **Zerados por ano** | Registre campanhas, novas jogadas, DLCs, experiências e horas adicionais de platina. |
+| **Resumo anual** | Veja jogos e DLCs concluídos, tempo registrado e horas extras de platina. |
+| **Importação e exportação** | Leve histórico e resumo para CSV; importe e exporte Zerados em TXT. |
+| **Proteção dos dados** | Escrita atômica, backups, recuperação de sessões e bloqueio de instância duplicada. |
+| **Português e inglês** | Troque o idioma nas configurações sem reiniciar o aplicativo. |
+
+## ✨ Conheça a interface
+
+### Sua biblioteca, pronta para a próxima partida
+
+![Biblioteca com cartões de jogos, filtros, busca e cronômetros](docs/assets/biblioteca.png)
+
+### Um lugar para guardar cada conquista
+
+![Lista de Zerados com resumo anual, campanhas concluídas e etiqueta de DLC](docs/assets/zerados.png)
+
+*Capturas da versão 2.7.0 em Linux, com dados fictícios. Fontes, ícones e bordas podem variar no Windows.*
+
+## 🚀 Comece a jogar
+
+### Executar com Python
+
+Você precisa de **Python 3.10 ou superior com Tkinter**. O app usa somente a biblioteca padrão do Python.
+
+```bash
+git clone https://github.com/JoaoPPolli/HorasJogadas.git
+cd HorasJogadas
 python app.py
 ```
 
-## Testes
-```
-python -m unittest discover -s tests -t .      # biblioteca padrão
-pytest                                          # opcional (requirements-dev.txt)
-```
+No Windows, instale o Python com suporte a Tcl/Tk e marque **Add Python to PATH**. Depois, também é possível abrir `Iniciar.bat`.
 
-## Estrutura
-```
-app.py                       lançador (o .exe é feito a partir dele; carrega horas_jogadas/)
-build_exe.bat                cria o HorasJogadas.exe (só 1 vez)
-Iniciar.bat                  abre o app sem o .exe (usa pythonw)
-horas_jogadas/
-  constants.py               constantes, cores, nomes de arquivos
-  models.py                  dataclasses Jogo, Sessao, EstadoSessao
-  storage.py                 Repositorio: escrita atômica, backup, leitura segura, migração
-  stats.py                   estatísticas (funções puras)
-  utils.py                   formatação e normalização de texto
-  i18n.py                    traduções (Português do Brasil / English)
-  main.py                    inicialização (chamada pelo lançador)
-  updater.py                 atualização por ZIP, backup e restauração do código
-  backups.py                 backups dos dados (diário, antes de apagar, manual)
-  instancia.py               trava de instância única
-  icone_barra.py             selo no ícone da barra de tarefas (🔴 rodando / ⏸ pausado)
-  edicao_sessao.py           validação da edição/adição manual de sessões
-  exportacao.py              exportação para CSV
-  logging_setup.py           log em DATA_DIR/app.log (com rotação)
-  ui/                        theme, widgets (ScrollableFrame), card, janela principal,
-                             histórico, dashboard, configurações
-tests/                       testes de storage, stats e utils
+No Debian/Ubuntu, caso o Python do sistema não tenha Tkinter:
+
+```bash
+sudo apt-get install python3-tk
+python3 app.py
 ```
 
-## Onde ficam os dados
-`%APPDATA%\HorasJogadas` (Windows) ou `~/HorasJogadas`:
+> O app precisa de uma sessão gráfica. Para validar em Linux sem tela, use Xvfb; veja o [guia de desenvolvimento](docs/DESENVOLVIMENTO.md#linux-sem-interface-gráfica).
 
-| Arquivo | Conteúdo |
-|---|---|
-| `cronometros.json` | biblioteca de jogos (com `id`, `nome`, `status`) |
-| `registros.json` | sessões (`sessao_id`, `jogo_id`, `jogo`, `segundos`, `tempo`, `data`, `inicio`, `fim`) |
-| `config.json` | modo de navegação, ordenação e idioma (`pt` ou `en`) |
-| `backups/` | cópias dos dados: `diario/` (7 últimos dias), `antes_de_apagar/`, `manual/`, `antes_de_restaurar/` |
-| `app.lock` | trava que impede abrir o app duas vezes ao mesmo tempo |
-| `em_andamento.json` | sessões abertas, para recuperação após falha (some quando tudo é salvo) |
-| `*.bak` | backup da versão anterior de cada arquivo |
-| `*.pre-migracao` | cópia do arquivo original antes da migração para o formato novo |
-| `*.corrompido-AAAAMMDD-HHMMSS` | cópia preservada de um arquivo que ficou ilegível |
-| `app.log` | log de erros |
+### Gerar seu executável no Windows
 
-Arquivos do formato antigo (lista de nomes em `cronometros.json`, registros sem `jogo_id`) são migrados automaticamente na primeira abertura.
+Com o Python instalado, dê dois cliques em **`build_exe.bat`**. O script instala o PyInstaller e cria `HorasJogadas.exe` na pasta do projeto. Mantenha a pasta `horas_jogadas/` ao lado desse executável.
 
-## Idioma
-Em **Configurações → Idioma / Language** escolha Português (Brasil) ou English. A troca é imediata (sem reiniciar e sem
-interromper cronômetros em andamento) e fica salva em `config.json`. Os dados em disco não mudam com o idioma
-(ex.: o status continua gravado como `Zerado`), então os arquivos funcionam nos dois idiomas.
+Para gerar um pacote de distribuição independente do Python, consulte [Empacotamento](docs/DESENVOLVIMENTO.md#empacotamento-no-windows). O executável não é versionado neste repositório.
 
-Para adicionar um idioma: inclua um código em `IDIOMAS_DISPONIVEIS` (`constants.py`) e um dicionário completo em
-`TEXTOS` (`i18n.py`); `tests/test_i18n.py` falha se faltar alguma chave ou marcador.
+### Sua primeira sessão
 
-## Instalação e atualizações
+1. Digite o nome de um jogo e clique em **Adicionar**.
+2. No cartão, clique em **Iniciar**. Use **Pausar** quando precisar.
+3. Clique em **Parar** para gravar a sessão no histórico.
+4. Consulte **Histórico**, **Dash** e **🏆 Zerados** para acompanhar sua jornada.
 
-**Uma vez só** (para ter o `.exe`): dê dois cliques em `build_exe.bat`. Ele gera `HorasJogadas.exe` nesta mesma pasta.
-(Se preferir não usar `.exe`, use `Iniciar.bat`.) Se houver um `icon.ico` na pasta, ele vira o ícone do app.
+## 🏆 Novidades da versão 2.7.0
 
-**Atualizar** (sempre que receber um ZIP novo):
-1. Abra o app → **Configurações → Atualizar app…**
-2. Escolha o ZIP baixado (a janela já abre na pasta Downloads).
-3. Confirme. O app valida o arquivo, guarda a versão atual, troca o código e **reinicia sozinho**.
+- **Resumo anual em Zerados:** jogos, DLCs, tempo registrado e horas adicionais de platina.
+- **Etiqueta de DLC/expansão:** definida ao adicionar ou editar uma conclusão e preservada no TXT.
+- **Busca mais confortável:** clicar fora libera o teclado sem apagar o filtro; `Esc` limpa e sai do campo; `Ctrl+F` volta à busca.
 
-Você não apaga nem substitui nenhuma pasta. Seus jogos e histórico ficam em `%APPDATA%\HorasJogadas` e não são alterados.
+O resumo soma tempos informados na Lista de Zerados, incluindo experiências e extras de platina. Cada jogada conta separadamente. Tempos desconhecidos são indicados e não viram horas inventadas.
 
-- **Voltar atrás:** Configurações → **↩ Restaurar versão anterior** (guarda as 3 últimas, em `_versoes_anteriores/`).
-- **Segurança:** o ZIP é validado antes (integridade, caminhos, arquivos obrigatórios e sintaxe de todos os `.py`).
-  Se algo falhar durante a troca, tudo volta ao estado anterior. Se a versão nova nem abrir, o lançador oferece
-  restaurar a anterior automaticamente.
-- **Quando refazer o `.exe`:** só se o `app.py` (lançador) ou as bibliotecas do Python usadas mudarem. O teste
-  `tests/test_launcher.py` avisa se o código passar a precisar de algo que o `.exe` não inclui.
+Veja o [histórico de mudanças](CHANGELOG.md) e o [guia completo de Zerados](docs/GUIA_DE_USO.md#zerados-por-ano).
 
-## Segurança dos dados
-- **Instância única:** abrir o app de novo não cria outra janela: a que já está aberta vem para a frente. (Duas janelas
-  poderiam sobrescrever os dados uma da outra.)
-- **Backups automáticos:** uma cópia por dia (guarda 7) e uma cópia **antes de qualquer exclusão em massa**
-  (apagar todo o histórico ou os registros de um jogo).
-- **Desfazer:** ao excluir uma sessão no Histórico aparece "↩ Desfazer" por 10 segundos.
-- **Restaurar:** Configurações → **🗂 Backups…** lista as cópias (com jogos, sessões e horas) e restaura a escolhida.
-  Antes de restaurar, os dados atuais também são guardados. Há ainda o botão "Criar backup agora".
+## 💾 Seus dados ficam com você
 
-## Exportar CSV
-Configurações (ou a tela de Histórico) → **Exportar histórico (CSV)…** ou **Exportar resumo por jogo (CSV)…**.
-Em português o arquivo usa `;` e vírgula decimal (abre certo no Excel do Brasil); em inglês, `,` e ponto.
+| Sistema | Pasta padrão |
+| --- | --- |
+| Windows | `%APPDATA%\HorasJogadas` |
+| Linux e macOS | `~/HorasJogadas` |
 
-## Ícone e selo na barra de tarefas
-O app usa o `icon.ico` que estiver ao lado do `.exe` (ou embutido, na versão do itch.io) em todas as janelas.
-Como no OBS, o botão do app na barra de tarefas do Windows ganha um **selo** sobre o ícone original:
-**🔴 bolinha vermelha** = há um cronômetro rodando · **⏸ pause amarelo** = nenhum rodando, mas há um pausado ·
-**sem selo** = nada ativo. (Se houver um rodando e outro pausado, vale o vermelho.) Só aparece no Windows.
+O app guarda os dados localmente, sem conta ou serviço externo. A pasta de dados é separada da pasta do aplicativo. Atualizar o código não apaga o histórico.
 
-## Sessões que atravessam a meia-noite
-O gráfico "Horas jogadas" (e a sequência de dias) conta o tempo no dia em que ele foi **realmente jogado**: uma sessão
-que começou na sexta às 19h e terminou no sábado às 3h tem a parte da sexta na sexta e a parte do sábado no sábado.
-- **Sessões novas:** o app acumula o tempo por dia enquanto o cronômetro roda (inclusive ao contar uma pausa ou
-  ajustar o tempo à mão, e na recuperação depois de uma queda) e grava o detalhe em `registros.json` (campo `dias`).
-- **Sessões antigas** (sem o detalhe): se começaram e terminaram em dias diferentes (até 36 h de intervalo), o tempo é
-  repartido proporcionalmente ao relógio de cada dia; se não há horário de início, ou o intervalo é maior, fica no dia em que terminou.
+**Importante:** a Lista de Zerados tem arquivo e recuperação próprios (`zerados.json`). O restaurador de backups de jogos/histórico não restaura essa lista. Para uma cópia completa, feche o app e copie toda a pasta de dados. Também é possível exportar cada ano em TXT.
 
-## Corrigir e adicionar sessões
-- **Histórico → ✏️ Editar:** muda jogo, duração e término de qualquer sessão. Sessões acima de 12 h ganham o aviso
-  "⚠ sessão muito longa: confira". **Histórico → ➕ Adicionar sessão** lança uma sessão manual com data (para quando
-  você esqueceu de ligar o timer).
-- **Dashboard → "Sessão mais longa" → ✏️ Editar sessão:** abre direto a sessão suspeita.
-- Ao editar, o início passa a ser (término − duração) e o tempo é repartido pelos dias que esse intervalo toca.
-- Durações acima de 24 h pedem confirmação, e o término não pode estar no futuro.
+Consulte [dados, backups e recuperação](docs/GUIA_DE_USO.md#dados-backups-e-recuperação) antes de mover ou restaurar seus arquivos.
+
+## 🔄 Atualizações
+
+Na edição com código ao lado do lançador, abra **Configurações → Atualizar app…** e selecione o ZIP de atualização. O app valida o pacote, guarda a versão anterior e reinicia. O pacote para distribuição tem um fluxo próprio; [veja os detalhes](docs/GUIA_DE_USO.md#atualizar-o-aplicativo).
+
+## 🛠️ Para quem desenvolve
+
+```bash
+python -m unittest discover -s tests -t .
+```
+
+O pytest é opcional:
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest
+```
+
+- [Guia de desenvolvimento](docs/DESENVOLVIMENTO.md): ambiente, estrutura, testes e empacotamento.
+- [Guia de colaboração](COLABORACAO.md): branches, commits e revisão.
+- [Instruções do projeto](AGENTS.md): compatibilidade, dados e cuidados com o atualizador.
+
+Para relatar um problema, informe a versão, o sistema operacional e os passos para reproduzir. Revise os logs antes de compartilhá-los para remover informações pessoais.

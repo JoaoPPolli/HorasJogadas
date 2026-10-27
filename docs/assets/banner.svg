@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-labelledby="title desc">
+  <title id="title">HorasJogadas</title>
+  <desc id="desc">Seu tempo de jogo, sua história. Biblioteca, cronômetros e conquistas.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#111827"/><stop offset="1" stop-color="#222044"/></linearGradient>
+    <linearGradient id="accent" x2="1" y2="1"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#7c3aed" stop-opacity=".28"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1280" height="400" rx="24" fill="url(#bg)"/>
+  <circle cx="1030" cy="170" r="300" fill="url(#glow)"/>
+  <path d="M0 340H1280M0 360H1280M0 380H1280" stroke="#a78bfa" stroke-opacity=".06"/>
+  <rect x="64" y="58" width="192" height="30" rx="15" fill="#a78bfa" fill-opacity=".12" stroke="#a78bfa" stroke-opacity=".3"/>
+  <text x="160" y="78" text-anchor="middle" fill="#c4b5fd" font-family="Segoe UI,Arial,sans-serif" font-size="12" letter-spacing="2">CADA PARTIDA CONTA</text>
+  <text x="60" y="168" fill="#f8fafc" font-family="Segoe UI,Arial,sans-serif" font-size="68" font-weight="700" letter-spacing="-2">HorasJogadas</text>
+  <text x="64" y="216" fill="#cbd5e1" font-family="Segoe UI,Arial,sans-serif" font-size="26">Seu tempo de jogo, sua história.</text>
+  <text x="64" y="270" fill="#94a3b8" font-family="Segoe UI,Arial,sans-serif" font-size="17">Biblioteca organizada. Cronômetros precisos.</text>
+  <text x="64" y="298" fill="#94a3b8" font-family="Segoe UI,Arial,sans-serif" font-size="17">Um lugar para guardar suas conquistas.</text>
+  <rect x="64" y="332" width="98" height="25" rx="6" fill="#2dd4bf" fill-opacity=".12"/>
+  <text x="113" y="349" text-anchor="middle" fill="#5eead4" font-family="Segoe UI,Arial,sans-serif" font-size="12">DADOS LOCAIS</text>
+  <text x="182" y="349" fill="#94a3b8" font-family="Segoe UI,Arial,sans-serif" font-size="12" letter-spacing="1">PYTHON + TKINTER  /  PT · EN</text>
+  <circle cx="1000" cy="200" r="123" fill="#131b30" stroke="#94a3b8" stroke-opacity=".1" stroke-width="2"/>
+  <circle cx="1000" cy="200" r="104" fill="none" stroke="#334155" stroke-width="10"/>
+  <circle cx="1000" cy="200" r="104" fill="none" stroke="url(#accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="485 170" transform="rotate(-90 1000 200)"/>
+  <path d="M1000 139V200L1042 226" fill="none" stroke="#f1f5f9" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="1000" cy="200" r="7" fill="#2dd4bf"/>
+  <rect x="1042" y="280" width="126" height="40" rx="12" fill="#252e49" stroke="#a78bfa" stroke-opacity=".4"/>
+  <text x="1105" y="305" text-anchor="middle" fill="#ddd6fe" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">LEVEL 2.7.0</text>
+</svg>
