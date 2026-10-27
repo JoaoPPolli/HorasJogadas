@@ -1,5 +1,5 @@
 {
-  "commit": "50f86a94cfde4883868218a6de330e4cda932001",
+  "commit": "05f46d58bbb287e5976969ed7c05ddf8a22943f0",
   "checks": [
     {
       "kind": "cover",
@@ -110,8 +110,10 @@
           "score": 0.63
         }
       ],
-      "ok": false,
-      "error": "HTTP Error 404: Not Found"
+      "ok": true,
+      "image_bytes": 4217,
+      "width": 32,
+      "height": 32
     },
     {
       "kind": "icon",
@@ -207,5 +209,5 @@
       "height": 215
     }
   ],
-  "ok": false
+  "ok": true
 }
