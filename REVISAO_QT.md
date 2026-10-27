@@ -28,6 +28,16 @@ O pacote anterior continua independente; esta revisão reutiliza a mesma pasta d
 
 [Ver Zerados](docs/qt/completed.png) · [Ver ranking](docs/qt/ranking.png) · [Ver jogos por recência](docs/qt/stats-games.png) · [Ver ajuste de tempo](docs/qt/adjust-time.png)
 
+## Estilo Original e barra de título
+
+Em **Configurações → Aparência**, escolha **Original — cinza e roxo** e clique em **Salvar**. A opção reutiliza as cores do aplicativo original: fundo `#1f1f23`, cartões `#2b2b2f`, botões secundários `#3a3a40`, destaque `#5c5cff` e os pares de cores dos status. As outras opções de estilo continuam disponíveis, e o estilo escolhido é mantido ao reabrir a revisão.
+
+[Ver o estilo Original](docs/qt/original-library.png) · [Ver a opção nas configurações](docs/qt/original-settings.png)
+
+A moldura permanece nativa do Windows. O aplicativo usa as APIs do DWM para acompanhar a paleta: modo escuro em Windows 10 e cores personalizadas de título, texto e borda em Windows 11, quando suportadas. O tratamento vale para a janela principal e os diálogos Qt e é reaplicado ao trocar de tema. Arraste, redimensionamento, minimizar, maximizar e fechar continuam a cargo do sistema.
+
+Os testes conferiram a seleção e a persistência do tema, as chamadas da API com tipos de 32/64 bits, o fallback de atributos e a aplicação a janelas e diálogos. **A aparência real da barra nativa ainda precisa de conferência no Windows**; os testes executados aqui usam Linux e APIs Windows simuladas. As capturas mostram a área do aplicativo em Linux, não uma simulação da barra do Windows. Janelas e seletores pertencentes ao próprio sistema podem seguir as preferências do Windows.
+
 ## Abrir no Windows
 
 1. Tenha **Python 3.10 a 3.13, de 64 bits**, com a opção **Add Python to PATH**. O pacote de revisão contém código-fonte, não um executável Windows pronto.
@@ -82,7 +92,7 @@ As configurações também oferecem **Criar revisão de outra pasta…**. Isso c
 - Estatísticas, sequência de dias, períodos do gráfico, totais e exclusão do histórico de um jogo.
 - Zerados por ano, resumo anual, DLCs, platina adicional, experiências, notas, novas jogadas, edição, exclusão e desfazer.
 - Importação TXT com prévia, seleção e correção; exportação TXT com os metadados existentes.
-- Idiomas português/inglês e três paletas; a inicial é **Escuro minimalista**, conforme escolhido.
+- Idiomas português/inglês e quatro paletas; a inicial é **Escuro minimalista**, conforme escolhido.
 - Backups completos, restauração e acesso aos backups de jogos/histórico da versão atual copiados para a revisão.
 - Reutilização da implementação do selo da barra de tarefas e de instância única. O selo ainda precisa ser conferido no Windows.
 

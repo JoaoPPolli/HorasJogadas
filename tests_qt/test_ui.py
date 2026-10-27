@@ -73,7 +73,7 @@ class UiTests(unittest.TestCase):
     def test_all_pages_and_themes_render_in_both_languages(self):
         for language in ('pt','en'):
             i18n.definir_idioma(language)
-            for theme in ('dark','violet','light'):
+            for theme in ('dark','original','violet','light'):
                 apply_theme(APP,theme)
                 for page in ('library','history','stats','completed','settings'):
                     with self.subTest(language=language,theme=theme,page=page):

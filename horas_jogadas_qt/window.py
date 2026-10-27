@@ -71,7 +71,7 @@ class GameCard(QFrame):
         self.total = label('', 'muted')
         box.addWidget(self.total)
         self.start = button(tr('start'), lambda: window.timer_action(key, 'start'), 'primary')
-        foreground = QColor('#171a20' if self.palette().window().color().lightness() < 128 else '#ffffff')
+        foreground = QColor(QApplication.instance().property('horasPrimaryText') or '#171a20')
         self.start.setIcon(icon('play', foreground=foreground))
         self.pause = button('', lambda: window.timer_action(key, 'pause'), 'iconButton')
         self.pause.setIcon(icon('pause'))
@@ -837,7 +837,7 @@ class Window(QMainWindow):
         form.setContentsMargins(22,20,22,20); form.setSpacing(14)
         form.addWidget(label(tr('theme'),'gameName'))
         theme=QComboBox()
-        for key in ('dark','violet','light'):
+        for key in ('dark','original','violet','light'):
             theme.addItem(tr(key),key)
         theme.setCurrentIndex(max(0,theme.findData(self.theme_name())))
         language=QComboBox(); language.addItem('Português (Brasil)','pt'); language.addItem('English','en')

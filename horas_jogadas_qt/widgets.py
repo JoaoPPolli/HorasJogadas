@@ -3,7 +3,7 @@ import math
 import hashlib
 from PySide6.QtCore import Qt, QRect, QSize, QPointF
 from PySide6.QtGui import QColor, QPainter, QFont, QFontMetrics
-from PySide6.QtWidgets import (QWidget, QLabel, QPushButton, QFrame, QVBoxLayout,
+from PySide6.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QFrame, QVBoxLayout,
                               QHBoxLayout, QLayout, QDialog, QFormLayout, QDialogButtonBox,
                               QMessageBox, QTableWidget, QHeaderView, QAbstractItemView)
 from .texts import tr
@@ -188,7 +188,9 @@ class Chart(QWidget):
             width = min(44, slot * .46)
             height = (baseline - top) * seconds / maximum
             painter.setPen(Qt.NoPen)
-            color = QColor(text); color.setAlpha(180 if index == latest else 75)
+            original = QApplication.instance().property('horasTheme') == 'original'
+            color = QColor(QApplication.palette().link().color()) if original else QColor(text)
+            color.setAlpha((220 if index == latest else 150) if original else (180 if index == latest else 75))
             painter.setBrush(color)
             if seconds:
                 painter.drawRoundedRect(QRect(int(x + (slot - width) / 2), int(baseline - height), int(width), max(2, int(height))), 4, 4)
@@ -271,7 +273,7 @@ class Ranking(QWidget):
         name_width=int(min(max(max(metrics.horizontalAdvance(g.nome) for g in self.groups)+16,120),self.width()*.4))
         duration_width=max(metrics.horizontalAdvance(formatar_hhmmss(g.total,simplificado=True)) for g in self.groups)+12
         plot_width=max(1,self.width()-name_width-duration_width-8)
-        fill=QColor('#7567f0' if self.palette().window().color().lightness()<128 else '#6250d8')
+        fill=QColor(QApplication.palette().link().color()) if QApplication.instance().property('horasTheme') == 'original' else QColor('#7567f0' if self.palette().window().color().lightness()<128 else '#6250d8')
         for index,group in enumerate(self.groups):
             top=index*self.row_height
             painter.setPen(foreground)

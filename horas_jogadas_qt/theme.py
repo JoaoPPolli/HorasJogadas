@@ -1,8 +1,12 @@
 """Paletas nativas, sem dependência de imagens ou serviços externos."""
 from pathlib import Path
 from PySide6.QtGui import QColor, QPalette, QFont
+from horas_jogadas.constants import (COR_BG, COR_CARD, COR_BTN, COR_ACCENT, COR_TEXTO,
+    COR_TEXTO_SUAVE, COR_BORDA, STATUS_OPCOES)
+from .window_chrome import update_window_chrome
 
 PALETTES = {
+    'original': (COR_BG, '#19191d', COR_CARD, COR_BORDA, COR_TEXTO, COR_TEXTO_SUAVE, COR_ACCENT, '#ffffff'),
     'dark': ('#16191d', '#101215', '#1e2227', '#2c323a', '#f0f2f5', '#a1a9b5', '#e2e8f0', '#171a20'),
     'violet': ('#15141c', '#101017', '#211f2d', '#363147', '#f2f0fa', '#aba6bc', '#a89bfa', '#151121'),
     'light': ('#f4f5f7', '#ebedf0', '#ffffff', '#d6dbe2', '#20252d', '#596575', '#365ac8', '#ffffff'),
@@ -11,6 +15,9 @@ PALETTES = {
 
 def apply_theme(app, name='dark'):
     bg, side, card, border, text, muted, accent, on_accent = PALETTES.get(name, PALETTES['dark'])
+    app.setProperty('horasTheme', name)
+    app.setProperty('horasPrimaryText', on_accent)
+    button_bg = COR_BTN if name == 'original' else card
     assets = Path(__file__).with_name('assets')
     arrow_theme = 'light' if name == 'light' else 'dark'
     down_arrow = (assets / ('down-' + arrow_theme + '.svg')).as_posix()
@@ -18,9 +25,9 @@ def apply_theme(app, name='dark'):
     app.setStyle('Fusion')
     palette = QPalette()
     for role, color in [(QPalette.Window, bg), (QPalette.WindowText, text), (QPalette.Base, card),
-                        (QPalette.AlternateBase, bg), (QPalette.Text, text), (QPalette.Button, card),
+                        (QPalette.AlternateBase, bg), (QPalette.Text, text), (QPalette.Button, button_bg),
                         (QPalette.ButtonText, text), (QPalette.Highlight, '#506073'),
-                        (QPalette.HighlightedText, '#ffffff'), (QPalette.ToolTipBase, card),
+                        (QPalette.HighlightedText, '#ffffff'), (QPalette.Link, accent), (QPalette.ToolTipBase, card),
                         (QPalette.ToolTipText, text)]:
         palette.setColor(role, QColor(color))
     palette.setColor(QPalette.Disabled, QPalette.Text, QColor(muted))
@@ -47,7 +54,7 @@ def apply_theme(app, name='dark'):
       QLabel#paused {{ color: #d9ae60; }}
       QLabel#review {{ background: {side}; color: {muted}; border: 1px solid {border};
                        border-radius: 8px; padding: 9px 12px; font-size: 11px; }}
-      QPushButton {{ background: {card}; border: 1px solid {border}; border-radius: 7px;
+      QPushButton {{ background: {button_bg}; border: 1px solid {border}; border-radius: 7px;
                      padding: 8px 12px; min-height: 18px; }}
       QPushButton:hover {{ border-color: {muted}; }}
       QPushButton:focus {{ border: 1px solid {accent}; }}
@@ -109,6 +116,13 @@ def apply_theme(app, name='dark'):
       QTableView::item:hover {{ background: {bg}; }}
       QStatusBar {{ border-top: 1px solid {border}; font-size: 10px; }}
     ''')
+    if name == 'original':
+        status_rules = ''.join(
+            'QLabel#statusPill[status="' + status + '"] { color: ' + colors['cor_fg']
+            + '; background: ' + colors['cor_bg'] + '; }'
+            for status, colors in STATUS_OPCOES.items())
+        app.setStyleSheet(app.styleSheet() + status_rules)
+    update_window_chrome(app, bg, text, border)
 
 
 def translate_standard_controls(app, language):
