@@ -17,6 +17,17 @@ Esta versão é separada do aplicativo atual. Extraia o pacote em **uma pasta no
 
 O pacote anterior continua independente; esta revisão reutiliza a mesma pasta de dados de teste quando a origem é a mesma. Feche a revisão anterior antes de abrir a refinada. Não execute as duas simultaneamente.
 
+## Ajustes de Zerados, estatísticas e tempo
+
+- **Zerados:** os jogos aparecem em cartões agrupados por mês, com tempo, platina, data opcional, notas e ações de editar, nova jogada e excluir.
+- **Ano:** seleção por uma lista de anos disponíveis, sem campo editável nem cursor piscando. A roda do mouse não troca o ano quando a lista está fechada.
+- **Estatísticas:** Top 5 com barras proporcionais; a lista completa usa cartões com status, sessões, primeiro e último registro e filtro por status.
+- **Identidade:** a lateral usa o `icon.ico` original do aplicativo.
+- **Tempo:** campos de horas, minutos e segundos; atalhos acumulativos de +5, +10, +15 e +30 minutos; valores negativos para remover; ao pausar, duração atualizada e botão para usar esse valor.
+- **Histórico:** apresentação e fluxo preservados.
+
+[Ver Zerados](docs/qt/completed.png) · [Ver ranking](docs/qt/ranking.png) · [Ver ajuste de tempo](docs/qt/adjust-time.png)
+
 ## Abrir no Windows
 
 1. Tenha **Python 3.10 a 3.13, de 64 bits**, com a opção **Add Python to PATH**. O pacote de revisão contém código-fonte, não um executável Windows pronto.

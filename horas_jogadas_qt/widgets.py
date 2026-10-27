@@ -242,3 +242,52 @@ class ElidedLabel(QWidget):
         text = QFontMetrics(font).elidedText(self.text, Qt.ElideRight, self.width())
         painter.drawText(self.rect(), Qt.AlignVCenter | Qt.AlignLeft, text)
         painter.end()
+
+
+class Ranking(QWidget):
+    """Top 5 com barras proporcionais, nomes e duração, como no dashboard original."""
+    def __init__(self, groups, parent=None):
+        super().__init__(parent)
+        self.groups = groups
+        self.setMinimumHeight(max(55,len(groups)*52))
+        self.setAccessibleName(tr('top'))
+        self.setMouseTracking(True)
+
+    def paintEvent(self,event):
+        from horas_jogadas.utils import formatar_hhmmss
+        painter=QPainter(self); painter.setRenderHint(QPainter.Antialiasing)
+        foreground=self.palette().windowText().color()
+        muted=QColor(foreground); muted.setAlpha(140)
+        painter.setFont(QFont('Segoe UI',10))
+        if not self.groups:
+            painter.setPen(muted)
+            painter.drawText(self.rect(),Qt.AlignCenter,tr('no_playtime'))
+            painter.end(); return
+        maximum=max(group.total for group in self.groups) or 1
+        for index,group in enumerate(self.groups):
+            top=index*52
+            duration=formatar_hhmmss(group.total,simplificado=True)
+            duration_width=painter.fontMetrics().horizontalAdvance(duration)+12
+            painter.setPen(muted)
+            painter.drawText(QRect(0,top+1,24,22),Qt.AlignLeft|Qt.AlignVCenter,f'{index+1:02d}')
+            painter.setPen(foreground)
+            name_width=max(20,self.width()-duration_width-42)
+            painter.drawText(QRect(32,top+1,name_width,22),Qt.AlignLeft|Qt.AlignVCenter,
+                             painter.fontMetrics().elidedText(group.nome,Qt.ElideRight,name_width))
+            painter.setPen(muted)
+            painter.drawText(QRect(self.width()-duration_width,top+1,duration_width,22),Qt.AlignRight|Qt.AlignVCenter,duration)
+            rail=QColor(foreground); rail.setAlpha(20)
+            painter.setPen(Qt.NoPen); painter.setBrush(rail)
+            painter.drawRoundedRect(QRect(32,top+31,max(1,self.width()-32),5),2,2)
+            fill=QColor(foreground); fill.setAlpha(190 if index==0 else 95)
+            painter.setBrush(fill)
+            painter.drawRoundedRect(QRect(32,top+31,max(2,int((self.width()-32)*group.total/maximum)),5),2,2)
+        painter.end()
+
+    def mouseMoveEvent(self,event):
+        from horas_jogadas.utils import formatar_hhmmss
+        index=int(event.position().y()//52)
+        if 0<=index<len(self.groups):
+            group=self.groups[index]
+            self.setToolTip(group.nome+' · '+formatar_hhmmss(group.total,simplificado=True))
+        super().mouseMoveEvent(event)

@@ -68,6 +68,7 @@ def apply_theme(app, name='dark'):
       QScrollBar::handle:vertical {{ background: {border}; min-height: 30px; border-radius: 4px; }}
       QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
       QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{ background: transparent; }}
+      QListView#completionList {{ background: transparent; border: none; outline: none; }}
       QTableView {{ background: {card}; alternate-background-color: {bg}; border: 1px solid {border};
                     border-radius: 8px; gridline-color: {border}; selection-background-color: #394959; }}
       QTableView::item {{ padding: 8px; border: none; }}

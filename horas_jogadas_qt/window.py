@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QTimer, QDateTime, QUrl, QEvent
-from PySide6.QtGui import QColor, QAction, QKeySequence, QShortcut, QDesktopServices
+from PySide6.QtGui import QIcon, QColor, QAction, QKeySequence, QShortcut, QDesktopServices
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFrame, QVBoxLayout, QHBoxLayout,
     QStackedWidget, QScrollArea, QLineEdit, QComboBox, QMessageBox, QInputDialog, QMenu,
     QTableWidgetItem, QFileDialog, QDateTimeEdit, QSpinBox, QCheckBox, QPlainTextEdit, QDialog, QDialogButtonBox, QSizePolicy, QTableWidget)
@@ -23,7 +23,9 @@ from .preview import prepare_preview
 from .backup import create_full, read_full, restore_full
 from .texts import tr
 from .theme import apply_theme, translate_standard_controls
-from .widgets import label, button, row, metric, table, Form, CardLayout, Chart, GameAvatar, ElidedLabel
+from .widgets import label, button, row, metric, table, Form, CardLayout, Chart, GameAvatar, ElidedLabel, Ranking
+from .completions_view import CompletionList, YearPicker
+from .time_dialog import TimeDialog
 from .icons import icon
 
 
@@ -121,6 +123,7 @@ class Window(QMainWindow):
         self.totals = self.c.repo.totais_por_jogo_id()
         self.year = date.today().year
         self.period = '7d'
+        self.stats_filter = None
         self.cards = {}
         self.pending_recovery = bool(self.c.repo.carregar_andamento())
         self.closing_allowed = False
@@ -152,9 +155,11 @@ class Window(QMainWindow):
         nav = QVBoxLayout(sidebar)
         nav.setContentsMargins(18, 26, 18, 20)
         nav.setSpacing(8)
-        logo = label('', 'logo')
-        foreground = QColor('#171a20' if self.palette().window().color().lightness() < 128 else '#ffffff')
-        logo.setPixmap(icon('clock', 22, foreground=foreground).pixmap(22,22))
+        logo = label('', 'appLogo')
+        app_icon = QIcon(str(Path(__file__).resolve().parent.parent / 'icon.ico'))
+        logo.setPixmap(app_icon.pixmap(36,36))
+        logo.setAlignment(Qt.AlignCenter)
+        logo.setAccessibleName('HorasJogadas')
         logo.setFixedSize(40,40)
         brand = QWidget(); brand_box = QVBoxLayout(brand)
         brand_box.setContentsMargins(0,0,0,0); brand_box.setSpacing(3)
@@ -221,7 +226,7 @@ class Window(QMainWindow):
         else:
             if isinstance(current, QScrollArea):
                 state['scroll'] = current.verticalScrollBar().value()
-            grid = current.findChild(QTableWidget)
+            grid = self.completed if page == 'completed' else current.findChild(QTableWidget)
             if grid is not None:
                 state['table_scroll'] = grid.verticalScrollBar().value()
                 index = grid.currentRow()
@@ -251,7 +256,7 @@ class Window(QMainWindow):
             bar = widget.verticalScrollBar()
         if bar is not None:
             QTimer.singleShot(0, widget, lambda: bar.setValue(state.get('scroll', 0)))
-        grid = widget.findChild(QTableWidget)
+        grid = self.completed if self.page == 'completed' else widget.findChild(QTableWidget)
         values = self.table_values(self.page)
         if grid is not None and values:
             selected = state.get('selected')
@@ -260,8 +265,9 @@ class Window(QMainWindow):
             grid.selectRow(index)
             QTimer.singleShot(0, widget, lambda: grid.verticalScrollBar().setValue(state.get('table_scroll', 0)))
 
-    def refresh(self):
-        self.remember_view()
+    def refresh(self, preserve_view=True):
+        if preserve_view:
+            self.remember_view()
         old = self.pages.get(self.page)
         widget = getattr(self, 'build_' + self.page)()
         self.pages[self.page] = widget
@@ -434,12 +440,7 @@ class Window(QMainWindow):
             self.update_activity()
 
     def adjust_timer(self, key):
-        seconds, ok = QInputDialog.getInt(self, tr('adjust'), tr('delta'), 0, -2147483647, 2147483647)
-        if ok:
-            def apply():
-                self.c.timers[key].adjust(seconds)
-                self.c.save_pending()
-            self.perform(apply)
+        TimeDialog(self,key).exec()
 
     def game_menu(self, key, anchor):
         game = self.c.repo.jogo_por_id(key)
@@ -608,29 +609,65 @@ class Window(QMainWindow):
         data=stats.horas_por_periodo(self.c.repo.sessoes,self.period,
             dias_semana=i18n.lista('dias_semana'),meses_nomes=i18n.lista('meses'),formato_semana=t('fmt.semana'))
         box.addWidget(Chart(data))
-        box.addWidget(label(tr('top'),'gameName'))
-        group_table=table([tr('game'),tr('status'),tr('sessions'),tr('total')])
-        self.stat_groups=sorted(groups,key=lambda g:g.total,reverse=True)
-        self.fill_table(group_table,[(g.nome,t_status(g.status) if g.status else '—',g.sessoes,formatar_hhmmss(g.total)) for g in self.stat_groups])
-        group_table.setMinimumHeight(260)
-        box.addWidget(group_table)
-        box.addWidget(row(button(tr('export_summary'),lambda:self.export_csv(True)),None,
-            button(tr('clear'),lambda:self.delete_group(group_table),'danger')))
+        top_card=QFrame(); top_card.setObjectName('card')
+        top_box=QVBoxLayout(top_card); top_box.setContentsMargins(20,18,20,18); top_box.setSpacing(14)
+        top_box.addWidget(label(tr('top_five'),'gameName'))
+        self.top_ranking=Ranking(stats.top_jogos(groups,5))
+        top_box.addWidget(self.top_ranking)
+        box.addWidget(top_card)
+        self.stats_status=QComboBox(); self.stats_status.setAccessibleName(tr('status'))
+        self.stats_status.addItem(tr('all'),None)
+        for status in STATUS_OPCOES:
+            self.stats_status.addItem(t_status(status),status)
+        self.stats_status.setCurrentIndex(max(0,self.stats_status.findData(self.stats_filter)))
+        self.stats_status.currentIndexChanged.connect(lambda:self.change_stats_filter(self.stats_status.currentData()))
+        box.addWidget(row(label(tr('games'),'gameName'),None,self.stats_status))
+        self.stat_groups=sorted(groups,key=lambda group:group.total,reverse=True)
+        self.stat_group_cards={}
+        for group in self.stat_groups:
+            if self.stats_filter is not None and group.status!=self.stats_filter:
+                continue
+            card=QFrame(); card.setObjectName('card')
+            content=QVBoxLayout(card); content.setContentsMargins(18,16,18,16); content.setSpacing(7)
+            title=ElidedLabel(group.nome)
+            status=label(t_status(group.status) if group.status else '—','statusPill')
+            status.setProperty('status',group.status or '')
+            status.setSizePolicy(QSizePolicy.Maximum,QSizePolicy.Fixed)
+            heading=row(title,status); heading.layout().setStretch(0,1)
+            content.addWidget(heading)
+            sessions=t('dash.sessao_um') if group.sessoes==1 else t('dash.sessoes',n=group.sessoes)
+            content.addWidget(label(tr('total')+' · '+formatar_hhmmss(group.total)+' · '+sessions,'muted'))
+            first=group.primeira.strftime(t('fmt.data')) if group.primeira else '—'
+            last=group.ultima.strftime(t('fmt.data_hora')) if group.ultima else '—'
+            content.addWidget(label(t('dash.primeira',data=first),'muted'))
+            last_label=label(t('dash.ultima',data=last),'muted')
+            if group.sessoes:
+                remove=button(tr('delete_history'),lambda checked=False,key=group.chave:self.delete_group_by_key(key),'danger')
+                content.addWidget(row(last_label,None,remove))
+            else:
+                content.addWidget(last_label)
+            self.stat_group_cards[group.chave]=card
+            box.addWidget(card)
+        box.addWidget(row(button(tr('export_summary'),lambda:self.export_csv(True)),None))
         scroll.setWidget(host)
         return scroll
 
     def change_period(self,key):
         self.period=key; self.refresh()
 
-    def delete_group(self, widget):
-        group=self.selected(widget,self.stat_groups)
-        if group and self.confirm(tr('confirm_clear')+'\n'+group.nome):
+    def change_stats_filter(self,status):
+        self.stats_filter=status; self.refresh()
+
+    def delete_group_by_key(self,key):
+        group=next((group for group in self.stat_groups if group.chave==key),None)
+        if group and self.confirm(t('dash.excluir_registros',nome=group.nome)):
             self.perform(lambda:(create_full(self.c.folder),self.c.repo.remover_sessoes_do_grupo(group.chave)))
 
     def build_completed(self):
         widget=QWidget(); box=QVBoxLayout(widget); box.setContentsMargins(0,0,0,0); box.setSpacing(16)
-        year=QSpinBox(); year.setRange(1900,9999); year.setValue(self.year)
-        year.valueChanged.connect(self.change_year)
+        self.year_picker=YearPicker({date.today().year,self.year} | {record.ano for record in self.c.zerados.registros},self.year)
+        year=self.year_picker
+        year.currentIndexChanged.connect(lambda:self.change_year(year.currentData()))
         box.addWidget(row(label(tr('year')),year,None,
             button(tr('import_txt'),self.import_txt),button(tr('export_txt'),self.export_txt),
             button('+ '+tr('new_record'),lambda:self.edit_completion(), 'primary')))
@@ -640,13 +677,10 @@ class Window(QMainWindow):
             metric(tr('hours'),duracao_texto(summary.segundos_registrados) if known else '—'),
             metric(tr('platinum'),duracao_texto(summary.platina_segundos) if known else '—')))
         box.addWidget(label(f"{summary.registros} {tr('records')} · {summary.sem_tempo} {tr('no_time')}",'muted'))
-        self.completed=table([tr('name'),tr('month'),tr('duration_col'),tr('platinum'),tr('notes')])
         self.completion_rows=sorted([r for r in self.c.zerados.registros if r.ano==self.year],key=lambda r:(r.mes,r.dia or 0,r.nome))
-        months=MESES_EN if i18n.idioma_atual()=='en' else MESES
-        self.fill_table(self.completed,[(r.nome+('  · DLC' if r.dlc else '')+('  ◇' if r.tipo=='experiencia' else ''),
-            (f'{r.dia:02d} · ' if r.dia else '')+months[r.mes-1],duracao_texto(r.segundos) or '—',
-            duracao_texto(r.platina_segundos) or '—',r.notas) for r in self.completion_rows])
+        self.completed=CompletionList(self.completion_rows)
         self.completed.doubleClicked.connect(lambda _:self.edit_selected_completion())
+        self.completed.delegate.actionRequested.connect(self.completion_action)
         box.addWidget(self.completed,1)
         undo=button(tr('undo'),self.undo_completion)
         undo.setEnabled(bool(getattr(self,'deleted_completions',[])))
@@ -655,7 +689,22 @@ class Window(QMainWindow):
         return widget
 
     def change_year(self,year):
-        self.year=year; self.refresh()
+        self.year=year
+        self.view_states.pop('completed',None)
+        self.refresh(preserve_view=False)
+        self.completed.verticalScrollBar().setValue(0)
+
+    def completion_action(self,action,key):
+        index=next((i for i,record in enumerate(self.completion_rows) if record.id==key),None)
+        if index is None:
+            return
+        self.completed.selectRow(index)
+        if action=='edit':
+            self.edit_selected_completion()
+        elif action=='new_play':
+            self.new_play()
+        elif action=='delete':
+            self.delete_completion()
 
     def edit_selected_completion(self):
         record=self.selected(self.completed,self.completion_rows)
@@ -685,7 +734,10 @@ class Window(QMainWindow):
             if save_callback:
                 save_callback(new)
                 return True
-            return self.perform(lambda:self.c.zerados.guardar(new))
+            def save_record():
+                self.c.zerados.guardar(new)
+                self.year=new.ano
+            return self.perform(save_record)
         d.submit(save); d.exec()
 
     def new_play(self):
@@ -694,7 +746,7 @@ class Window(QMainWindow):
             from horas_jogadas.models import novo_id
             today=date.today()
             self.edit_completion(replace(record,id=novo_id(),ano=today.year,mes=today.month,dia=None,
-                                         segundos=None,platina_segundos=None,origem='manual'))
+                                         segundos=None,platina_segundos=None,notas='',origem='manual'))
 
     def delete_completion(self):
         record=self.selected(self.completed,self.completion_rows)
