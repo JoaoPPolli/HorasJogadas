@@ -1,0 +1,50 @@
+name: Verificar instalador publicado
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/verify_installer.py', '.github/workflows/verify-installer.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  PYTHONUTF8: '1'
+jobs:
+  installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download published installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download v3.0.0 --pattern HorasJogadas-Windows-Setup.exe --pattern SHA256SUMS.txt --dir build/installer-check
+      - name: Test installation and removal
+        env:
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python scripts/verify_installer.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installer-verification
+          path: installer-verification.json
+          if-no-files-found: ignore
+      - name: Record verification result
+        if: always()
+        shell: bash
+        run: |
+          if test -f installer-verification.json; then
+            cp installer-verification.json "$RUNNER_TEMP/installer-verification.json"
+          else
+            echo '{"ok":false,"error":"Installer verification did not run"}' > "$RUNNER_TEMP/installer-verification.json"
+          fi
+          rm -f installer-verification.json
+          git fetch origin automation/publication-status
+          git switch -C automation/publication-status FETCH_HEAD
+          cp "$RUNNER_TEMP/installer-verification.json" installer-verification.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add installer-verification.json
+          git diff --cached --quiet || git commit -m 'Record Windows installer verification'
+          git push origin HEAD:automation/publication-status
