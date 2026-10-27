@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "site_url": "https://joaoppolli.github.io/HorasJogadas/",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40564951548",
+  "site_http": 200,
+  "assets": {
+    "HorasJogadas-Windows-Setup.exe": {
+      "http": 200,
+      "sha256": "d2ffe11feb1ae047c513181f0d75b1e3175043ccff805492082a063624e667da"
+    },
+    "HorasJogadas-Windows-Portable.zip": {
+      "http": 200,
+      "sha256": "833a02529f834d9f454d211a5e260266ca460dbc090460a88ca3b7464e3c96a1"
+    },
+    "HorasJogadas-Linux-x86_64.tar.gz": {
+      "http": 200,
+      "sha256": "8b32833711d56c5b9219b121d7753ea7e4aaa58e8f941855d0b318c8abef9b18"
+    }
+  }
+}
