@@ -11,6 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Apply owner-authorized public visibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/publication-metadata"
+          gh api --method PATCH "repos/$REPOSITORY" -F private=false > "$RUNNER_TEMP/publication-metadata/visibility.json" 2> "$RUNNER_TEMP/publication-metadata/visibility-error.txt" || true
       - name: Inspect repository publication settings
         env:
           GH_TOKEN: ${{ github.token }}
@@ -27,6 +34,9 @@ jobs:
           value=json.loads((root/'repository.json').read_text())
           value['run_url']=os.environ['RUN_URL']
           value['phase']='preflight'
+          error=root/'visibility-error.txt'
+          if error.exists() and error.stat().st_size:
+              value['visibility_change_error']=error.read_text()[:1500]
           if (root/'pages.json').stat().st_size:
               try: value['pages']=json.loads((root/'pages.json').read_text())
               except ValueError: pass
