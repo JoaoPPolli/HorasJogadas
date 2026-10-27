@@ -25,4 +25,6 @@ Aplicativo desktop em Python e PySide6/Qt. Leia README.md antes de alterar o pro
 - Faça commits com propósito claro. Prefira branch própria e revisão por pull request para funcionalidades.
 - Rode os testes relevantes e informe falhas existentes.
 - `scripts/build_release.py` gera pacotes nativos e executa o autoteste; `scripts/build_site.py` gera o site.
-- O workflow release.yml testa Windows/Linux, cria a Release e publica Pages. Publique somente quando autorizado pelo usuário; mantenha versões e tags coerentes.
+- O workflow release.yml testa Windows/Linux e o instalador antes de criar a Release. pages.yml publica a página a partir de main. Publique somente quando autorizado pelo usuário; mantenha versões e tags coerentes.
+
+- Capas são opcionais, desativadas por padrão. Preserve registros e IDs; imagens/índice ficam em covers/. Não faça buscas de capas sem ação do usuário nem inclua artes de jogos nos pacotes ou commits.

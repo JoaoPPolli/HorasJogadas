@@ -14,3 +14,8 @@ Estes avisos não alteram a licença nem a autoria do código do HorasJogadas.
 Os diretórios de bibliotecas do pacote podem ser inspecionados e substituídos
 por versões compatíveis, conforme as licenças aplicáveis. O código-fonte do
 aplicativo está no repositório informado na página de download.
+
+Capas opcionais: obtidas pelo usuário da loja pública da Steam e guardadas localmente.
+As imagens pertencem aos respectivos titulares; nenhuma capa de jogo é incluída nos
+pacotes do HorasJogadas. Steam e o logotipo Steam são marcas da Valve Corporation.
+Fonte consultada: https://store.steampowered.com/

@@ -41,6 +41,11 @@ class GameCard(QFrame):
         box.setContentsMargins(20, 18, 20, 18)
         box.setSpacing(11)
         game = window.c.repo.jogo_por_id(key)
+        if window.covers_enabled:
+            from .cover_widget import GameCover
+            cover=GameCover(game.nome,window.cover_store.path(key))
+            cover.clicked.connect(lambda:window.manage_covers(key))
+            box.addWidget(cover)
         title = ElidedLabel(game.nome)
         self.status = label(t_status(game.status).upper(), 'statusPill')
         self.status.setProperty('status', game.status)
@@ -327,6 +332,7 @@ class Window(QMainWindow):
         self.search.selectAll()
 
     def build_library(self):
+        self.covers_enabled=bool(preferences.read(self.c.folder).get('covers_enabled',False))
         widget = QWidget()
         box = QVBoxLayout(widget); box.setContentsMargins(0,0,0,0); box.setSpacing(16)
         self.search = QLineEdit()
@@ -350,13 +356,18 @@ class Window(QMainWindow):
         add = button(tr('add'), self.add_game, 'primary')
         box.addWidget(row(self.search, self.filter, self.order, add))
         self.library_count = label('', 'muted')
-        box.addWidget(self.library_count)
+        if self.covers_enabled:
+            box.addWidget(row(self.library_count,None,button(tr('covers_manage'),self.manage_covers)))
+        else:
+            box.addWidget(self.library_count)
         self.library_scroll = QScrollArea()
         self.library_scroll.setWidgetResizable(True)
         self.library_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.library_host = QWidget()
         self.card_layout = CardLayout(self.library_host)
         self.cards = {}
+        from .covers import CoverStore
+        self.cover_store=CoverStore(self.c.folder)
         for game in self.c.repo.jogos:
             card = GameCard(self, game.id)
             self.cards[game.id] = card
@@ -461,6 +472,8 @@ class Window(QMainWindow):
         for status in STATUS_OPCOES:
             action = statuses.addAction(t_status(status), lambda checked=False, s=status: self.change_status(key, s))
             action.setCheckable(True); action.setChecked(game.status == status)
+        if preferences.read(self.c.folder).get('covers_enabled',False):
+            menu.addAction(tr('covers_choose'),lambda:self.manage_covers(key))
         menu.addAction(tr('adjust'), lambda: self.adjust_timer(key))
         pause_action = menu.addAction(tr('count_pause'), lambda: self.timer_action(key,'pause'))
         pause_action.setEnabled(self.c.timers[key].pausado)
@@ -856,7 +869,11 @@ class Window(QMainWindow):
         form.addWidget(row(label(tr('theme')),theme,None,label(tr('language')),language))
         auto=QCheckBox(tr('update_auto'));auto.setChecked(preferences.read(self.c.folder).get('check_updates',True))
         form.addWidget(auto);form.addWidget(label(tr('update_auto_help'),'muted',True))
-        form.addWidget(button(tr('save'),lambda:self.save_settings(theme.currentData(),language.currentData(),auto.isChecked()),'primary'))
+        covers=QCheckBox(tr('covers_enabled'));covers.setObjectName('coversEnabled')
+        covers.setChecked(bool(preferences.read(self.c.folder).get('covers_enabled',False)))
+        form.addWidget(covers);form.addWidget(label(tr('covers_help'),'muted',True))
+        form.addWidget(button(tr('covers_manage'),self.manage_covers))
+        form.addWidget(button(tr('save'),lambda:self.save_settings(theme.currentData(),language.currentData(),auto.isChecked(),covers.isChecked()),'primary'))
         box.addWidget(appearance)
         data=QFrame(); data.setObjectName('card'); data_box=QVBoxLayout(data); data_box.setContentsMargins(22,20,22,20); data_box.setSpacing(12)
         data_box.addWidget(label(self.ui_text('data'),'gameName'))
@@ -880,9 +897,18 @@ class Window(QMainWindow):
         box.addStretch(); scroll.setWidget(host)
         return scroll
 
+    def manage_covers(self,key=None):
+        from .cover_dialog import CoverDialog
+        # clicked(bool) não é um ID de jogo.
+        dialog=CoverDialog(self,key if isinstance(key,str) else None)
+        try:dialog.exec()
+        finally:dialog.deleteLater()
+
     def open_updates(self):
         from .update_dialog import UpdateDialog
-        UpdateDialog(self,self.available_update).exec()
+        dialog=UpdateDialog(self,self.available_update)
+        try:dialog.exec()
+        finally:dialog.deleteLater()
 
     def check_updates_automatically(self):
         from .tasks import Task
@@ -907,13 +933,14 @@ class Window(QMainWindow):
     def theme_name(self):
         return preferences.read(self.c.folder).get('theme','dark')
 
-    def save_settings(self,theme,language,check_updates=None):
+    def save_settings(self,theme,language,check_updates=None,covers_enabled=None):
         from horas_jogadas.storage import escrever_json_atomico
         def save():
             self.c.config['idioma']=language
             self.c.repo.salvar_config(self.c.config)
             changes={'theme':theme}
             if check_updates is not None: changes['check_updates']=check_updates
+            if covers_enabled is not None: changes['covers_enabled']=covers_enabled
             preferences.save(self.c.folder,**changes)
         if self.perform(save,False):
             i18n.definir_idioma(language)

@@ -63,3 +63,7 @@ build-diagnostics/
 
 installer-verification.json
 site-verification.json
+
+# Cache pessoal de capas e recuperação Linux
+covers/
+.qt-linux-recovery.json

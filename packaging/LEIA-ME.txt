@@ -1,4 +1,4 @@
-HORASJOGADAS 3.0.1
+HORASJOGADAS 3.1.0
 
 WINDOWS
 Use o instalador ou extraia a pasta inteira do pacote portátil e abra HorasJogadas.exe.
@@ -38,3 +38,14 @@ Instale por cima ou extraia em outra pasta. Não apague a pasta dos dados.
 PRIVACIDADE
 Os registros ficam no seu computador. Não há conta, telemetria ou envio automático de dados.
 Apenas links de download/atualização abrem o navegador por iniciativa do usuário.
+
+CAPAS OPCIONAIS
+Configurações > Exibir capas na biblioteca > Salvar. Em Gerenciar capas, busque a
+biblioteca na Steam, confira os títulos e importe as selecionadas. Sem conta nem
+chave. Só os nomes pesquisados são enviados à Steam. As imagens ficam locais.
+Desative a opção para voltar ao visual compacto, preservando as capas e registros.
+
+ATUALIZAÇÕES NO APP
+Configurações > Verificar atualizações > Baixar > Instalar e reiniciar.
+O app confere o SHA-256 e cria um backup antes de fechar. A consulta de versões
+ao abrir pode ser desativada. A instalação sempre exige confirmação.

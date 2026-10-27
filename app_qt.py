@@ -62,6 +62,9 @@ def main(argv=None):
             QMessageBox.information(None, 'HorasJogadas', 'O aplicativo já está aberto ou a pasta não pode ser bloqueada. Feche a versão antiga antes de abrir esta.')
             return 1
         if not review_mode:
+            if sys.platform.startswith('linux') and getattr(sys,'frozen',False) and folder==Path(sys.executable).resolve().parent:
+                from horas_jogadas_qt.linux_compat import recover_moved_data
+                recover_moved_data(folder)
             version_backup = prepare_official_data(folder)
         Controller.restore_journal(folder)
         configurar_logging(str(folder))

@@ -2,6 +2,14 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.1.0
+
+- Capas opcionais, desativadas por padrão, preservando o layout compacto.
+- Busca na Steam com revisão de correspondências, prévia e importação em lote sem chave de API.
+- Imagens oficiais de alta qualidade, cache offline, troca/remoção e opção de arquivo local.
+- Backups completos incluem capas e preferências; diário de recuperação permanece compatível com as versões anteriores.
+- Linux: preserva arquivos pessoais na pasta do app e recupera dados movidos pela versão 3.0.1 quando app e dados estavam juntos.
+
 ## 3.0.1
 
 - Atualizações no app, download em segundo plano, validação SHA-256 e backup antes de instalar.

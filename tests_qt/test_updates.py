@@ -69,6 +69,7 @@ class UpdateTests(unittest.TestCase):
             helper=root/'helper.sh';helper.write_text(updates.LINUX_HELPER)
             subprocess.run(['/bin/sh',str(helper),'2147483647',str(target),str(staged),str(root/'previous'),str(root/'log')],check=True,timeout=10)
             self.assertTrue((target/'HorasJogadas').exists());self.assertEqual((root/'previous'/'old.txt').read_text(),'old')
+            self.assertEqual((target/'old.txt').read_text(),'old')
             self.assertEqual((data/'registros.json').read_bytes(),b'unchanged')
 
     @unittest.skipIf(os.name=='nt','Helper Linux')

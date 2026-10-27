@@ -1,11 +1,12 @@
-# HorasJogadas 3.0.1 — atualização pelo próprio aplicativo
+# HorasJogadas 3.1.0 — capas opcionais e importação em lote
 
-- Configurações → Verificar atualizações: consulta a release oficial, mostra novidades e baixa em segundo plano com progresso e cancelamento.
-- Download conferido por tamanho e SHA-256; instalação somente após confirmação e backup dos registros.
-- Windows: atualiza a pasta atual pelo instalador e reabre o aplicativo. Linux: testa o novo pacote antes de trocar as pastas e preserva a versão anterior.
-- Verificação automática opcional, no máximo uma vez por dia; nenhum nome de jogo é enviado nessa consulta.
-- Bibliotecas, sessões, histórico e Zerados continuam na mesma pasta e nos mesmos formatos. A interface da biblioteca foi preservada.
+- Capas na biblioteca: ative em Configurações → Exibir capas na biblioteca → Salvar. A opção começa desligada; o visual compacto permanece disponível.
+- Gerenciar capas → Buscar capas dos jogos marcados → conferir sugestões → Importar selecionadas. Imagens oficiais da Steam, sem conta ou chave de API e sem baixar arquivos individualmente.
+- Prévia, escolha entre resultados parecidos, busca ajustável por jogo, imagem local para títulos fora do catálogo e remoção sem excluir o jogo.
+- As capas ficam em cache local, funcionam offline e entram nos backups completos. Desativá-las preserva as imagens e os registros.
+- Atualização pelo aplicativo mantida: quem instalou a build 3.0.1 pode buscar esta versão nas Configurações.
+- Linux: preservação de arquivos pessoais junto do programa e recuperação dos dados movidos pela edição 3.0.1 quando instalação e dados coincidiam.
 
-Para sair da versão 3.0.0, instale esta build uma vez. As próximas versões poderão ser instaladas pelas Configurações.
+A busca de capas envia somente os títulos pesquisados, quando você a solicita. Seus cronômetros, histórico e Zerados permanecem locais e nos formatos existentes.
 
-Windows: `HorasJogadas-Windows-Setup.exe` (recomendado) ou ZIP portátil. Linux: `HorasJogadas-Linux-x86_64.tar.gz`. Confira `SHA256SUMS.txt`.
+Windows: `HorasJogadas-Windows-Setup.exe` (recomendado), ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Confira `SHA256SUMS.txt`.

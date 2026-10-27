@@ -25,7 +25,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.0.1.
+2. Instale ou extraia a versão 3.1.0.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -47,9 +47,17 @@ As partidas feitas na **cópia para revisão** continuam separadas: elas não s�
 - Quatro temas: **Escuro minimalista**, **Original** (a paleta roxa da edição anterior), **Violeta** e **Claro**; barra de título nativa escura no Windows compatível.
 - Português e inglês, backups completos, restauração e bloqueio para impedir duas instâncias de alterarem a mesma pasta.
 
+## Capas opcionais
+
+Em **Configurações**, marque **Exibir capas na biblioteca** e salve. A opção começa desativada: o visual compacto continua disponível e desligar as capas não apaga as imagens nem altera seus registros.
+
+Em **Gerenciar capas**, clique em **Buscar capas dos jogos marcados**, confira os títulos sugeridos e escolha **Importar selecionadas**. A busca usa a loja pública oficial da Steam, sem login ou chave de API. Correspondências incertas precisam de seleção manual; você pode ajustar o texto da busca sem renomear o jogo.
+
+As imagens de alta qualidade são baixadas de uma vez e ficam no computador, funcionando depois sem internet. Só os nomes pesquisados são enviados à Steam, por sua iniciativa. Jogos fora do catálogo podem usar uma imagem local. Os backups completos incluem as capas e a preferência de exibição.
+
 ## Atualizar
 
-Abra **Configurações → Verificar atualizações**, baixe o pacote e escolha **Instalar e reiniciar**. O app confere o SHA-256 e cria um backup antes de fechar. No Windows, o instalador atualiza a pasta em uso; no Linux, o novo pacote passa por autoteste e a pasta anterior é preservada. A consulta automática de versões pode ser desativada nas Configurações. Não há instalação automática sem confirmação. A versão 3.0.0 precisa ser atualizada manualmente uma vez para receber esse recurso.
+Abra **Configurações → Verificar atualizações**, baixe o pacote e escolha **Instalar e reiniciar**. O app confere o SHA-256 e cria um backup antes de fechar. No Windows, o instalador atualiza a pasta em uso; no Linux, o novo pacote passa por autoteste e a pasta anterior é preservada. A consulta automática de versões pode ser desativada nas Configurações. Não há instalação automática sem confirmação. No Linux, arquivos pessoais que estiverem junto do executável também são preservados, e a versão 3.1 recupera a base caso a atualização 3.0.1 tenha movido a pasta de dados junto do programa. A versão 3.0.0 precisa ser atualizada manualmente uma vez para receber esse recurso.
 
 ## Executar pelo código
 

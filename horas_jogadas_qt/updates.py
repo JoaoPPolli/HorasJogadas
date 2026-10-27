@@ -159,6 +159,17 @@ while kill -0 "$pid" 2>/dev/null; do
   if [ "$count" -ge 120 ]; then printf '%s\n' 'Update cancelled: application still running' >> "$log"; exit 1; fi
   sleep 1
 done
+# Preserva também registros e arquivos pessoais quando o app foi extraído na pasta dos dados.
+for entry in "$target"/* "$target"/.[!.]* "$target"/..?*; do
+  [ -e "$entry" ] || [ -L "$entry" ] || continue
+  name=${entry##*/}
+  case "$name" in HorasJogadas|_internal|THIRD-PARTY|LEIA-ME.txt|package.json) continue ;; esac
+  if [ -e "$staged/$name" ] || [ -L "$staged/$name" ] || ! cp -a -- "$entry" "$staged/"; then
+    printf '%s\n' 'Update cancelled: unable to preserve existing files' >> "$log"
+    "$target/HorasJogadas" >> "$log" 2>&1 &
+    exit 1
+  fi
+done
 if mv -- "$target" "$previous"; then
   if mv -- "$staged" "$target"; then
     printf '%s\n' 'Update installed' >> "$log"

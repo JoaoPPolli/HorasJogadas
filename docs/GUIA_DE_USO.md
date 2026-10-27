@@ -51,3 +51,13 @@ Não abra versões antigas e novas ao mesmo tempo na mesma pasta: o bloqueio de 
 ## Problemas
 
 Informe a versão, o sistema e os passos em uma [issue](https://github.com/JoaoPPolli/HorasJogadas/issues). O arquivo `app.log` pode ajudar, mas revise informações pessoais antes de compartilhar. Não envie sua pasta de dados publicamente.
+
+## Capas na biblioteca
+
+As capas são opcionais e começam desativadas. Em Configurações, ative **Exibir capas na biblioteca** e salve. Desativar restaura os cartões compactos e preserva as imagens salvas.
+
+Abra **Gerenciar capas** e use **Buscar capas dos jogos marcados**. Jogos sem imagem começam marcados. Confira os resultados: o app seleciona automaticamente apenas correspondências seguras e permite escolher manualmente os demais títulos, ajustar a busca por jogo, ver uma prévia e importar as imagens selecionadas em lote.
+
+A fonte principal é a Steam, com imagens oficiais e busca pública sem login nem chave. Só os títulos pesquisados são enviados; tempos e histórico ficam locais. A arte de alta qualidade é obtida pela URL oficial do jogo e guardada localmente para uso offline. Jogos ausentes do catálogo podem receber uma imagem JPG/PNG/WebP local.
+
+Clicar na capa ou usar o menu do cartão abre a troca de imagem. Remover uma capa não remove o jogo nem suas sessões. Backups completos incluem as imagens referenciadas e as preferências; backups antigos de registros continuam compatíveis.

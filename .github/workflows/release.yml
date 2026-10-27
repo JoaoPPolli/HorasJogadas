@@ -62,9 +62,15 @@ jobs:
         run: python scripts/probe_cover_sources.py
       - name: Build and test Windows bundle
         if: runner.os == 'Windows'
+        env:
+          HORASJOGADAS_NETWORK_SELFTEST: '1'
+          GH_TOKEN: ${{ github.token }}
         run: python scripts/ci_build.py
       - name: Build and test Linux bundle
         if: runner.os == 'Linux'
+        env:
+          HORASJOGADAS_NETWORK_SELFTEST: '1'
+          GH_TOKEN: ${{ github.token }}
         run: xvfb-run -a python scripts/ci_build.py
       - name: Windows installer
         if: runner.os == 'Windows'
