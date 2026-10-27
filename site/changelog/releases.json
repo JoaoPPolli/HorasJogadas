@@ -1,0 +1,9 @@
+{
+  "3.1.0": {"title": "Capas do seu jeito", "download": true},
+  "3.0.1": {"title": "Atualizações pelo aplicativo", "download": true},
+  "3.0.0": {"title": "Uma nova interface para sua história", "download": true},
+  "2.7.0": {"title": "Seu ano em jogos", "download": false},
+  "2.6.4": {"title": "Navegação mais fluida", "download": false},
+  "2.6.0": {"title": "Cada campanha tem seu lugar", "download": false},
+  "2.5.0": {"title": "A base do seu diário de jogos", "download": false}
+}

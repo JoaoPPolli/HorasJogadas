@@ -2,7 +2,7 @@ name: Atualizar página de download
 on:
   push:
     branches: [main]
-    paths: ['site/**', 'scripts/build_site.py', '.github/workflows/pages.yml', 'scripts/verify_publication.py', 'horas_jogadas_qt/release.py']
+    paths: ['site/**', 'scripts/build_site.py', '.github/workflows/pages.yml', 'scripts/verify_publication.py', 'horas_jogadas_qt/release.py', 'CHANGELOG.md']
   workflow_dispatch:
 permissions:
   contents: write

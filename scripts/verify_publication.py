@@ -16,6 +16,15 @@ try:
         if response.status!=200 or '<h1>' not in html or '__RELEASE__' in html:
             raise RuntimeError('A página publicada não contém o site esperado')
         result['site_http']=response.status
+    from urllib.parse import urljoin
+    history_url=urljoin(site,'changelog/')
+    with urlopen(history_url,timeout=60) as response:
+        history=response.read().decode('utf-8')
+        expected=re.findall(r'^## (\d+\.\d+\.\d+)',(Path(__file__).resolve().parent.parent/'CHANGELOG.md').read_text(encoding='utf-8'),re.M)
+        actual=re.findall(r'data-version="([^"]+)"',history)
+        if response.status!=200 or actual!=expected or '__CHANGELOG_' in history:
+            raise RuntimeError('O changelog público não contém todas as versões esperadas')
+        result['changelog']={'url':history_url,'http':response.status,'versions':actual}
     with urlopen(release+'SHA256SUMS.txt',timeout=60) as response:
         hashes=response.read().decode('utf-8')
     result['assets']={}

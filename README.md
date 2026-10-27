@@ -6,7 +6,7 @@
 
 Cronômetros, biblioteca, histórico, estatísticas e jogos zerados. Interface em português e inglês, com dados no seu computador.
 
-[**Baixar o aplicativo**](https://joaoppolli.github.io/HorasJogadas/) · [Todos os downloads](https://github.com/JoaoPPolli/HorasJogadas/releases/latest) · [Guia de uso](docs/GUIA_DE_USO.md)
+[**Baixar o aplicativo**](https://joaoppolli.github.io/HorasJogadas/) · [Todos os downloads](https://github.com/JoaoPPolli/HorasJogadas/releases/latest) · [Changelog](https://joaoppolli.github.io/HorasJogadas/changelog/) · [Guia de uso](docs/GUIA_DE_USO.md)
 
 </div>
 
