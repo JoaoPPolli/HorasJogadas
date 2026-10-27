@@ -1,5 +1,5 @@
 {
-  "commit": "2cad4318935686176daa1c9ef13886ad60ea193c",
+  "commit": "fe83a51ff581376d89553abc067aee788682146b",
   "checks": [
     {
       "kind": "cover",
@@ -145,9 +145,24 @@
       "query": "stardew valey",
       "matches": [
         {
+          "source": "Steam",
+          "name": "Stardew Valley",
+          "score": 0.963
+        },
+        {
           "source": "GOG",
           "name": "Stardew Valley",
           "score": 0.963
+        },
+        {
+          "source": "Wikipedia",
+          "name": "Stardew Valley",
+          "score": 0.963
+        },
+        {
+          "source": "Steam",
+          "name": "Stardew Valley Soundtrack",
+          "score": 0.684
         },
         {
           "source": "GOG",
@@ -156,9 +171,9 @@
         }
       ],
       "ok": true,
-      "image_bytes": 158112,
-      "width": 1280,
-      "height": 592
+      "image_bytes": 44064,
+      "width": 460,
+      "height": 215
     },
     {
       "kind": "cover",
