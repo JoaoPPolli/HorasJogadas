@@ -34,3 +34,13 @@ Name: "{group}\HorasJogadas"; Filename: "{app}\HorasJogadas.exe"
 Name: "{autodesktop}\HorasJogadas"; Filename: "{app}\HorasJogadas.exe"; Tasks: desktopicon
 [Run]
 Filename: "{app}\HorasJogadas.exe"; Description: "Abrir HorasJogadas"; Flags: nowait postinstall skipifsilent
+
+Filename: "{app}\HorasJogadas.exe"; Flags: nowait skipifnotsilent; Check: RestartRequested
+[Code]
+function RestartRequested: Boolean;
+var I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+    if CompareText(ParamStr(I), '/RESTARTAPP') = 0 then Result := True;
+end;

@@ -49,6 +49,7 @@ def build():
     run([executable,'--self-test',results],cwd=bundle,timeout=180)
     evidence=json.loads(results.read_text(encoding='utf-8'))
     if not evidence.get('ok'): raise RuntimeError(str(evidence))
+    (bundle/'package.json').write_text(json.dumps({'version':VERSION,'platform':'windows' if sys.platform=='win32' else 'linux'}),encoding='utf-8')
     shutil.copy2(ROOT/'packaging'/'LEIA-ME.txt',bundle/'LEIA-ME.txt')
     licenses=bundle/'THIRD-PARTY'; licenses.mkdir(exist_ok=True)
     shutil.copy2(ROOT/'packaging'/'THIRD-PARTY.txt',licenses/'NOTICES.txt')

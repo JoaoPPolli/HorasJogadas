@@ -56,6 +56,10 @@ jobs:
           curl --fail --location --retry 3 https://raw.githubusercontent.com/pyside/pyside-setup/v6.8.3/LICENSES/GPL-3.0-only.txt -o build/legal/Qt-PySide-GPL-3.0.txt
           curl --fail --location --retry 3 https://raw.githubusercontent.com/python/cpython/v3.12.10/LICENSE -o build/legal/Python-LICENSE.txt
           curl --fail --location --retry 3 https://raw.githubusercontent.com/pyinstaller/pyinstaller/v6.16.0/COPYING.txt -o build/legal/PyInstaller-LICENSE.txt
+      - name: Evaluate public cover source
+        if: runner.os == 'Linux'
+        continue-on-error: true
+        run: python scripts/probe_cover_sources.py
       - name: Build and test Windows bundle
         if: runner.os == 'Windows'
         run: python scripts/ci_build.py
@@ -74,6 +78,17 @@ jobs:
           $env:HORAS_VERSION = python -c 'from horas_jogadas_qt.release import VERSION; print(VERSION)'
           & $compiler packaging/windows.iss
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify installer before publication
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          mkdir -p build/installer-check
+          cp release/HorasJogadas-Windows-Setup.exe build/installer-check/
+          cd build/installer-check
+          sha256sum HorasJogadas-Windows-Setup.exe > SHA256SUMS.txt
+          cd ../..
+          python scripts/verify_installer.py
+          cp installer-verification.json build-diagnostics/installer-windows.json
       - uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.name }}
@@ -118,35 +133,9 @@ jobs:
             gh release create "$tag" release/* --target "$GITHUB_SHA" --title "HorasJogadas $version" --notes-file packaging/RELEASE_NOTES.md --latest
           fi
           echo "release_url=https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag" >> "$GITHUB_OUTPUT"
-  pages:
-    needs: publish
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    outputs:
-      site_url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build site
-        run: python scripts/build_site.py
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: build/site
-      - uses: actions/deploy-pages@v4
-        id: deploy
-      - name: Verify public page
-        run: curl --fail --location --retry 6 --retry-delay 10 '${{ steps.deploy.outputs.page_url }}'
   status:
     if: always()
-    needs: [build, publish, pages]
+    needs: [build, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -172,9 +161,9 @@ jobs:
           SOURCE_COMMIT: ${{ github.sha }}
           BUILD_RESULT: ${{ needs.build.result }}
           PUBLISH_RESULT: ${{ needs.publish.result }}
-          PAGES_RESULT: ${{ needs.pages.result }}
+          PAGES_RESULT: separate-workflow
           RELEASE_URL: ${{ needs.publish.outputs.release_url }}
-          SITE_URL: ${{ needs.pages.outputs.site_url }}
+          SITE_URL: https://joaoppolli.github.io/HorasJogadas/
           STATUS_FILE: ${{ runner.temp }}/publication-status.json
         run: python scripts/record_publication_status.py
       - uses: actions/checkout@v4
@@ -190,4 +179,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add status.json
           git diff --cached --quiet || git commit -m 'Record release and Pages result'
+          git pull --rebase origin automation/publication-status
           git push origin HEAD:automation/publication-status

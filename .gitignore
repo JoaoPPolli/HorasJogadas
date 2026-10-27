@@ -60,3 +60,6 @@ full-backups/
 build-diagnostics/
 .publication-status/
 .horasjogadas-release.json
+
+installer-verification.json
+site-verification.json

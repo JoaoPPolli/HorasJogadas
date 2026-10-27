@@ -19,7 +19,10 @@ jobs:
       - name: Download published installer
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download v3.0.0 --pattern HorasJogadas-Windows-Setup.exe --pattern SHA256SUMS.txt --dir build/installer-check
+        shell: bash
+        run: |
+          version=$(python -c 'from horas_jogadas_qt.release import VERSION; print(VERSION)')
+          gh release download "v$version" --pattern HorasJogadas-Windows-Setup.exe --pattern SHA256SUMS.txt --dir build/installer-check
       - name: Test installation and removal
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

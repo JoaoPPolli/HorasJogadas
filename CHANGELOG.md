@@ -2,6 +2,11 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.0.1
+
+- Atualizações no app, download em segundo plano, validação SHA-256 e backup antes de instalar.
+- Verificação automática opcional e reinício após atualização nos pacotes Windows/Linux.
+
 ## 3.0.0
 
 - Interface oficial PySide6/Qt com navegação lateral, temas Escuro minimalista e Original, e barra de título escura no Windows compatível.

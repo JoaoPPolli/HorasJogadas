@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from .preview import inventory
 
-VERSION = '3.0.0'
+VERSION = '3.0.1'
 RELEASE_URL = 'https://github.com/JoaoPPolli/HorasJogadas/releases/latest'
 SITE_URL = 'https://joaoppolli.github.io/HorasJogadas/'
 MARKER = '.horasjogadas-release.json'

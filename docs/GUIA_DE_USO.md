@@ -10,7 +10,7 @@ No Linux x86_64, extraia o `.tar.gz`, abra um terminal na pasta e execute `./Hor
 sudo apt-get install libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0 libxcb-keysyms1 libxcb-shape0 libxcb-icccm4
 ```
 
-Os pacotes não são assinados digitalmente. Baixe somente das Releases oficiais. Atualizações são feitas por um novo instalador ou por extração em uma pasta nova. Feche o app antigo antes. A desinstalação remove o aplicativo, sem remover os registros pessoais.
+Os pacotes não são assinados digitalmente. Baixe somente das Releases oficiais. A partir da versão 3.0.1, use Configurações → Verificar atualizações: baixe e escolha Instalar e reiniciar. O pacote é validado por SHA-256 e os registros recebem um backup antes do encerramento. A verificação de versões ao abrir é opcional. A versão 3.0.0 precisa receber este recurso por uma instalação manual inicial. Feche o app antigo antes. A desinstalação remove o aplicativo, sem remover os registros pessoais.
 
 ## Biblioteca e cronômetros
 

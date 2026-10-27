@@ -17,7 +17,7 @@
   </header>
   <main id="principal">
     <section class="hero wrap">
-      <p class="eyebrow"><span class="dot"></span> SEU DIÁRIO DE JOGOS · VERSÃO 3.0.0</p>
+      <p class="eyebrow"><span class="dot"></span> SEU DIÁRIO DE JOGOS · VERSÃO __VERSION__</p>
       <h1>Cada partida conta.<br><span>Guarde a sua história.</span></h1>
       <p class="intro">Do primeiro minuto ao último chefe. Cronometre suas partidas, acompanhe sua biblioteca e celebre cada jogo zerado — tudo no seu computador.</p>
       <div class="hero-actions"><a class="button primary" id="primary-download" href="__RELEASE__/download/HorasJogadas-Windows-Setup.exe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg><span>Baixar para Windows</span></a><a class="button secondary" href="#download">Outras opções <span aria-hidden="true">→</span></a></div>
@@ -46,7 +46,7 @@
       <aside class="migration"><strong>Já usa a versão antiga?</strong><p>Feche o app antigo antes de abrir a versão 3. Seus dados oficiais continuam na mesma pasta, com um backup completo antes da primeira leitura. Cópias de revisão ficam preservadas e não são mescladas automaticamente.</p></aside>
     </section>
     <section class="download-section" id="download"><div class="wrap">
-      <div class="section-heading"><p class="eyebrow">ESCOLHA SEU SISTEMA</p><h2>Sua próxima partida<br>começa por aqui.</h2><p>Versão 3.0.0 · download direto pelo GitHub Releases.</p></div>
+      <div class="section-heading"><p class="eyebrow">ESCOLHA SEU SISTEMA</p><h2>Sua próxima partida<br>começa por aqui.</h2><p>Versão __VERSION__ · download direto pelo GitHub Releases.</p></div>
       <div class="download-grid">
         <article class="download-card"><div class="os-mark" aria-hidden="true">⊞</div><h3>Windows</h3><p>Windows 10 ou 11 · 64 bits</p><a class="button primary" href="__RELEASE__/download/HorasJogadas-Windows-Setup.exe">Baixar instalador <span aria-hidden="true">↓</span></a><p class="download-help">Recomendado. Abra o arquivo e siga a instalação. Não precisa de Python.</p><a class="text-link" href="__RELEASE__/download/HorasJogadas-Windows-Portable.zip">Prefere sem instalar? Baixar ZIP portátil →</a></article>
         <article class="download-card"><div class="os-mark" aria-hidden="true">&gt;_</div><h3>Linux</h3><p>x86_64 · Ubuntu 22.04+ ou compatível</p><a class="button secondary" href="__RELEASE__/download/HorasJogadas-Linux-x86_64.tar.gz">Baixar pacote Linux <span aria-hidden="true">↓</span></a><p class="download-help">Extraia e execute o arquivo HorasJogadas em uma sessão gráfica. Não precisa de Python.</p><details><summary>Ver comando para abrir</summary><pre><code>tar -xzf HorasJogadas-Linux-x86_64.tar.gz
@@ -60,7 +60,7 @@ cd HorasJogadas
       <details><summary>Onde meus dados ficam?</summary><p>No Windows, em <code>%APPDATA%\HorasJogadas</code>. No Linux, em <code>~/HorasJogadas</code>. A pasta dos registros é separada da instalação; desinstalar o aplicativo não remove seus dados.</p></details>
       <details><summary>Vou perder os registros da versão anterior?</summary><p>A versão 3 reutiliza a mesma pasta oficial e os formatos JSON. Antes da primeira leitura, cria um backup completo em uma pasta vizinha chamada HorasJogadas-Backups-de-Versao. Feche a versão antiga antes de abrir a nova e mantenha também uma cópia externa dos seus dados.</p></details>
       <details><summary>E os registros feitos na versão de revisão?</summary><p>A pasta HorasJogadas-Revisao-Qt continua preservada. Ela não é mesclada automaticamente com os dados oficiais. Preserve essa cópia e exporte os registros que quiser transferir antes de decidir como importá-los.</p></details>
-      <details><summary>O app precisa de internet ou conta?</summary><p>Não para registrar suas partidas. Os dados são locais e não há telemetria. Links de download e atualização abrem o navegador somente quando você os escolhe.</p></details>
+      <details><summary>O app precisa de internet ou conta?</summary><p>Não para registrar suas partidas. Os dados são locais e não há telemetria. A consulta de novas versões ao abrir o app pode ser desativada nas Configurações. Ela não envia sua biblioteca. A instalação de atualizações sempre exige sua confirmação.</p></details>
       <details><summary>Como atualizo depois?</summary><p>Baixe o novo instalador ou pacote nesta página. Feche o app e instale a atualização. Seus registros permanecem na pasta de dados, separada dos arquivos do programa.</p></details>
     </section>
   </main>

@@ -1,24 +1,11 @@
-A versão 3.0.0 traz a interface oficial em PySide6, com navegação lateral, quatro estilos de aparência, lista de Zerados por mês e estatísticas com ordenação recente e Top 5 por horas.
+# HorasJogadas 3.0.1 — atualização pelo próprio aplicativo
 
-## Baixar e abrir
+- Configurações → Verificar atualizações: consulta a release oficial, mostra novidades e baixa em segundo plano com progresso e cancelamento.
+- Download conferido por tamanho e SHA-256; instalação somente após confirmação e backup dos registros.
+- Windows: atualiza a pasta atual pelo instalador e reabre o aplicativo. Linux: testa o novo pacote antes de trocar as pastas e preserva a versão anterior.
+- Verificação automática opcional, no máximo uma vez por dia; nenhum nome de jogo é enviado nessa consulta.
+- Bibliotecas, sessões, histórico e Zerados continuam na mesma pasta e nos mesmos formatos. A interface da biblioteca foi preservada.
 
-- **Windows:** baixe `HorasJogadas-Windows-Setup.exe` e execute o instalador. Para usar sem instalar, extraia o ZIP portátil e abra `HorasJogadas.exe`.
-- **Linux x86_64 (Ubuntu 22.04+ ou compatível):** extraia o `.tar.gz` e execute `./HorasJogadas` em uma sessão gráfica.
-- Os pacotes prontos não precisam de Python instalado. Compare os arquivos com `SHA256SUMS.txt` para verificar a integridade.
+Para sair da versão 3.0.0, instale esta build uma vez. As próximas versões poderão ser instaladas pelas Configurações.
 
-## Seus registros
-
-Feche o app antigo antes de abrir a nova versão. A release usa a mesma pasta oficial e os mesmos formatos JSON: `%APPDATA%\HorasJogadas` no Windows e `~/HorasJogadas` no Linux. Ela cria um backup completo antes da primeira leitura e mantém a trava de instância compartilhada com a versão antiga.
-
-A pasta `HorasJogadas-Revisao-Qt` permanece preservada, separada dos registros oficiais. As duas bases não são mescladas automaticamente. Preserve essa cópia se registrou partidas durante a avaliação.
-
-Instalação e dados ficam separados. Desinstalar o aplicativo não remove o histórico. Mantenha também uma cópia externa da pasta de dados com o app fechado.
-
-## Novidades
-
-- Interface Qt com cartões adaptáveis e rolagem nativa.
-- Estilo Original com cinza e roxo e tratamento da barra de título do Windows.
-- Zerados agrupados por mês e seleção de ano sem cursor de edição.
-- Top 5 com barras de horas e lista completa pela sessão mais recente.
-- Editor de tempo com horas, minutos, segundos, atalhos, valores negativos e duração da pausa.
-- Backups completos, diário de recuperação de gravações e preservação de IDs.
+Windows: `HorasJogadas-Windows-Setup.exe` (recomendado) ou ZIP portátil. Linux: `HorasJogadas-Linux-x86_64.tar.gz`. Confira `SHA256SUMS.txt`.

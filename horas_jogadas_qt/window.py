@@ -27,6 +27,7 @@ from .widgets import label, button, row, metric, table, Form, CardLayout, Chart,
 from .completions_view import CompletionList, YearPicker
 from .time_dialog import TimeDialog
 from .release import VERSION, RELEASE_URL
+from . import preferences
 from .icons import icon
 
 
@@ -142,13 +143,16 @@ class Window(QMainWindow):
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.tick)
         self.timer.start()
+        self.available_update=None
+        if self.mode=='release' and getattr(sys,'frozen',False):
+            QTimer.singleShot(1800,self.check_updates_automatically)
         self.overlay = icone_barra.SobreposicaoBarra(lambda: int(self.winId()), lambda s: t('icone.' + s), icone_barra.criar_backend())
         self.statusBar().showMessage(tr('library_hint'))
         self.statusBar().setToolTip(str(self.c.folder))
 
     def ui_text(self,key):
         if self.mode=='release':
-            return tr('release_'+key)
+            return tr('release_'+key).format(version=VERSION)
         return tr(key)
 
     def build_shell(self):
@@ -850,7 +854,9 @@ class Window(QMainWindow):
         language=QComboBox(); language.addItem('Português (Brasil)','pt'); language.addItem('English','en')
         language.setCurrentIndex(language.findData(i18n.idioma_atual()))
         form.addWidget(row(label(tr('theme')),theme,None,label(tr('language')),language))
-        form.addWidget(button(tr('save'),lambda:self.save_settings(theme.currentData(),language.currentData()),'primary'))
+        auto=QCheckBox(tr('update_auto'));auto.setChecked(preferences.read(self.c.folder).get('check_updates',True))
+        form.addWidget(auto);form.addWidget(label(tr('update_auto_help'),'muted',True))
+        form.addWidget(button(tr('save'),lambda:self.save_settings(theme.currentData(),language.currentData(),auto.isChecked()),'primary'))
         box.addWidget(appearance)
         data=QFrame(); data.setObjectName('card'); data_box=QVBoxLayout(data); data_box.setContentsMargins(22,20,22,20); data_box.setSpacing(12)
         data_box.addWidget(label(self.ui_text('data'),'gameName'))
@@ -870,23 +876,45 @@ class Window(QMainWindow):
         box.addWidget(label(self.ui_text('about'),'muted'))
         box.addWidget(label(self.ui_text('updates'),'muted',True))
         if self.mode=='release':
-            box.addWidget(button(tr('download_latest'),lambda:QDesktopServices.openUrl(QUrl(RELEASE_URL))))
+            box.addWidget(button(tr('update_check'),self.open_updates,'primary'))
         box.addStretch(); scroll.setWidget(host)
         return scroll
 
-    def theme_name(self):
-        import json
-        try:
-            return json.loads((self.c.folder/'.qt-preferences.json').read_text(encoding='utf-8')).get('theme','dark')
-        except (ValueError,OSError):
-            return 'dark'
+    def open_updates(self):
+        from .update_dialog import UpdateDialog
+        UpdateDialog(self,self.available_update).exec()
 
-    def save_settings(self,theme,language):
+    def check_updates_automatically(self):
+        from .tasks import Task
+        from .updates import check_release
+        prefs=preferences.read(self.c.folder)
+        if not prefs.get('check_updates',True) or time.time()-prefs.get('update_last_check',0)<86400:
+            return
+        def checked(release):
+            if task.cancel.is_set(): return
+            preferences.save(self.c.folder,update_last_check=time.time())
+            self.available_update=release
+            if release:
+                self.statusBar().showMessage(tr('update_notice').format(version=release.version))
+                if not hasattr(self,'update_notice'):
+                    self.update_notice=button(tr('update_notice').format(version=release.version),self.open_updates)
+                    self.statusBar().addPermanentWidget(self.update_notice)
+        task=Task(self,lambda cancel,progress:check_release())
+        task.succeeded.connect(checked)
+        task.failed.connect(lambda error:None)
+        task.start()
+
+    def theme_name(self):
+        return preferences.read(self.c.folder).get('theme','dark')
+
+    def save_settings(self,theme,language,check_updates=None):
         from horas_jogadas.storage import escrever_json_atomico
         def save():
             self.c.config['idioma']=language
             self.c.repo.salvar_config(self.c.config)
-            escrever_json_atomico(str(self.c.folder/'.qt-preferences.json'),{'theme':theme})
+            changes={'theme':theme}
+            if check_updates is not None: changes['check_updates']=check_updates
+            preferences.save(self.c.folder,**changes)
         if self.perform(save,False):
             i18n.definir_idioma(language)
             apply_theme(QApplication.instance(),theme)
@@ -1018,6 +1046,13 @@ class Window(QMainWindow):
             self.timer.start()
 
     def closeEvent(self,event):
+        from .tasks import Task
+        running=[task for task in self.findChildren(Task) if task.thread.isRunning()]
+        if running:
+            for task in running: task.cancel.set()
+            self.statusBar().showMessage(tr('update_closing'))
+            QTimer.singleShot(100,self.close)
+            event.ignore(); return
         if self.closing_allowed or self.pending_recovery:
             event.accept()
         elif self.resolve_pending():

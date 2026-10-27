@@ -3,9 +3,9 @@ from horas_jogadas.i18n import idioma_atual
 
 TEXTS = {
  'pt': {
-  'release_review':'VERSÃO 3.0.0', 'release_separate':'Dados locais',
+  'release_review':'VERSÃO {version}', 'release_separate':'Dados locais',
   'release_copy':'Seus registros são armazenados neste computador.', 'release_data':'Seus dados',
-  'release_about':'HorasJogadas 3.0.0', 'release_updates':'Baixe novas versões pelo site oficial. Seus dados ficam separados da instalação.',
+  'release_about':'HorasJogadas {version}', 'release_updates':'Verifique e instale novas versões por aqui. Seus dados ficam separados da instalação.',
   'release_copy_data':'Criar cópia para testar…', 'release_copy_help':'Uma cópia isolada será criada para testes, sem mesclar ou sobrescrever os registros oficiais.',
   'release_confirm_clear':'Apagar TODO o histórico? Um backup completo será criado antes.', 'download_latest':'Ver downloads e atualizações',
   'no_completions':'Nenhum jogo registrado neste ano.', 'top_five':'Top 5 · mais jogados', 'games':'Jogos', 'delete_history':'Excluir histórico', 'no_playtime':'Nenhuma sessão registrada ainda.',
@@ -54,9 +54,9 @@ TEXTS = {
   'snapshot':'Nova revisão criada. Abra novamente usando esta pasta:',
  },
  'en': {
-  'release_review':'VERSION 3.0.0', 'release_separate':'Local data',
+  'release_review':'VERSION {version}', 'release_separate':'Local data',
   'release_copy':'Your records are stored on this computer.', 'release_data':'Your data',
-  'release_about':'HorasJogadas 3.0.0', 'release_updates':'Download new versions from the official site. Data is separate from the installation.',
+  'release_about':'HorasJogadas {version}', 'release_updates':'Check and install new versions here. Data is separate from the installation.',
   'release_copy_data':'Create a test copy…', 'release_copy_help':'A separate test copy will be created without merging or replacing official records.',
   'release_confirm_clear':'Delete ALL history? A full backup will be created first.', 'download_latest':'Downloads and updates',
   'no_completions':'No games recorded in this year.', 'top_five':'Top 5 · most played', 'games':'Games', 'delete_history':'Delete history', 'no_playtime':'No sessions recorded yet.',
@@ -102,6 +102,9 @@ TEXTS = {
   'snapshot':'New review created. Reopen using this folder:',
  }
 }
+
+TEXTS['pt'].update({'close':'Fechar', 'update_title': 'Atualizações', 'update_check': 'Verificar atualizações', 'update_current': 'Versão instalada: {version}', 'update_available': 'Versão {version} disponível', 'update_latest': 'Você está na versão mais recente ({version}).', 'update_download': 'Baixar atualização', 'update_install': 'Instalar e reiniciar', 'update_checking': 'Verificando versões…', 'update_downloading': 'Baixando e conferindo a atualização…', 'update_ready': 'Download verificado. Pronto para instalar.', 'update_help': 'Consulta o GitHub oficial. O download acontece em segundo plano; a instalação só começa quando você confirmar. Um backup dos registros é criado antes de fechar o app.', 'update_confirm': 'Instalar e reiniciar agora? Um backup completo será criado antes de fechar o aplicativo.', 'update_error': 'Não foi possível concluir. Você pode tentar novamente.', 'update_source': 'A instalação automática está disponível nos pacotes executáveis. Esta cópia está sendo executada pelo código-fonte.', 'update_auto': 'Verificar novas versões ao abrir o app', 'update_auto_help': 'Consulta somente a versão no GitHub, no máximo uma vez por dia. Não envia sua biblioteca nem instala nada automaticamente.', 'update_notice': 'Nova versão {version} disponível', 'update_closing': 'Aguardando o encerramento da consulta de rede…'})
+TEXTS['en'].update({'close':'Close', 'update_title': 'Updates', 'update_check': 'Check for updates', 'update_current': 'Installed version: {version}', 'update_available': 'Version {version} available', 'update_latest': 'You have the latest version ({version}).', 'update_download': 'Download update', 'update_install': 'Install and restart', 'update_checking': 'Checking versions…', 'update_downloading': 'Downloading and verifying the update…', 'update_ready': 'Download verified. Ready to install.', 'update_help': 'Uses the official GitHub repository. Downloads run in the background; installation requires confirmation. Your records are backed up before closing the app.', 'update_confirm': 'Install and restart now? A complete backup will be created before closing the app.', 'update_error': 'Could not complete the update. You can try again.', 'update_source': 'Automatic installation is available in executable packages. This copy is running from source code.', 'update_auto': 'Check for new versions when opening the app', 'update_auto_help': 'Checks only the version on GitHub, at most once a day. Does not send your library or install automatically.', 'update_notice': 'New version {version} available', 'update_closing': 'Waiting for the network request to finish…'})
 
 
 def tr(key):

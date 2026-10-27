@@ -4,6 +4,9 @@ import shutil
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent.parent
+import sys
+sys.path.insert(0,str(ROOT))
+from horas_jogadas_qt.release import VERSION
 
 
 def build(output,repository='JoaoPPolli/HorasJogadas'):
@@ -18,7 +21,7 @@ def build(output,repository='JoaoPPolli/HorasJogadas'):
         shutil.rmtree(output)
     shutil.copytree(ROOT/'site',output)
     html=output/'index.html'
-    text=html.read_text(encoding='utf-8').replace('__REPOSITORY__','https://github.com/'+repository).replace('__RELEASE__','https://github.com/'+repository+'/releases/latest')
+    text=html.read_text(encoding='utf-8').replace('__REPOSITORY__','https://github.com/'+repository).replace('__RELEASE__','https://github.com/'+repository+'/releases/latest').replace('__VERSION__',VERSION)
     html.write_text(text,encoding='utf-8')
     (output/'.nojekyll').write_text('')
     (output/'.generated-by-horasjogadas-site').write_text('')

@@ -1,10 +1,13 @@
 """Registra evidência não secreta da publicação para acompanhamento via Git."""
 import json
+import sys
 import os
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent.parent))
+from horas_jogadas_qt.release import VERSION
 
 status={
-    'phase':'release', 'version':os.environ.get('RELEASE_VERSION','3.0.0'),
+    'phase':'release', 'version':VERSION,
     'run_url':os.environ['RUN_URL'], 'commit':os.environ['SOURCE_COMMIT'],
     'build':os.environ.get('BUILD_RESULT'), 'publish':os.environ.get('PUBLISH_RESULT'),
     'pages':os.environ.get('PAGES_RESULT'),
