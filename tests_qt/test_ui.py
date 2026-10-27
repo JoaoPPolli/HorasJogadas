@@ -2,6 +2,9 @@ import os
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 import tempfile
 import unittest
+import importlib.util
+if importlib.util.find_spec('PySide6') is None:
+    raise unittest.SkipTest('Interface Qt opcional: instale requirements-qt.txt para estes testes.')
 from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
@@ -240,3 +243,50 @@ class UiTests(unittest.TestCase):
         with patch.object(QMessageBox,'question',return_value=QMessageBox.Cancel):
             self.assertFalse(self.w.recovery_prompt())
         self.assertEqual((self.folder/'em_andamento.json').read_bytes(),pending)
+
+    def test_library_navigation_and_edit_preserve_search_filter_and_scroll(self):
+        self.w.search.setText('Hollow')
+        self.w.filter.setCurrentIndex(self.w.filter.findData('Jogando'))
+        APP.processEvents()
+        self.w.navigate('history'); APP.processEvents()
+        self.w.navigate('library'); APP.processEvents()
+        self.assertEqual(self.w.search.text(),'Hollow')
+        self.assertEqual(self.w.filter.currentData(),'Jogando')
+        visible=[key for key,card in self.w.cards.items() if not card.isHidden()]
+        self.assertEqual(len(visible),1)
+        key=visible[0]
+        self.w.perform(lambda:self.c.repo.renomear_jogo(key,'Hollow Knight · revisado'))
+        APP.processEvents()
+        self.assertEqual(self.w.search.text(),'Hollow')
+        self.assertFalse(self.w.cards[key].isHidden())
+        self.w.search.clear(); self.w.filter.setCurrentIndex(0)
+        self.w.resize(840,620); APP.processEvents()
+        bar=self.w.library_scroll.verticalScrollBar()
+        self.assertGreater(bar.maximum(),100)
+        bar.setValue(150)
+        previous=bar.value()
+        self.w.navigate('completed'); APP.processEvents()
+        self.w.navigate('library'); QTest.qWait(20); APP.processEvents()
+        self.assertEqual(self.w.library_scroll.verticalScrollBar().value(),previous)
+        self.assertEqual(self.critical.call_count,0)
+
+    def test_history_selection_survives_refresh_and_round_trip(self):
+        self.w.navigate('history'); APP.processEvents()
+        self.w.history.selectRow(2)
+        key=self.w.history_sessions[2].sessao_id
+        self.w.navigate('completed'); APP.processEvents()
+        self.w.navigate('history'); APP.processEvents()
+        self.assertEqual(self.w.history_sessions[self.w.history.currentRow()].sessao_id,key)
+        self.w.perform(lambda:self.c.repo.atualizar_sessao(key,self.w.history_sessions[2].jogo_id,
+            self.w.history_sessions[2].jogo,600,self.w.history_sessions[2].data_dt))
+        self.assertEqual(self.w.history_sessions[self.w.history.currentRow()].sessao_id,key)
+        self.assertEqual(self.critical.call_count,0)
+
+    def test_clicking_card_releases_search_focus_without_clearing_filter(self):
+        self.w.search.setText('Hollow')
+        self.w.search.setFocus(); APP.processEvents()
+        key=next(key for key,card in self.w.cards.items() if not card.isHidden())
+        QTest.mouseClick(self.w.cards[key],Qt.LeftButton)
+        APP.processEvents()
+        self.assertFalse(self.w.search.hasFocus())
+        self.assertEqual(self.w.search.text(),'Hollow')

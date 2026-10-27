@@ -3,6 +3,7 @@ from horas_jogadas.i18n import idioma_atual
 
 TEXTS = {
  'pt': {
+  'all_count':'{n} jogos', 'one_game':'1 jogo', 'paused_count':'{n} em pausa', 'empty_chart':'Nenhuma sessão neste período.', 'space':'SEU ESPAÇO', 'separate':'Cópia para revisão', 'result_count':'{n} de {total} jogos', 'active_count':'{n} em andamento', 'no_active':'Nenhuma sessão ativa', 'library_hint':'Ctrl+F para buscar · Duplo clique no tempo para ajustar', 'brand_hint':'Seu diário de jogos',
   'library':'Biblioteca', 'history':'Histórico', 'stats':'Estatísticas', 'completed':'Zerados',
   'settings':'Configurações', 'subtitle':'Seu tempo de jogo, bem organizado.',
   'review':'VERSÃO PARA REVISÃO', 'copy':'Você está usando uma cópia. Os registros do app atual não são alterados.',
@@ -47,6 +48,7 @@ TEXTS = {
   'snapshot':'Nova revisão criada. Abra novamente usando esta pasta:',
  },
  'en': {
+  'all_count':'{n} games', 'one_game':'1 game', 'paused_count':'{n} paused', 'empty_chart':'No sessions in this period.', 'space':'YOUR SPACE', 'separate':'Review copy', 'result_count':'{n} of {total} games', 'active_count':'{n} running', 'no_active':'No active sessions', 'library_hint':'Ctrl+F to search · Double-click a timer to adjust', 'brand_hint':'Your gaming journal',
   'library':'Library', 'history':'History', 'stats':'Statistics', 'completed':'Completed',
   'settings':'Settings', 'subtitle':'Your gaming time, thoughtfully organized.',
   'review':'REVIEW BUILD', 'copy':'You are using a copy. Your current app records are not modified.',

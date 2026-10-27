@@ -7,10 +7,10 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QTimer, QDateTime, QUrl, QEvent
-from PySide6.QtGui import QAction, QKeySequence, QShortcut, QDesktopServices
+from PySide6.QtGui import QColor, QAction, QKeySequence, QShortcut, QDesktopServices
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFrame, QVBoxLayout, QHBoxLayout,
     QStackedWidget, QScrollArea, QLineEdit, QComboBox, QMessageBox, QInputDialog, QMenu,
-    QTableWidgetItem, QFileDialog, QDateTimeEdit, QSpinBox, QCheckBox, QPlainTextEdit, QDialog, QDialogButtonBox)
+    QTableWidgetItem, QFileDialog, QDateTimeEdit, QSpinBox, QCheckBox, QPlainTextEdit, QDialog, QDialogButtonBox, QSizePolicy, QTableWidget)
 from horas_jogadas import i18n, stats, exportacao, instancia, icone_barra
 from horas_jogadas.constants import STATUS_OPCOES, ORDENACOES, INTERVALO_HEARTBEAT_S
 from horas_jogadas.edicao_sessao import validar, LIMITE_CONFIRMACAO_S
@@ -23,47 +23,71 @@ from .preview import prepare_preview
 from .backup import create_full, read_full, restore_full
 from .texts import tr
 from .theme import apply_theme, translate_standard_controls
-from .widgets import label, button, row, metric, table, Form, CardLayout, Chart
+from .widgets import label, button, row, metric, table, Form, CardLayout, Chart, GameAvatar, ElidedLabel
+from .icons import icon
 
 
 class GameCard(QFrame):
     def __init__(self, window, key):
         super().__init__()
-        self.window, self.key = window, key
-        self.setObjectName('card')
+        self.owner, self.key = window, key
+        self.setObjectName('gameCard')
         self.setMinimumWidth(310)
         box = QVBoxLayout(self)
         box.setContentsMargins(20, 18, 20, 18)
-        box.setSpacing(12)
+        box.setSpacing(11)
         game = window.c.repo.jogo_por_id(key)
-        self.status = label(t_status(game.status).upper(), 'eyebrow')
-        more = button('···', lambda: window.game_menu(key, more))
+        title = ElidedLabel(game.nome)
+        self.status = label(t_status(game.status).upper(), 'statusPill')
+        self.status.setProperty('status', game.status)
+        self.status.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        identity = QWidget()
+        identity_box = QVBoxLayout(identity)
+        identity_box.setContentsMargins(0, 0, 0, 0)
+        identity_box.setSpacing(3)
+        identity_box.addWidget(title)
+        identity_box.addWidget(self.status)
+        more = button('', lambda: window.game_menu(key, more), 'quiet')
+        more.setIcon(icon('more'))
         more.setToolTip(tr('actions'))
-        more.setFixedWidth(40)
-        box.addWidget(row(self.status, None, more))
-        title = label(game.nome, 'gameName')
-        title.setWordWrap(True)
-        title.setMinimumHeight(40)
-        box.addWidget(title)
-        self.state = label('', 'muted')
-        box.addWidget(self.state)
+        more.setAccessibleName(tr('actions'))
+        more.setFixedSize(30, 30)
+        top = row(GameAvatar(game.nome), identity, more)
+        top.layout().setStretch(1, 1)
+        box.addWidget(top)
+        box.addSpacing(6)
+        box.addWidget(label(tr('session').upper(), 'eyebrow'))
         self.elapsed = label('00:00:00', 'timer')
         self.elapsed.setToolTip(tr('adjust'))
         self.elapsed.mouseDoubleClickEvent = lambda event: window.adjust_timer(key)
         box.addWidget(self.elapsed)
+        self.state = label('', 'muted')
+        box.addWidget(self.state)
+        box.addSpacing(5)
+        rule = QFrame(); rule.setObjectName('rule'); rule.setFixedHeight(1)
+        box.addWidget(rule)
         self.total = label('', 'muted')
         box.addWidget(self.total)
-        box.addSpacing(4)
         self.start = button(tr('start'), lambda: window.timer_action(key, 'start'), 'primary')
-        self.pause = button(tr('pause'), lambda: window.timer_action(key, 'pause'))
-        self.stop = button(tr('stop'), lambda: window.timer_action(key, 'finish'))
-        box.addWidget(row(self.start, self.pause, self.stop))
+        foreground = QColor('#171a20' if self.palette().window().color().lightness() < 128 else '#ffffff')
+        self.start.setIcon(icon('play', foreground=foreground))
+        self.pause = button('', lambda: window.timer_action(key, 'pause'), 'iconButton')
+        self.pause.setIcon(icon('pause'))
+        self.pause.setFixedWidth(40)
+        self.stop = button('', lambda: window.timer_action(key, 'finish'), 'iconButton')
+        self.stop.setIcon(icon('stop'))
+        self.stop.setFixedWidth(40)
+        self.stop.setToolTip(tr('stop'))
+        self.stop.setAccessibleName(tr('stop'))
+        controls = row(self.start, self.pause, self.stop)
+        controls.layout().setStretch(0, 1)
+        box.addWidget(controls)
         self.update_timer()
 
     def update_timer(self):
-        timer = self.window.c.timers[self.key]
+        timer = self.owner.c.timers[self.key]
         self.elapsed.setText(formatar_hhmmss(timer.seconds()))
-        total = self.window.totals.get(self.key, 0) + timer.seconds()
+        total = self.owner.totals.get(self.key, 0) + timer.seconds()
         self.total.setText(f"{tr('total')} · {formatar_hhmmss(total, simplificado=True)}")
         state = 'playing' if timer.rodando else 'paused' if timer.pausado else 'ready'
         text = tr(state)
@@ -77,10 +101,14 @@ class GameCard(QFrame):
             self.state.style().polish(self.state)
         self.start.setText(tr('resume') if timer.pausado else tr('start'))
         self.start.setEnabled(not timer.rodando)
-        self.pause.setText(tr('pause_options') if timer.pausado else tr('pause'))
+        self.pause.setAccessibleName(tr('count_pause') if timer.pausado else tr('pause'))
         self.pause.setToolTip(tr('count_pause') if timer.pausado else tr('pause'))
         self.pause.setEnabled(timer.rodando or timer.pausado)
         self.stop.setEnabled(timer.pending)
+        if self.property('activity') != state:
+            self.setProperty('activity', state)
+            self.style().unpolish(self)
+            self.style().polish(self)
 
 
 class Window(QMainWindow):
@@ -88,6 +116,8 @@ class Window(QMainWindow):
         super().__init__()
         self.c, self.lock = controller, lock
         self.page = 'library'
+        self.view_states = {}
+        self.displayed_page = None
         self.totals = self.c.repo.totais_por_jogo_id()
         self.year = date.today().year
         self.period = '7d'
@@ -108,7 +138,8 @@ class Window(QMainWindow):
         self.timer.timeout.connect(self.tick)
         self.timer.start()
         self.overlay = icone_barra.SobreposicaoBarra(lambda: int(self.winId()), lambda s: t('icone.' + s), icone_barra.criar_backend())
-        self.statusBar().showMessage(str(self.c.folder))
+        self.statusBar().showMessage(tr('library_hint'))
+        self.statusBar().setToolTip(str(self.c.folder))
 
     def build_shell(self):
         root = QWidget()
@@ -121,17 +152,34 @@ class Window(QMainWindow):
         nav = QVBoxLayout(sidebar)
         nav.setContentsMargins(18, 26, 18, 20)
         nav.setSpacing(8)
-        nav.addWidget(row(label('HJ', 'logo'), label('HorasJogadas', 'brand')))
-        nav.addSpacing(32)
+        logo = label('', 'logo')
+        foreground = QColor('#171a20' if self.palette().window().color().lightness() < 128 else '#ffffff')
+        logo.setPixmap(icon('clock', 22, foreground=foreground).pixmap(22,22))
+        logo.setFixedSize(40,40)
+        brand = QWidget(); brand_box = QVBoxLayout(brand)
+        brand_box.setContentsMargins(0,0,0,0); brand_box.setSpacing(3)
+        brand_box.addWidget(label('HorasJogadas', 'brand'))
+        hint = label(tr('brand_hint'), 'muted'); hint.setStyleSheet('font-size: 10px;')
+        brand_box.addWidget(hint)
+        nav.addWidget(row(logo, brand))
+        nav.addSpacing(24)
+        nav.addWidget(label(tr('space'), 'section'))
         self.nav_buttons = {}
         for name, glyph in [('library','▤'), ('history','◷'), ('stats','▥'), ('completed','◇')]:
-            item = button(f'{glyph}   {tr(name)}', lambda checked=False, page=name: self.navigate(page), 'nav')
+            item = button(tr(name), lambda checked=False, page=name: self.navigate(page), 'nav')
+            item.setIcon(icon(name))
             item.setCheckable(True)
             nav.addWidget(item)
             self.nav_buttons[name] = item
         nav.addStretch()
-        nav.addWidget(label(tr('review'), 'eyebrow', True))
-        settings = button('⚙   ' + tr('settings'), lambda: self.navigate('settings'), 'nav')
+        self.side_activity = label(tr('no_active'), 'muted', True)
+        self.side_activity.setStyleSheet('font-size: 11px; padding: 0 10px;')
+        nav.addWidget(self.side_activity)
+        nav.addSpacing(12)
+        review = label(tr('separate'), 'reviewBadge')
+        review.setToolTip(tr('copy')); nav.addWidget(review)
+        settings = button(tr('settings'), lambda: self.navigate('settings'), 'nav')
+        settings.setIcon(icon('settings'))
         settings.setCheckable(True)
         nav.addWidget(settings)
         self.nav_buttons['settings'] = settings
@@ -140,11 +188,12 @@ class Window(QMainWindow):
         self.main = QVBoxLayout(main)
         self.main.setContentsMargins(30, 24, 30, 24)
         self.main.setSpacing(20)
-        self.main.addWidget(label(tr('copy'), 'review', True))
         self.title = label('', 'title')
         self.subtitle = label('', 'subtitle')
-        self.main.addWidget(self.title)
-        self.main.addWidget(self.subtitle)
+        heading = QWidget(); heading_box = QVBoxLayout(heading)
+        heading_box.setContentsMargins(0,0,0,0); heading_box.setSpacing(6)
+        heading_box.addWidget(self.title); heading_box.addWidget(self.subtitle)
+        self.main.addWidget(heading)
         self.stack = QStackedWidget()
         self.pages = {}
         self.main.addWidget(self.stack, 1)
@@ -160,12 +209,67 @@ class Window(QMainWindow):
         self.subtitle.setVisible(page in ('library', 'completed'))
         self.refresh()
 
+    def remember_view(self):
+        page = self.displayed_page
+        current = self.stack.currentWidget()
+        if current is None or current is not self.pages.get(page):
+            return
+        state = {}
+        if page == 'library':
+            state = {'search': self.search.text(), 'status': self.filter.currentData(),
+                     'scroll': self.library_scroll.verticalScrollBar().value()}
+        else:
+            if isinstance(current, QScrollArea):
+                state['scroll'] = current.verticalScrollBar().value()
+            grid = current.findChild(QTableWidget)
+            if grid is not None:
+                state['table_scroll'] = grid.verticalScrollBar().value()
+                index = grid.currentRow()
+                state['row'] = index
+                values = self.table_values(page)
+                if 0 <= index < len(values):
+                    state['selected'] = self.record_key(page, values[index])
+        self.view_states[page] = state
+
+    def table_values(self, page):
+        return {'history': getattr(self, 'history_sessions', []),
+                'completed': getattr(self, 'completion_rows', []),
+                'stats': getattr(self, 'stat_groups', [])}.get(page, [])
+
+    @staticmethod
+    def record_key(page, value):
+        return value.sessao_id if page == 'history' else value.id if page == 'completed' else value.chave
+
+    def restore_view(self, widget):
+        state = self.view_states.get(self.page, {})
+        bar = None
+        if self.page == 'library':
+            self.search.setText(state.get('search', ''))
+            self.filter.setCurrentIndex(max(0, self.filter.findData(state.get('status'))))
+            bar = self.library_scroll.verticalScrollBar()
+        elif isinstance(widget, QScrollArea):
+            bar = widget.verticalScrollBar()
+        if bar is not None:
+            QTimer.singleShot(0, widget, lambda: bar.setValue(state.get('scroll', 0)))
+        grid = widget.findChild(QTableWidget)
+        values = self.table_values(self.page)
+        if grid is not None and values:
+            selected = state.get('selected')
+            index = next((i for i, value in enumerate(values) if self.record_key(self.page, value) == selected),
+                         max(0, min(state.get('row', 0), len(values) - 1)))
+            grid.selectRow(index)
+            QTimer.singleShot(0, widget, lambda: grid.verticalScrollBar().setValue(state.get('table_scroll', 0)))
+
     def refresh(self):
+        self.remember_view()
         old = self.pages.get(self.page)
         widget = getattr(self, 'build_' + self.page)()
         self.pages[self.page] = widget
         self.stack.addWidget(widget)
         self.stack.setCurrentWidget(widget)
+        self.restore_view(widget)
+        self.displayed_page = self.page
+        self.update_activity()
         if old:
             self.stack.removeWidget(old)
             old.deleteLater()
@@ -211,10 +315,14 @@ class Window(QMainWindow):
         self.search = QLineEdit()
         self.search.setPlaceholderText(tr('search'))
         self.search.setClearButtonEnabled(True)
+        self.search.addAction(icon('search'), QLineEdit.LeadingPosition)
+        self.search.setAccessibleName(tr('search'))
         self.search_escape = QShortcut(QKeySequence(Qt.Key_Escape), self.search)
         self.search_escape.setContext(Qt.WidgetShortcut)
         self.search_escape.activated.connect(lambda: (self.search.clear(), self.search.clearFocus()))
         self.filter = QComboBox()
+        self.filter.setToolTip(tr('status'))
+        self.filter.setAccessibleName(tr('status'))
         self.filter.addItem(tr('all'), None)
         for status in STATUS_OPCOES:
             self.filter.addItem(t_status(status), status)
@@ -222,7 +330,10 @@ class Window(QMainWindow):
         for key in ORDENACOES:
             self.order.addItem(t('ord.' + key), key)
         self.order.setCurrentIndex(max(0, self.order.findData(self.c.config.get('ordenacao', 'manual'))))
-        box.addWidget(row(self.search, self.filter, self.order, button('+ ' + tr('add'), self.add_game, 'primary')))
+        add = button(tr('add'), self.add_game, 'primary')
+        box.addWidget(row(self.search, self.filter, self.order, add))
+        self.library_count = label('', 'muted')
+        box.addWidget(self.library_count)
         self.library_scroll = QScrollArea()
         self.library_scroll.setWidgetResizable(True)
         self.library_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -252,6 +363,8 @@ class Window(QMainWindow):
             visible = (not term or term in normalizar_texto(game.nome)) and (not status or game.status == status)
             card.setVisible(visible)
             count += bool(visible)
+        self.library_count.setText((tr('one_game') if count == 1 else tr('all_count').format(n=count))
+                                   if count == len(self.cards) else tr('result_count').format(n=count, total=len(self.cards)))
         self.card_layout.invalidate()
         self.library_host.updateGeometry()
         self.empty.setVisible(count == 0)
@@ -286,8 +399,13 @@ class Window(QMainWindow):
 
     def add_game(self):
         name, ok = QInputDialog.getText(self, tr('add'), tr('name'))
-        if ok:
-            self.perform(lambda: self.c.add_game(name))
+        if ok and self.perform(lambda: self.c.add_game(name), refresh=False):
+            # Um jogo recém-adicionado deve aparecer mesmo se havia uma busca ativa.
+            self.search.blockSignals(True); self.filter.blockSignals(True)
+            self.search.clear(); self.filter.setCurrentIndex(0)
+            self.search.blockSignals(False); self.filter.blockSignals(False)
+            self.library_scroll.verticalScrollBar().setValue(0)
+            self.refresh()
 
     def timer_action(self, key, action):
         timer = self.c.timers[key]
@@ -313,6 +431,7 @@ class Window(QMainWindow):
             if self.page == 'library':
                 self.cards[key].update_timer()
                 self.reorder_cards()
+            self.update_activity()
 
     def adjust_timer(self, key):
         seconds, ok = QInputDialog.getInt(self, tr('adjust'), tr('delta'), 0, -2147483647, 2147483647)
@@ -800,6 +919,14 @@ class Window(QMainWindow):
             self.c.save_pending()
         return self.perform(apply,False)
 
+    def update_activity(self):
+        running = sum(timer.rodando for timer in self.c.timers.values())
+        paused = sum(timer.pausado for timer in self.c.timers.values())
+        text = tr('active_count').format(n=running) if running else ''
+        if paused:
+            text += (' · ' if text else '') + tr('paused_count').format(n=paused)
+        self.side_activity.setText(text or tr('no_active'))
+
     def tick(self):
         if self.pending_recovery:
             return
@@ -808,6 +935,7 @@ class Window(QMainWindow):
                 for key,card in self.cards.items():
                     if self.c.timers[key].pending:
                         card.update_timer()
+            self.update_activity()
             self.overlay.definir(icone_barra.estado_do_icone(self.c.timers.values()))
             if instancia.consumir_sinal(str(self.c.folder)):
                 self.showNormal(); self.raise_(); self.activateWindow()

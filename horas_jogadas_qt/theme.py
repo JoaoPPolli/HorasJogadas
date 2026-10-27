@@ -1,8 +1,9 @@
 """Paletas nativas, sem dependência de imagens ou serviços externos."""
+from pathlib import Path
 from PySide6.QtGui import QColor, QPalette, QFont
 
 PALETTES = {
-    'dark': ('#191c20', '#121416', '#22262b', '#32383f', '#f0f2f5', '#a1a9b5', '#e2e8f0', '#171a20'),
+    'dark': ('#16191d', '#101215', '#1e2227', '#2c323a', '#f0f2f5', '#a1a9b5', '#e2e8f0', '#171a20'),
     'violet': ('#15141c', '#101017', '#211f2d', '#363147', '#f2f0fa', '#aba6bc', '#a89bfa', '#151121'),
     'light': ('#f4f5f7', '#ebedf0', '#ffffff', '#d6dbe2', '#20252d', '#596575', '#365ac8', '#ffffff'),
 }
@@ -10,6 +11,10 @@ PALETTES = {
 
 def apply_theme(app, name='dark'):
     bg, side, card, border, text, muted, accent, on_accent = PALETTES.get(name, PALETTES['dark'])
+    assets = Path(__file__).with_name('assets')
+    arrow_theme = 'light' if name == 'light' else 'dark'
+    down_arrow = (assets / ('down-' + arrow_theme + '.svg')).as_posix()
+    up_arrow = (assets / ('up-' + arrow_theme + '.svg')).as_posix()
     app.setStyle('Fusion')
     palette = QPalette()
     for role, color in [(QPalette.Window, bg), (QPalette.WindowText, text), (QPalette.Base, card),
@@ -29,13 +34,13 @@ def apply_theme(app, name='dark'):
       QLabel#brand {{ font-size: 14px; font-weight: 650; }}
       QLabel#logo {{ background: {accent}; color: {on_accent}; border-radius: 10px;
                     font-size: 16px; font-weight: 700; padding: 8px; }}
-      QLabel#title {{ font-size: 27px; font-weight: 650; }}
+      QLabel#title {{ font-size: 28px; font-weight: 650; }}
       QLabel#muted, QLabel#subtitle {{ color: {muted}; }}
       QLabel#eyebrow {{ color: {muted}; font-size: 10px; font-weight: 600; }}
       QLabel#metric {{ font-size: 25px; font-weight: 600; }}
       QLabel#gameName {{ font-size: 15px; font-weight: 600; }}
-      QLabel#timer {{ font-family: 'Consolas', 'DejaVu Sans Mono'; font-size: 31px; font-weight: 500; }}
-      QFrame#card {{ background: {card}; border: 1px solid {border}; border-radius: 12px; }}
+      QLabel#timer {{ font-family: 'Consolas', 'DejaVu Sans Mono'; font-size: 30px; font-weight: 500; }}
+      QFrame#card, QFrame#gameCard, QFrame#metricCard {{ background: {card}; border: 1px solid {border}; border-radius: 12px; }}
       QFrame#card QLabel {{ background: transparent; border: none; }}
       QLabel#badge {{ background: {side}; color: {muted}; border-radius: 5px; padding: 4px 8px; font-size: 11px; }}
       QLabel#running {{ color: #56bc95; }}
@@ -73,6 +78,35 @@ def apply_theme(app, name='dark'):
       QMenu::item:selected {{ background: {border}; }}
       QToolTip {{ background: {card}; color: {text}; border: 1px solid {border}; }}
       QStatusBar {{ color: {muted}; background: {side}; }}
+      QFrame#gameCard:hover {{ border-color: {muted}; }}
+      QFrame#gameCard[activity="playing"] {{ border-color: #467e67; }}
+      QFrame#gameCard[activity="paused"] {{ border-color: #7a6846; }}
+      QFrame#metricCard {{ border: none; border-radius: 10px; }}
+      QLabel#section {{ font-size: 9px; font-weight: 600; color: {muted}; padding-left: 10px; }}
+      QLabel#reviewBadge {{ color: {muted}; background: {card}; border: 1px solid {border};
+                           border-radius: 6px; padding: 5px 10px; font-size: 10px; }}
+      QLabel#statusPill {{ color: {muted}; background: {side}; padding: 3px 7px;
+                          border-radius: 4px; font-size: 9px; font-weight: 600; }}
+      QLabel#statusPill[status="Jogando"] {{ color: {'#365478' if name=='light' else '#b4c8e2'}; background: {'#e0e9f5' if name=='light' else '#26303d'}; }}
+      QLabel#statusPill[status="Zerado"] {{ color: {'#276448' if name=='light' else '#a5cfba'}; background: {'#deede4' if name=='light' else '#24342d'}; }}
+      QLabel#statusPill[status="Backlog"] {{ color: {'#805f26' if name=='light' else '#ccbb99'}; background: {'#f1e9dc' if name=='light' else '#332f27'}; }}
+      QPushButton#quiet {{ border-color: transparent; background: transparent; color: {muted}; padding: 7px; }}
+      QPushButton#quiet:hover {{ background: {border}; color: {text}; }}
+      QPushButton#iconButton {{ padding: 8px; min-width: 20px; }}
+      QPushButton#nav {{ border-radius: 8px; padding: 12px; }}
+      QPushButton#nav:checked {{ border-left: 2px solid {accent}; padding-left: 10px; }}
+      QFrame#rule {{ background: {border}; border: none; max-height: 1px; }}
+      QComboBox {{ padding-right: 28px; }}
+      QComboBox::down-arrow {{ image: url("{down_arrow}"); width: 14px; height: 14px; }}
+      QSpinBox::up-button, QDateTimeEdit::up-button {{ width: 22px; border: none; }}
+      QSpinBox::down-button, QDateTimeEdit::down-button {{ width: 22px; border: none; }}
+      QSpinBox::up-arrow, QDateTimeEdit::up-arrow {{ image: url("{up_arrow}"); width: 12px; height: 12px; }}
+      QSpinBox::down-arrow, QDateTimeEdit::down-arrow {{ image: url("{down_arrow}"); width: 12px; height: 12px; }}
+      QTableView {{ alternate-background-color: {card}; border-radius: 10px; }}
+      QTableView::item {{ border-bottom: 1px solid {border}; padding: 10px; }}
+      QTableView::item:selected {{ color: {text}; background: {border}; }}
+      QTableView::item:hover {{ background: {bg}; }}
+      QStatusBar {{ border-top: 1px solid {border}; font-size: 10px; }}
     ''')
 
 

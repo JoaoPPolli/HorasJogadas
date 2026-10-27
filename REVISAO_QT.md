@@ -6,6 +6,17 @@ Esta versão é separada do aplicativo atual. Extraia o pacote em **uma pasta no
 
 ![Biblioteca da nova interface](docs/qt/library.png)
 
+## Acabamento refinado
+
+- Cartões mais compactos, com avatar por jogo, status discreto e cronômetro em destaque.
+- Controles de pausa e encerramento com ícones vetoriais e nomes acessíveis.
+- Menu lateral, campos, setas, listas e indicadores com contraste e alinhamento consistentes.
+- Busca, filtro e posição da biblioteca preservados durante a navegação e a edição.
+- Seleção do histórico preservada pelo ID do registro ao trocar de tela e atualizar a lista.
+- Informações de sessão ativa na lateral e indicação permanente de que os dados são uma cópia.
+
+O pacote anterior continua independente; esta revisão reutiliza a mesma pasta de dados de teste quando a origem é a mesma. Feche a revisão anterior antes de abrir a refinada. Não execute as duas simultaneamente.
+
 ## Abrir no Windows
 
 1. Tenha **Python 3.10 a 3.13, de 64 bits**, com a opção **Add Python to PATH**. O pacote de revisão contém código-fonte, não um executável Windows pronto.
