@@ -265,7 +265,7 @@ class ArtworkUiTests(unittest.TestCase):
         self.assertFalse(avatar.image.isNull()); self.assertFalse(self.w.covers_enabled)
         with patch.object(self.w, 'manage_icons') as manage:
             QTest.mouseClick(avatar, Qt.LeftButton); manage.assert_called_once_with(key)
-        with patch('horas_jogadas_qt.artwork_sources.urlopen', side_effect=AssertionError('network on tick')):
+        with patch('urllib.request.urlopen', side_effect=AssertionError('network on tick')):
             self.w.tick(); self.w.resize(1100, 820); APP.processEvents()
         self.assertIs(self.w.cards[key].findChild(GameAvatar), avatar)
         self.w.save_settings('dark', 'pt', icons_enabled=False); self.w.navigate('library'); APP.processEvents()
