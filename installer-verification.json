@@ -1,10 +1,10 @@
 {
   "ok": true,
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40564765509",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40593259594",
   "checksum": true,
   "installed": true,
   "bundle": {
-    "version": "3.0.0",
+    "version": "3.0.1",
     "ok": true,
     "pages": 5,
     "seconds_saved": 90,
