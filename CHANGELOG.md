@@ -2,6 +2,15 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.2.0
+
+- Busca de capas em Steam, GOG e Wikipedia, com filtro por fonte e identificação em cada resultado.
+- Reconhecimento de erros de digitação, busca aproximada e nova tentativa com o título reconhecido; resultados incertos e sequências semelhantes continuam exigindo escolha manual.
+- Busca, prévia e importação em lote de ícones oficiais da Steam e GOG para substituir as iniciais dos jogos.
+- Ícones independentes das capas, com acesso pelo cartão e pelas Configurações, imagem local com transparência e opção de voltar às iniciais sem apagar imagens.
+- Cache offline e backups completos incluem ícones; registros, capas e diários de recuperação anteriores permanecem compatíveis.
+- Falhas em uma fonte não descartam sugestões das demais. A biblioteca não faz buscas de imagem ao abrir ou rolar.
+
 ## 3.1.1
 
 - Corrigida a verificação de atualizações no Linux quando o pacote não encontra os certificados raiz do sistema.

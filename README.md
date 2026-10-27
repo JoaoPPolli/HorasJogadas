@@ -25,7 +25,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.1.1.
+2. Instale ou extraia a versão 3.2.0.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -51,9 +51,15 @@ As partidas feitas na **cópia para revisão** continuam separadas: elas não s�
 
 Em **Configurações**, marque **Exibir capas na biblioteca** e salve. A opção começa desativada: o visual compacto continua disponível e desligar as capas não apaga as imagens nem altera seus registros.
 
-Em **Gerenciar capas**, clique em **Buscar capas dos jogos marcados**, confira os títulos sugeridos e escolha **Importar selecionadas**. A busca usa a loja pública oficial da Steam, sem login ou chave de API. Correspondências incertas precisam de seleção manual; você pode ajustar o texto da busca sem renomear o jogo.
+Em **Gerenciar capas**, clique em **Buscar capas dos jogos marcados**, confira os títulos sugeridos e escolha **Importar selecionadas**. A busca reúne Steam, GOG e Wikipedia, sem login ou chave de API. Você pode escolher todas as fontes ou uma só. Nomes com erros de digitação são comparados com títulos reconhecidos e pesquisados novamente; correspondências incertas e sequências parecidas precisam de seleção manual; você pode ajustar o texto da busca sem renomear o jogo.
 
-As imagens de alta qualidade são baixadas de uma vez e ficam no computador, funcionando depois sem internet. Só os nomes pesquisados são enviados à Steam, por sua iniciativa. Jogos fora do catálogo podem usar uma imagem local. Os backups completos incluem as capas e a preferência de exibição.
+As imagens de alta qualidade são baixadas de uma vez e ficam no computador, funcionando depois sem internet. Só os títulos pesquisados e suas tentativas de correção são enviados às fontes selecionadas, por sua iniciativa. Na busca em todas as fontes, a Wikipedia também ajuda a reconhecer os nomes. Jogos fora do catálogo podem usar uma imagem local. Os backups completos incluem as capas e a preferência de exibição.
+
+## Ícones dos jogos
+
+Em **Configurações → Gerenciar ícones**, busque em lote, confira a prévia e importe os ícones oficiais da Steam ou GOG. Você também pode clicar no quadrado das iniciais ou usar **Escolher ou trocar ícone** no menu do jogo. Uma imagem local é outra opção.
+
+Os ícones substituem as iniciais e funcionam mesmo com capas desativadas. Em **Configurações → Exibir ícones dos jogos**, desmarque e salve para voltar às iniciais sem apagar as imagens. Jogos sem ícone continuam usando as iniciais. Capas e ícones são independentes, funcionam offline depois de importados e acompanham os backups completos. Não há busca automática de imagens ao abrir ou rolar a biblioteca.
 
 ## Atualizar
 

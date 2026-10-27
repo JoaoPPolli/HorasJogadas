@@ -78,6 +78,20 @@ def run_self_test(result_path):
                 if window.cards[game.id].findChildren(GameCover):raise RuntimeError('Não foi possível desativar as capas')
                 result.update(covers=True,covers_optional=True)
 
+                from .widgets import GameAvatar
+                CoverStore(c.folder,'icon').save_many([(game.id,normalize_image(bytes(image_buffer.data()),'icon'),{'source':'self-test'})])
+                window.refresh();app.processEvents()
+                avatar=window.cards[game.id].findChild(GameAvatar)
+                if avatar is None or avatar.image.isNull():raise RuntimeError('Ícone PNG não foi carregado')
+                icons_dialog=CoverDialog(window,game.id,kind='icon');icons_dialog.show();app.processEvents()
+                if icons_dialog.grab().isNull():raise RuntimeError('Janela de ícones não foi desenhada')
+                icons_dialog.reject();icons_dialog.deleteLater()
+                preferences.save(c.folder,icons_enabled=False);window.refresh();app.processEvents()
+                if not window.cards[game.id].findChild(GameAvatar).image.isNull():raise RuntimeError('Não foi possível voltar às iniciais')
+                from .backup import create_full,read_full
+                if 'icons/index.json' not in read_full(create_full(c.folder)):raise RuntimeError('Ícones ausentes do backup')
+                result.update(game_icons=True,icons_optional=True,icons_backup=True)
+
                 if before != inventory(source): raise RuntimeError('A origem do teste foi alterada')
                 result.update(ok=True,pages=5,seconds_saved=90,source_unchanged=True,svg=True)
             finally:

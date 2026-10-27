@@ -15,7 +15,9 @@ Os diretórios de bibliotecas do pacote podem ser inspecionados e substituídos
 por versões compatíveis, conforme as licenças aplicáveis. O código-fonte do
 aplicativo está no repositório informado na página de download.
 
-Capas opcionais: obtidas pelo usuário da loja pública da Steam e guardadas localmente.
+Capas e ícones opcionais: obtidos pelo usuário nas fontes públicas Steam, GOG e
+Wikipedia/Wikimedia e guardados localmente. A fonte e o link do resultado são
+preservados no índice local. Direitos das imagens pertencem aos respectivos titulares.
 As imagens pertencem aos respectivos titulares; nenhuma capa de jogo é incluída nos
 pacotes do HorasJogadas. Steam e o logotipo Steam são marcas da Valve Corporation.
 Fonte consultada: https://store.steampowered.com/
@@ -24,3 +26,8 @@ Certifi 2026.10.23: Mozilla Public License 2.0 (MPL-2.0).
 Certificados raiz distribuídos pelo projeto certifi/Mozilla, sem alterações.
 https://github.com/certifi/python-certifi
 Texto integral: Certifi-LICENSE.txt nesta pasta.
+
+GOG é uma marca da GOG sp. z o.o. Wikipedia e Wikimedia são marcas da Wikimedia
+Foundation. As buscas utilizam interfaces públicas; o HorasJogadas não é afiliado
+nem endossado por essas fontes. A disponibilidade de artes varia conforme o título.
+Nenhuma arte de jogo desses serviços acompanha os pacotes do aplicativo.

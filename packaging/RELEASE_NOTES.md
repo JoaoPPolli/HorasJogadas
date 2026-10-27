@@ -1,12 +1,13 @@
-# HorasJogadas 3.1.1 — correção de certificados no Linux
+# HorasJogadas 3.2.0 — mais capas e ícones para seus jogos
 
-Corrige o erro `CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate` ao verificar atualizações em pacotes Linux que não encontram os certificados raiz da máquina.
+Encontre capas em mais fontes e troque as iniciais dos cartões por ícones dos jogos, mantendo seus registros e a opção de usar o visual compacto.
 
-- Inclui certificados de confiança no executável, sem depender dos caminhos do computador usado para compilar.
-- Mantém a verificação de certificados e de nomes dos servidores, além de preservar os certificados locais do sistema.
-- Corrige também o download das atualizações e o acesso às capas da Steam.
-- O executável Linux é testado com os certificados do sistema indisponíveis.
+- **Mais fontes:** Steam, GOG e Wikipedia para capas, com filtro por fonte e identificação de cada sugestão. Não exige conta nem chave de API.
+- **Nomes com erros de digitação:** busca aproximada e novas tentativas com títulos reconhecidos. Confira as sugestões; títulos incertos e sequências semelhantes precisam de escolha manual.
+- **Ícones dos jogos:** Configurações → Gerenciar ícones, ou clique nas iniciais do cartão. Busque na Steam e GOG, veja a prévia e importe em lote. Imagem local, inclusive PNG transparente, também funciona.
+- **Seu visual:** ícones funcionam com as capas desligadas. Desative Exibir ícones dos jogos para voltar às iniciais sem apagar imagens. Capas continuam opcionais e desativadas por padrão.
+- **Seus dados:** capas e ícones ficam locais e acompanham os backups completos. Nenhuma busca de imagem ocorre ao abrir ou rolar a biblioteca. Só os títulos pesquisados e tentativas de correção são enviados às fontes escolhidas; em Todas as fontes a Wikipedia ajuda a reconhecer nomes.
 
-Se a versão anterior não consegue verificar atualizações, baixe esta versão pelo navegador, feche o app e extraia o pacote em uma pasta nova. Não apague `~/HorasJogadas`: os registros continuam nessa pasta. Não precisa instalar Python.
+Atualize pelas Configurações → Verificar atualizações ou use os downloads abaixo. O app mantém a mesma pasta de dados e cria um backup verificado antes da primeira abertura desta versão. Se ainda estiver na 3.1.0 com o erro de certificados no Linux, baixe pelo navegador uma vez. Não apague sua pasta de dados.
 
-Windows: instalador ou ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Confira `SHA256SUMS.txt`.
+Windows: instalador ou ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Não precisa instalar Python. Confira `SHA256SUMS.txt`.

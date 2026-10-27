@@ -58,6 +58,13 @@ As capas são opcionais e começam desativadas. Em Configurações, ative **Exib
 
 Abra **Gerenciar capas** e use **Buscar capas dos jogos marcados**. Jogos sem imagem começam marcados. Confira os resultados: o app seleciona automaticamente apenas correspondências seguras e permite escolher manualmente os demais títulos, ajustar a busca por jogo, ver uma prévia e importar as imagens selecionadas em lote.
 
-A fonte principal é a Steam, com imagens oficiais e busca pública sem login nem chave. Só os títulos pesquisados são enviados; tempos e histórico ficam locais. A arte de alta qualidade é obtida pela URL oficial do jogo e guardada localmente para uso offline. Jogos ausentes do catálogo podem receber uma imagem JPG/PNG/WebP local.
+Escolha **Todas as fontes**, **Steam**, **GOG** ou **Wikipedia**. A busca tenta reconhecer erros de digitação, compara títulos e consulta novamente as lojas quando encontra uma correção. Você confere o jogo e a fonte antes de importar; jogos parecidos e sequências incertas precisam de escolha manual. As fontes não exigem conta nem chave. Só os títulos pesquisados e as tentativas de correção são enviados; tempos e histórico ficam locais. A arte de alta qualidade é obtida pela URL oficial do jogo e guardada localmente para uso offline. Jogos ausentes do catálogo podem receber uma imagem JPG/PNG/WebP local.
 
 Clicar na capa ou usar o menu do cartão abre a troca de imagem. Remover uma capa não remove o jogo nem suas sessões. Backups completos incluem as imagens referenciadas e as preferências; backups antigos de registros continuam compatíveis.
+
+
+## Ícones no lugar das iniciais
+
+Abra **Configurações → Gerenciar ícones** ou clique no quadrado de iniciais do cartão. Também existe **Escolher ou trocar ícone** no menu de cada jogo. Busque os jogos marcados, confira as sugestões da Steam e GOG, veja a prévia quadrada e importe os escolhidos. São ícones próprios do jogo; a busca não recorta as capas para simular ícones. Se a fonte não tiver um ícone, tente a outra fonte ou escolha uma imagem local, inclusive PNG transparente.
+
+Capas e ícones são independentes: os ícones funcionam no visual compacto. Desative **Exibir ícones dos jogos** e salve para voltar às iniciais sem apagar as imagens. Remover um ícone não afeta capa, jogo, histórico nem cronômetro. As imagens ficam em `icons/` na pasta de dados, e os backups completos incluem seus arquivos e índice. As capas existentes continuam em `covers/`.

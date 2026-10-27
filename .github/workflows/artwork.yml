@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   catalogs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
     steps:
@@ -19,13 +19,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Image decoder prerequisites
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0
       - run: python -m pip install -r requirements-qt.txt
-      - run: python scripts/probe_artwork_sources.py
+      - run: python scripts/probe_artwork_sources.py > artwork-probe.log 2>&1
       - name: Record public catalog diagnostics
         if: always()
         run: |
+          if ! test -f artwork-catalogs.json; then
+            python -c "import json,pathlib; p=pathlib.Path('artwork-probe.log'); pathlib.Path('artwork-catalogs.json').write_text(json.dumps({'ok':False,'error':p.read_text()[-6000:] if p.exists() else 'Dependencies failed'}))"
+          fi
           cp artwork-catalogs.json "$RUNNER_TEMP/artwork-catalogs.json"
           rm artwork-catalogs.json
+          rm -f artwork-probe.log
           git fetch origin automation/publication-status
           git switch -C automation/publication-status FETCH_HEAD
           cp "$RUNNER_TEMP/artwork-catalogs.json" artwork-catalogs.json
