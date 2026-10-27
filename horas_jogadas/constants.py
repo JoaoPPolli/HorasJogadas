@@ -37,7 +37,7 @@ CONFIG_PADRAO = {"modo_navegacao": "janelas", "ordenacao": ORDENACAO_PADRAO, "id
 CARD_LARGURA = 320
 CARD_PADDING_X = 16
 MAX_COLUNAS = 6
-INTERVALO_UPDATE_MS = 200
+INTERVALO_UPDATE_MS = 1000
 INTERVALO_HEARTBEAT_S = 30
 TAMANHO_PAGINA_HISTORICO = 200
 
@@ -53,7 +53,7 @@ MAX_BACKUPS_RESTAURAR = 5
 INTERVALO_BACKUP_S = 300                  # de quanto em quanto tempo verifica se virou o dia
 NOME_ARQ_TRAVA = "app.lock"
 NOME_ARQ_SINAL = "mostrar.sinal"
-INTERVALO_SINAL_LOOPS = 5                 # checa o sinal "traga a janela para frente" a cada N ciclos (~1 s)
+INTERVALO_SINAL_LOOPS = 1                 # o loop principal roda uma vez por segundo
 
 # --- Atualizações ---
 PASTA_BACKUPS = "_versoes_anteriores"     # dentro da pasta do app

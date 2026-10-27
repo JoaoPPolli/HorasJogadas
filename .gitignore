@@ -25,6 +25,7 @@ _versoes_anteriores/
 # Dados pessoais e backups (não fazem parte do código)
 cronometros.json
 registros.json
+zerados.json
 config.json
 em_andamento.json
 backups/

@@ -36,6 +36,8 @@ def aplicar_tema_moderno(root: tk.Misc) -> None:
 
     style.configure("TRadiobutton", background=COR_BG, foreground=COR_TEXTO)
     style.map("TRadiobutton", background=[("active", COR_BG)])
+    style.configure("Zerados.TCheckbutton", background=COR_BG, foreground=COR_TEXTO)
+    style.map("Zerados.TCheckbutton", background=[("active", COR_BG)])
 
     style.configure("TButton", background=COR_BTN, foreground=COR_TEXTO, bordercolor=COR_BORDA,
                     focusthickness=0, padding=6)
