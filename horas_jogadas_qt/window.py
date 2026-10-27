@@ -1,4 +1,4 @@
-"""Interface de revisão em Qt; as telas são montadas antes de serem mostradas."""
+"""Interface Qt; as telas são montadas antes de serem mostradas."""
 import copy
 import sys
 import time
@@ -26,6 +26,7 @@ from .theme import apply_theme, translate_standard_controls
 from .widgets import label, button, row, metric, table, Form, CardLayout, Chart, GameAvatar, ElidedLabel, Ranking
 from .completions_view import CompletionList, YearPicker
 from .time_dialog import TimeDialog
+from .release import VERSION, RELEASE_URL
 from .icons import icon
 
 
@@ -114,9 +115,10 @@ class GameCard(QFrame):
 
 
 class Window(QMainWindow):
-    def __init__(self, controller, lock=None):
+    def __init__(self, controller, lock=None, mode='review'):
         super().__init__()
         self.c, self.lock = controller, lock
+        self.mode = mode
         self.page = 'library'
         self.view_states = {}
         self.displayed_page = None
@@ -128,7 +130,7 @@ class Window(QMainWindow):
         self.pending_recovery = bool(self.c.repo.carregar_andamento())
         self.closing_allowed = False
         self.last_heartbeat, self.last_backup = time.monotonic(), time.monotonic()
-        self.setWindowTitle('HorasJogadas · ' + tr('review'))
+        self.setWindowTitle('HorasJogadas '+VERSION if self.mode=='release' else 'HorasJogadas · '+self.ui_text('review'))
         self.setMinimumSize(840, 620)
         self.resize(1240, 820)
         self.build_shell()
@@ -143,6 +145,11 @@ class Window(QMainWindow):
         self.overlay = icone_barra.SobreposicaoBarra(lambda: int(self.winId()), lambda s: t('icone.' + s), icone_barra.criar_backend())
         self.statusBar().showMessage(tr('library_hint'))
         self.statusBar().setToolTip(str(self.c.folder))
+
+    def ui_text(self,key):
+        if self.mode=='release':
+            return tr('release_'+key)
+        return tr(key)
 
     def build_shell(self):
         root = QWidget()
@@ -181,8 +188,8 @@ class Window(QMainWindow):
         self.side_activity.setStyleSheet('font-size: 11px; padding: 0 10px;')
         nav.addWidget(self.side_activity)
         nav.addSpacing(12)
-        review = label(tr('separate'), 'reviewBadge')
-        review.setToolTip(tr('copy')); nav.addWidget(review)
+        review = label(self.ui_text('separate'), 'reviewBadge')
+        review.setToolTip(self.ui_text('copy')); nav.addWidget(review)
         settings = button(tr('settings'), lambda: self.navigate('settings'), 'nav')
         settings.setIcon(icon('settings'))
         settings.setCheckable(True)
@@ -568,7 +575,7 @@ class Window(QMainWindow):
             self.perform(lambda: self.c.delete_session(session))
 
     def clear_history(self):
-        if self.confirm(tr('confirm_clear')):
+        if self.confirm(self.ui_text('confirm_clear')):
             def change():
                 create_full(self.c.folder)
                 self.c.repo.limpar_sessoes()
@@ -846,11 +853,11 @@ class Window(QMainWindow):
         form.addWidget(button(tr('save'),lambda:self.save_settings(theme.currentData(),language.currentData()),'primary'))
         box.addWidget(appearance)
         data=QFrame(); data.setObjectName('card'); data_box=QVBoxLayout(data); data_box.setContentsMargins(22,20,22,20); data_box.setSpacing(12)
-        data_box.addWidget(label(tr('data'),'gameName'))
+        data_box.addWidget(label(self.ui_text('data'),'gameName'))
         data_box.addWidget(label(str(self.c.folder),'muted',True))
-        data_box.addWidget(label(tr('copy_help'),'muted',True))
+        data_box.addWidget(label(self.ui_text('copy_help'),'muted',True))
         data_box.addWidget(row(button(tr('open_folder'),lambda:QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.c.folder)))),
-                              button(tr('copy_data'),self.new_review),None))
+                              button(self.ui_text('copy_data'),self.new_review),None))
         data_box.addWidget(row(button(tr('export_csv'),lambda:self.export_csv(False)),
                               button(tr('export_summary'),lambda:self.export_csv(True)),None))
         box.addWidget(data)
@@ -860,8 +867,10 @@ class Window(QMainWindow):
         backups_box.addWidget(row(button(tr('backup_now'),self.backup_now,'primary'),button(tr('restore'),self.restore_backup),
                                  button(tr('restore_legacy'),self.restore_legacy)))
         box.addWidget(backup_card)
-        box.addWidget(label(tr('about'),'muted'))
-        box.addWidget(label(tr('updates'),'muted',True))
+        box.addWidget(label(self.ui_text('about'),'muted'))
+        box.addWidget(label(self.ui_text('updates'),'muted',True))
+        if self.mode=='release':
+            box.addWidget(button(tr('download_latest'),lambda:QDesktopServices.openUrl(QUrl(RELEASE_URL))))
         box.addStretch(); scroll.setWidget(host)
         return scroll
 
@@ -883,17 +892,21 @@ class Window(QMainWindow):
             apply_theme(QApplication.instance(),theme)
             translate_standard_controls(QApplication.instance(),language)
             old=self.centralWidget(); self.build_shell(); old.deleteLater()
-            self.setWindowTitle('HorasJogadas · '+tr('review'))
+            self.setWindowTitle('HorasJogadas '+VERSION if self.mode=='release' else 'HorasJogadas · '+self.ui_text('review'))
             self.navigate('settings')
 
     def new_review(self):
-        source=QFileDialog.getExistingDirectory(self,tr('copy_data'))
-        if not source or not self.confirm(tr('copy_help')):
+        source=QFileDialog.getExistingDirectory(self,self.ui_text('copy_data'))
+        if not source or not self.confirm(self.ui_text('copy_help')):
             return
         target=self.c.folder.parent/('HorasJogadas-Revisao-'+datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
         try:
             prepare_preview(source,target)
-            QMessageBox.information(self,tr('done'),tr('snapshot')+'\n'+str(target)+'\n\npython app_qt.py --review-dir "'+str(target)+'" --source "'+str(Path(source).resolve())+'"')
+            import shlex, subprocess
+            launcher=[sys.executable] if getattr(sys,'frozen',False) else [sys.executable,str(Path(__file__).resolve().parent.parent/'app_qt.py')]
+            command=launcher+['--review-dir',str(target),'--source',str(Path(source).resolve())]
+            formatted=subprocess.list2cmdline(command) if sys.platform=='win32' else shlex.join(command)
+            QMessageBox.information(self,tr('done'),tr('snapshot')+'\n'+str(target)+'\n\n'+formatted)
         except Exception as error:
             QMessageBox.warning(self,tr('error'),str(error))
 

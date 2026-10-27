@@ -1,169 +1,53 @@
-# Guia de uso
+# Guia de uso — HorasJogadas 3.0
 
-[← Voltar ao início](../README.md)
+## Instalar e atualizar
+
+Use a [página de download](https://joaoppolli.github.io/HorasJogadas/). No Windows, o instalador cria um atalho no menu Iniciar; o ZIP portátil deve ser extraído por inteiro. Nenhum dos pacotes precisa de Python.
+
+No Linux x86_64, extraia o `.tar.gz`, abra um terminal na pasta e execute `./HorasJogadas`. É necessária uma sessão gráfica. Em Ubuntu 22.04 ou superior, se faltar alguma biblioteca Qt/X11, instale:
+
+```bash
+sudo apt-get install libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0
+```
+
+Os pacotes não são assinados digitalmente. Baixe somente das Releases oficiais. Atualizações são feitas por um novo instalador ou por extração em uma pasta nova. Feche o app antigo antes. A desinstalação remove o aplicativo, sem remover os registros pessoais.
 
 ## Biblioteca e cronômetros
 
-Adicione um título pelo campo no topo da tela. No cartão, use **Iniciar**, **Pausar** e **Parar**. Parar grava a sessão no histórico. Dê dois cliques no tempo para ajustá-lo; durante uma pausa, o app também permite contar toda ou parte dela.
+Clique em **Adicionar jogo**. Use busca, filtros de status e ordenação para organizar os cartões. No cartão, **Iniciar** começa uma sessão, **Pausar** interrompe a contagem e **Parar** salva a sessão no histórico.
 
-Use os filtros de status e a ordenação para organizar a biblioteca. O menu de contexto do cartão oferece ações do jogo. A busca filtra sem apagar os títulos: `Ctrl+F` foca, clicar fora libera o teclado e `Esc` limpa e sai.
+O menu do cartão permite renomear, ajustar o tempo, trocar status e excluir. O ajuste de tempo aceita horas, minutos e segundos, valores negativos para remover e atalhos de +5, +10, +15 e +30 minutos. Confira o valor antes de confirmar. Dê dois cliques no tempo para abrir o ajuste.
+
+`Ctrl+F` abre a busca; `Esc` limpa o filtro. Se uma sessão ficou pendente depois de um encerramento inesperado, o app oferece a recuperação na próxima abertura.
+
+## Histórico
+
+Consulte as sessões, filtre por jogo e período, edite ou exclua registros e exporte CSV. Edições atualizam os totais da biblioteca e das estatísticas.
+
+## Estatísticas
+
+O gráfico mostra as horas dos cinco jogos mais jogados. A lista de jogos abaixo segue a atividade mais recente e mostra total, quantidade de sessões, primeira e última sessão. Excluir o histórico de um jogo remove suas sessões; confirme com cuidado e mantenha backups.
 
 ## Zerados por ano
 
-Abra **🏆 Zerados** ao lado de Histórico e Dash. Escolha o ano para ver as conclusões
-agrupadas pelo mês em que terminou. Adicione ou edite nome, ano/mês, dia opcional,
-tempo para zerar, horas **adicionais** para platinar, tipo e observações.
-O campo de tempo aceita `13h45m`, `40min` ou `01:30:00`; vazio significa desconhecido.
+Esta lista é independente dos cronômetros e do histórico. Selecione o ano e consulte os meses. Adicione ou edite campanhas concluídas, datas, duração, observações, DLCs, experiências e tempo adicional de platina. **Nova jogada** registra outra conclusão sem substituir a anterior.
 
-- Ao mudar um cronômetro para **Zerado**, o app copia o nome, a data atual e o tempo
-  total (incluindo a sessão aberta) para a lista. Não para nem salva a sessão por conta própria.
-- O registro é independente: edições e exclusões na lista não alteram cronômetros,
-  sessões, histórico ou dashboard. Alterações posteriores no cronômetro também não
-  reescrevem conclusões já registradas.
-- Cada cronômetro gera uma entrada automática uma vez. Alternar seu status, inclusive
-  após excluir ou desfazer a entrada, não cria duplicatas. Use **Nova jogada** na lista
-  para outra campanha e informe o tempo daquela jogada.
-- Jogos que já estavam zerados antes do update não recebem uma data inventada.
-  Use a importação ou adicione-os manualmente.
-- Platina tem duração adicional: 6h35m para zerar + 8h30m para platinar = 15h05m.
-  Uma anotação “Platina” sem duração adicional continua sendo apenas uma observação.
-- **Importar TXT…** aceita vários arquivos, UTF-8, UTF-16 ou ANSI do Windows, com
-  título `ZERADOS EM 2024`, meses como `Março:` e entradas `-Jogo * 13h45m`.
-  O ano também pode vir do nome do arquivo ou ser informado. Revise a prévia, edite
-  linhas não reconhecidas e selecione as que deseja importar. Repetidos são ignorados.
-  Datas com apenas mês continuam sem dia. `(())` identifica experiências sem zerar.
-- **Exportar TXT…** salva o ano selecionado. Linhas `@dia:` e `@nota:` preservam dia
-  e observações na reimportação. O export não altera nenhum dado do aplicativo.
+O resumo anual soma os valores informados: jogos e DLCs concluídos, duração registrada e platina adicional. Tempo desconhecido não vira duração inventada. Importe TXT com prévia e exporte cada ano para guardar uma cópia legível. É possível desfazer a exclusão mais recente enquanto essa opção estiver disponível.
 
-Tudo fica em `%APPDATA%\HorasJogadas\zerados.json`, com backup automático da gravação
-anterior em `zerados.json.bak`. A lista tem armazenamento e recuperação próprios;
-o botão de restaurar backups dos jogos/histórico não substitui a lista de zerados.
-Para guardar uma cópia legível de cada ano, use **Exportar TXT…**.
+## Aparência e idioma
 
-### Resumo anual e DLCs
-
-Em **Zerados**, o ano selecionado agora tem um resumo de jogos zerados, DLCs
-concluídas, tempo registrado e horas adicionais de platina. O tempo registrado soma
-os tempos informados de todos os registros daquele ano, incluindo as horas extras
-de platina e as experiências sem zerar. Cada jogada conta separadamente; tempos
-desconhecidos continuam sem valor e são indicados no resumo.
-
-Ao adicionar ou editar um registro, marque **DLC / expansão** para exibir a etiqueta
-**DLC** junto ao nome. A categoria fica somente na Lista de Zerados, sem alterar os
-cronômetros, histórico ou dashboard. A exportação TXT preserva essa marcação com
-uma linha `@dlc: sim` abaixo do jogo; a importação também reconhece esse formato.
-Nomes com “DLC” não são classificados automaticamente, pois podem representar o
-jogo base e a expansão juntos. Reimportar o TXT original não duplica um registro
-que já foi categorizado no app.
-
-## Histórico e sessões manuais
-
-- **Histórico → ✏️ Editar:** muda jogo, duração e término de qualquer sessão. Sessões acima de 12 h ganham o aviso
-  "⚠ sessão muito longa: confira". **Histórico → ➕ Adicionar sessão** lança uma sessão manual com data (para quando
-  você esqueceu de ligar o timer).
-- **Dashboard → "Sessão mais longa" → ✏️ Editar sessão:** abre direto a sessão suspeita.
-- Ao editar, o início passa a ser (término − duração) e o tempo é repartido pelos dias que esse intervalo toca.
-- Durações acima de 24 h pedem confirmação, e o término não pode estar no futuro.
-
-## Sessões que atravessam a meia-noite
-
-O gráfico "Horas jogadas" (e a sequência de dias) conta o tempo no dia em que ele foi **realmente jogado**: uma sessão
-que começou na sexta às 19h e terminou no sábado às 3h tem a parte da sexta na sexta e a parte do sábado no sábado.
-- **Sessões novas:** o app acumula o tempo por dia enquanto o cronômetro roda (inclusive ao contar uma pausa ou
-  ajustar o tempo à mão, e na recuperação depois de uma queda) e grava o detalhe em `registros.json` (campo `dias`).
-- **Sessões antigas** (sem o detalhe): se começaram e terminaram em dias diferentes (até 36 h de intervalo), o tempo é
-  repartido proporcionalmente ao relógio de cada dia; se não há horário de início, ou o intervalo é maior, fica no dia em que terminou.
-
-## Exportar CSV
-
-Configurações (ou a tela de Histórico) → **Exportar histórico (CSV)…** ou **Exportar resumo por jogo (CSV)…**.
-Em português o arquivo usa `;` e vírgula decimal (abre certo no Excel do Brasil); em inglês, `,` e ponto.
-
-## Idioma
-
-Em **Configurações → Idioma / Language** escolha Português (Brasil) ou English. A troca é imediata (sem reiniciar e sem
-interromper cronômetros em andamento) e fica salva em `config.json`. Os dados em disco não mudam com o idioma
-(ex.: o status continua gravado como `Zerado`), então os arquivos funcionam nos dois idiomas.
+Em **Configurações**, escolha **Escuro minimalista** ou **Original**, inspirado no cinza e roxo do app anterior. A barra de título acompanha o tema em versões compatíveis do Windows. Idiomas disponíveis: português e inglês.
 
 ## Dados, backups e recuperação
 
-`%APPDATA%\HorasJogadas` (Windows) ou `~/HorasJogadas`:
+Windows: `%APPDATA%\HorasJogadas`. Linux: `~/HorasJogadas`. Não mova nem apague essa pasta durante uma atualização.
 
-| Arquivo | Conteúdo |
-|---|---|
-| `cronometros.json` | biblioteca de jogos (com `id`, `nome`, `status`) |
-| `registros.json` | sessões (`sessao_id`, `jogo_id`, `jogo`, `segundos`, `tempo`, `data`, `inicio`, `fim`) |
-| `zerados.json` | conclusões, recibos de registros automáticos e categorias DLC; backup próprio em `.bak` |
-| `config.json` | modo de navegação, ordenação e idioma (`pt` ou `en`) |
-| `backups/` | cópias dos dados: `diario/` (7 últimos dias), `antes_de_apagar/`, `manual/`, `antes_de_restaurar/` |
-| `app.lock` | trava que impede abrir o app duas vezes ao mesmo tempo |
-| `em_andamento.json` | sessões abertas, para recuperação após falha (some quando tudo é salvo) |
-| `*.bak` | backup da versão anterior de cada arquivo |
-| `*.pre-migracao` | cópia do arquivo original antes da migração para o formato novo |
-| `*.corrompido-AAAAMMDD-HHMMSS` | cópia preservada de um arquivo que ficou ilegível |
-| `app.log` | log de erros |
+Na primeira abertura da versão 3.0, os arquivos existentes são copiados e conferidos por SHA-256 antes do carregamento. O backup fica em uma pasta vizinha `HorasJogadas-Backups-de-Versao/<versão-data>/`: `data/` guarda os arquivos e `manifest.json` guarda as somas. Falhas interrompem a abertura antes de carregar os registros.
 
-Arquivos do formato antigo (lista de nomes em `cronometros.json`, registros sem `jogo_id`) são migrados automaticamente na primeira abertura.
+Em Configurações, crie backups completos, valide-os e restaure quando necessário. Restaurar substitui o estado atual; o app cria uma cópia preventiva. Para uma cópia manual, feche o app e copie **toda a pasta de dados**, incluindo `zerados.json` e arquivos de sessão pendente.
 
-### Proteções do aplicativo
+Não abra versões antigas e novas ao mesmo tempo na mesma pasta: o bloqueio de instância impede a escrita concorrente. Revisões usam uma cópia separada. Partidas feitas nela não voltam automaticamente para o histórico oficial.
 
-- **Instância única:** abrir o app de novo não cria outra janela: a que já está aberta vem para a frente. (Duas janelas
-  poderiam sobrescrever os dados uma da outra.)
-- **Backups automáticos:** uma cópia por dia (guarda 7) e uma cópia **antes de qualquer exclusão em massa**
-  (apagar todo o histórico ou os registros de um jogo).
-- **Desfazer:** ao excluir uma sessão no Histórico aparece "↩ Desfazer" por 10 segundos.
-- **Restaurar:** Configurações → **🗂 Backups…** lista as cópias (com jogos, sessões e horas) e restaura a escolhida.
-  Antes de restaurar, os dados atuais também são guardados. Há ainda o botão "Criar backup agora".
+## Problemas
 
-### Cópia completa e Lista de Zerados
-
-A restauração de backups de jogos/histórico não substitui `zerados.json`. A Lista de Zerados tem recuperação própria pela cópia da gravação anterior. Exporte cada ano em TXT para manter uma cópia legível.
-
-Para transferir ou guardar todos os dados, feche o app e copie a pasta inteira indicada acima. Para restaurar essa cópia, feche o app, preserve a pasta atual e recoloque a cópia no local correspondente. Não misture arquivos de backups diferentes enquanto o aplicativo está aberto.
-
-
-## Atualizar o aplicativo
-
-**Uma vez só** (para ter o `.exe`): dê dois cliques em `build_exe.bat`. Ele gera `HorasJogadas.exe` nesta mesma pasta.
-(Se preferir não usar `.exe`, use `Iniciar.bat`.) Se houver um `icon.ico` na pasta, ele vira o ícone do app.
-
-**Atualizar** (sempre que receber um ZIP novo):
-1. Abra o app → **Configurações → Atualizar app…**
-2. Escolha o ZIP baixado (a janela já abre na pasta Downloads).
-3. Confirme. O app valida o arquivo, guarda a versão atual, troca o código e **reinicia sozinho**.
-
-Você não apaga nem substitui nenhuma pasta. Seus jogos e histórico ficam em `%APPDATA%\HorasJogadas` e não são alterados.
-
-- **Voltar atrás:** Configurações → **↩ Restaurar versão anterior** (guarda as 3 últimas, em `_versoes_anteriores/`).
-- **Segurança:** o ZIP é validado antes (integridade, caminhos, arquivos obrigatórios e sintaxe de todos os `.py`).
-  Se algo falhar durante a troca, tudo volta ao estado anterior. Se a versão nova nem abrir, o lançador oferece
-  restaurar a anterior automaticamente.
-- **Quando refazer o `.exe`:** só se o `app.py` (lançador) ou as bibliotecas do Python usadas mudarem. O teste
-  `tests/test_launcher.py` avisa se o código passar a precisar de algo que o `.exe` não inclui.
-
-### Qual edição você está usando?
-
-- **Lançador com código externo** (`build_exe.bat` ou `python app.py`): a pasta `horas_jogadas/` fica ao lado do lançador e é atualizada por ZIP.
-- **Pacote de distribuição** (`build_itch.bat` / `empacotar_release.py`): o código fica embutido no pacote. Atualize pela distribuição; no itch.io, use o aplicativo da plataforma quando aplicável.
-
-Baixe pacotes somente da origem em que você confia. O atualizador trabalha com arquivos ZIP locais.
-
-
-## Ícone na barra de tarefas
-
-O app usa o `icon.ico` que estiver ao lado do `.exe` (ou embutido, na versão do itch.io) em todas as janelas.
-Como no OBS, o botão do app na barra de tarefas do Windows ganha um **selo** sobre o ícone original:
-**🔴 bolinha vermelha** = há um cronômetro rodando · **⏸ pause amarelo** = nenhum rodando, mas há um pausado ·
-**sem selo** = nada ativo. (Se houver um rodando e outro pausado, vale o vermelho.) Só aparece no Windows.
-
-## Dúvidas rápidas
-
-**Não abre e aparece erro de Tkinter?** Confira a instalação de Python/Tcl/Tk e se há uma sessão gráfica. Veja o [guia de desenvolvimento](DESENVOLVIMENTO.md).
-
-**Mudar um jogo para Zerado encerra o cronômetro?** Não. O registro na lista é independente; encerre a sessão normalmente para gravá-la no histórico.
-
-**Minhas horas da Lista de Zerados não batem com o dashboard.** A lista guarda tempos informados de cada jogada e extras de platina. O dashboard usa sessões registradas. São conjuntos independentes.
-
-**O resumo está sem horas para um jogo?** Campo vazio significa tempo desconhecido, não zero. Você pode editar a conclusão quando souber a duração.
-
-**Como desinstalar?** Apague a pasta do aplicativo. Os dados ficam na pasta indicada acima; copie-os antes de apagá-los caso também queira remover o histórico.
+Informe a versão, o sistema e os passos em uma [issue](https://github.com/JoaoPPolli/HorasJogadas/issues). O arquivo `app.log` pode ajudar, mas revise informações pessoais antes de compartilhar. Não envie sua pasta de dados publicamente.

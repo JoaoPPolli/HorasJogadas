@@ -1,6 +1,8 @@
+> A interface Qt foi aprovada e agora é a edição oficial 3.0.0. Este documento descreve o modo **opcional** de revisão: use `--review` ou `IniciarNovaInterface.bat` para continuar em uma cópia isolada. A edição oficial abre com `app_qt.py` sem opções.
+
 # HorasJogadas — nova interface para revisão
 
-**Escuro minimalista · Python + PySide6 · sem publicação no GitHub**
+**Modo opcional de avaliação · Python + PySide6 · dados separados**
 
 Esta versão é separada do aplicativo atual. Extraia o pacote em **uma pasta nova** e use exclusivamente `IniciarNovaInterface.bat` para avaliar a interface Qt. Não copie os arquivos por cima da instalação atual.
 
@@ -65,7 +67,7 @@ No Linux/macOS, ficam respectivamente em `~/HorasJogadas` e `~/HorasJogadas-Revi
 
 A primeira execução copia os arquivos para a pasta de revisão e compara seus hashes SHA-256. Se a origem mudar durante a cópia, a operação é cancelada. Uma revisão existente é reutilizada; **não é sobrescrita nem sincronizada automaticamente**.
 
-**As sessões novas que você registrar na revisão ficam só nessa cópia.** Durante a avaliação, continue usando o aplicativo atual para seus registros oficiais. Não há mesclagem automática entre as duas versões. A adoção definitiva e o tratamento dessas diferenças devem acontecer somente após a aprovação.
+**As sessões novas que você registrar na revisão ficam só nessa cópia.** Durante a avaliação, continue usando o aplicativo atual para seus registros oficiais. Não há mesclagem automática entre as duas versões. A edição oficial não importa essas diferenças automaticamente.
 
 O programa recusa usar como revisão a própria pasta de origem, uma subpasta dela ou uma pasta existente sem identificação de revisão. A trava de instância e os logs ficam na cópia. Nenhum teste precisa abrir ou alterar os dados oficiais.
 
@@ -118,7 +120,7 @@ Antes de uma migração definitiva, mantenha também uma cópia externa da pasta
 6. Exporte um ano em TXT e reimporte; confira a preservação de dados e a prevenção de duplicatas.
 7. Crie um backup completo, altere um registro de teste e restaure esse backup na revisão.
 8. Abra novamente o app atual e confira que seus dados oficiais permaneceram iguais.
-9. Informe os ajustes desejados. **Nenhuma publicação ou substituição será feita sem sua aprovação.**
+9. Informe os ajustes desejados. Esta cópia não altera os registros da edição oficial.
 
 ## Validação realizada e limites
 
@@ -129,7 +131,7 @@ Antes de uma migração definitiva, mantenha também uma cópia externa da pasta
 
 **Ainda não validado em Windows:** executável, instalador, escala e fontes específicas, SmartScreen e selo da barra de tarefas. O teste local não substitui sua revisão no sistema em que você usa o aplicativo.
 
-O atualizador por ZIP e a restauração de versões de código permanecem no aplicativo atual. A revisão Qt não instala atualizações nem substitui código: a estratégia de distribuição e atualização definitiva fica pendente da aprovação. Os botões de backup desta versão tratam os **dados da cópia**, não os arquivos do programa.
+O atualizador por ZIP e a restauração de versões de código permanecem no aplicativo atual. A revisão Qt não instala atualizações nem substitui código: a edição oficial é distribuída por instalador e pacotes nas Releases do GitHub. Os botões de backup desta versão tratam os **dados da cópia**, não os arquivos do programa.
 
 ## Desenvolvimento
 

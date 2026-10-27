@@ -1,0 +1,40 @@
+HORASJOGADAS 3.0.0
+
+WINDOWS
+Use o instalador ou extraia a pasta inteira do pacote portátil e abra HorasJogadas.exe.
+Não precisa instalar Python. Não execute de dentro do ZIP.
+
+LINUX (x86_64, Ubuntu 22.04+ ou distribuição compatível, ambiente gráfico)
+Extraia o pacote e abra o arquivo HorasJogadas (ou execute ./HorasJogadas no terminal).
+Não precisa instalar Python.
+
+SEUS DADOS
+Windows: %APPDATA%\HorasJogadas
+Linux: ~/HorasJogadas
+A instalação fica separada dos dados. Desinstalar o programa não remove seus registros.
+
+ATUALIZAÇÃO DA VERSÃO ANTIGA
+Feche o app antigo. A versão 3 usa a mesma pasta e os mesmos formatos JSON.
+Antes de carregar os dados pela primeira vez, ela cria uma cópia completa em:
+Windows: %APPDATA%\HorasJogadas-Backups-de-Versao
+Linux: ~/HorasJogadas-Backups-de-Versao
+Dentro do backup, a pasta data contém os arquivos preservados e manifest.json contém os hashes.
+As versões antiga e nova compartilham a trava de instância: não use as duas ao mesmo tempo.
+
+CÓPIAS DE REVISÃO
+A antiga pasta HorasJogadas-Revisao-Qt fica preservada e NÃO é mesclada automaticamente.
+A release usa os dados OFICIAIS da pasta HorasJogadas. Se você fez registros importantes
+apenas na cópia de revisão, preserve-a e exporte os registros antes de decidir como importá-los.
+
+BACKUPS
+Em Configurações, crie backups completos e exportações CSV/TXT.
+Para uma cópia externa completa, feche o app e copie a pasta de dados inteira.
+
+ATUALIZAR
+Baixe a versão mais recente em:
+https://github.com/JoaoPPolli/HorasJogadas/releases/latest
+Instale por cima ou extraia em outra pasta. Não apague a pasta dos dados.
+
+PRIVACIDADE
+Os registros ficam no seu computador. Não há conta, telemetria ou envio automático de dados.
+Apenas links de download/atualização abrem o navegador por iniciativa do usuário.

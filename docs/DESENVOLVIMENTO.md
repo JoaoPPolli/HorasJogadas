@@ -1,126 +1,58 @@
 # Desenvolvimento
 
-[← Voltar ao início](../README.md)
+A interface oficial é `app_qt.py` + `horas_jogadas_qt/`, com PySide6 6.8.3. O domínio, a persistência e a implementação Tkinter legada ficam em `horas_jogadas/`; `app.py` continua disponível para compatibilidade.
 
-## Requisitos
+## Ambiente
 
-- Python **3.10+**, preservando a compatibilidade com Python 3.10 e Windows.
-- Tkinter/Tcl/Tk para a interface. Não é uma dependência instalável via pip.
-- Nenhuma dependência externa obrigatória em tempo de execução.
-- pytest opcional (`requirements-dev.txt`); PyInstaller apenas para empacotar.
-
-## Ambiente local
-
-Na raiz do projeto:
+Python 3.10–3.13 e sessão gráfica; os pacotes oficiais são construídos com Python 3.12:
 
 ```bash
 python -m venv .venv
+# Ative o ambiente conforme seu sistema.
+python -m pip install -r requirements-qt.txt
+python app_qt.py --demo
 ```
 
-Ative no Windows (PowerShell):
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Ou no Linux/macOS:
-
-```bash
-source .venv/bin/activate
-```
-
-```bash
-python -m pip install -r requirements-dev.txt
-python app.py
-```
-
-Para rodar somente os testes com a biblioteca padrão, não é necessário instalar `requirements-dev.txt`.
+`--demo` usa somente dados fictícios. `--review` copia os dados atuais para uma pasta isolada. Sem essas opções, o app usa os registros oficiais e prepara o backup de primeira abertura. Não teste migrações na pasta pessoal real.
 
 ## Testes
 
 ```bash
 python -m unittest discover -s tests -t .
-python -m pytest
+QT_QPA_PLATFORM=offscreen python -m unittest discover -s tests_qt -t .
 ```
 
-As suítes cobrem persistência, estatísticas, utilitários, traduções, lançador, atualizador e Lista de Zerados. Algumas verificações simulam corrupção, disco cheio e falha de gravação: mensagens de erro nesses cenários são esperadas; confira o resultado final do executor.
-
-O workflow [Testes Python](../.github/workflows/tests.yml) configura a suíte unittest em Windows e Linux, com Python 3.10 e 3.12. Uma execução local não comprova que a matriz remota passou; confira a aba Actions após o envio.
-
-### Conferir o lançador
-
-```bash
-python app.py --verificar verificacao.txt
-```
-
-Exija status zero e arquivo começando por `OK`. O comando importa o aplicativo e abre/fecha uma janela Tk. Remova o arquivo após a conferência. O autoteste não substitui a validação funcional das telas.
+No PowerShell: `$env:QT_QPA_PLATFORM='offscreen'` antes do segundo comando. Os testes cobrem persistência, importação/exportação, cronômetros, paridade de recursos, renderização e preservação dos dados na transição oficial.
 
 ### Linux sem interface gráfica
 
-No Debian/Ubuntu, com permissão de administração:
+Use `QT_QPA_PLATFORM=offscreen` para testes de widgets. Para validar o pacote executável com uma sessão X11 real:
 
 ```bash
-sudo apt-get install python3-tk xvfb xauth
-xvfb-run -a python3 app.py --verificar /tmp/horasjogadas-verificacao.txt
-cat /tmp/horasjogadas-verificacao.txt
+sudo apt-get install xvfb xauth libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0
+xvfb-run -a python scripts/build_release.py
 ```
-
-No ambiente de nuvem preparado para este projeto, o auxiliar local permite executar:
-
-```bash
-cd /workspace/HorasJogadas
-/workspace/.horasjogadas-cloud/run-gui .venv/bin/python app.py
-```
-
-Esse caminho pertence ao ambiente de nuvem e não à instalação comum. Cada tarefa já é isolada: use o checkout existente, sem criar worktree, salvo se solicitado.
-
-Para testes funcionais, use `Repositorio(data_dir=...)` com uma pasta temporária. Para iniciar o app completo com dados isolados, defina `APPDATA` para uma pasta temporária **antes** de executar Python. Xvfb fornece uma tela virtual, sem prévia web.
-
-## Mapa do código
-
-| Caminho | Responsabilidade |
-| --- | --- |
-| `app.py` | Lançador, autoteste e recuperação de falha após atualização. |
-| `horas_jogadas/main.py` | Logging, instância única e inicialização. |
-| `horas_jogadas/constants.py` | Constantes, arquivos, cores e opções. |
-| `horas_jogadas/models.py` | Jogos, sessões e validação dos modelos. |
-| `horas_jogadas/storage.py` | Persistência, migração, escrita atômica e recuperação. |
-| `horas_jogadas/stats.py`, `utils.py` | Estatísticas, formatação e divisão do tempo por dia. |
-| `horas_jogadas/zerados.py` | Conclusões, resumo anual, TXT e armazenamento independente. |
-| `horas_jogadas/i18n.py` | Textos em português e inglês. |
-| `horas_jogadas/backups.py`, `updater.py` | Backups dos dados e atualização/restauração do código. |
-| `horas_jogadas/exportacao.py`, `edicao_sessao.py` | CSV e validação de sessões manuais/editadas. |
-| `horas_jogadas/instancia.py`, `icone_barra.py`, `logging_setup.py` | Instância única, selo no Windows e logs. |
-| `horas_jogadas/ui/` | Tema, widgets, cartões e telas do aplicativo. |
-| `tests/` | Testes automatizados com diretórios temporários. |
-| `empacotar_release.py`, `build_*.bat` | Build e validação dos pacotes Windows. |
-
-## Traduções e compatibilidade
-
-Mantenha chaves e marcadores de português e inglês em sincronia. Para adicionar um idioma, atualize `IDIOMAS_DISPONIVEIS` em `constants.py` e `TEXTOS` em `i18n.py`; execute `tests/test_i18n.py`.
-
-Ao alterar importações, lançador ou empacotamento, execute `tests/test_launcher.py`. O executável precisa conhecer as bibliotecas do código carregado dinamicamente. Testes em Linux não validam o `.exe`, o SmartScreen ou o selo da barra de tarefas do Windows.
 
 ## Empacotamento no Windows
 
-### Lançador com código ao lado
-
-Execute `build_exe.bat`. Ele instala/atualiza o PyInstaller e gera um executável a partir de `app.py`, que carrega `horas_jogadas/` ao lado dele. Essa edição permite atualizar o código por ZIP no app.
-
-### Pacote de distribuição
-
-```powershell
-python empacotar_release.py --rodar-testes
+```bash
+python -m pip install -r requirements-build.txt
+python scripts/build_release.py
 ```
 
-Ou execute `build_itch.bat`. O empacotador prepara o ambiente, reúne o código, executa verificações e gera os resultados em `release/`. Leia a saída e valide em Windows antes de distribuir. Não envie executáveis ou ZIPs para commits.
+Ou use `build_exe.bat`. A saída fica em `dist/HorasJogadas` e `release/`. Preserve toda a pasta do executável. Para gerar o instalador, instale Inno Setup 6, defina `HORAS_VERSION=3.0.0` e compile `packaging/windows.iss`.
 
-O pacote de distribuição embute o código e tem um fluxo de atualização diferente; veja [Atualizar o aplicativo](GUIA_DE_USO.md#atualizar-o-aplicativo).
+Cada pacote executa `--self-test <resultado.json>` com dados fictícios: abre as cinco telas, valida os assets, grava uma sessão e verifica que o domínio legado consegue relê-la. Esse teste não abre os registros pessoais.
 
-## Antes de enviar mudanças
+Os builds são nativos, Windows x64 e Ubuntu 22.04 x64. Não há compilação cruzada nem pacote macOS nesta publicação. O workflow baixa os textos de licença oficiais para `build/legal` e os inclui no pacote.
 
-1. Confira `git status` e preserve trabalho local.
-2. Use uma branch e commits com propósito claro.
-3. Rode testes e valide telas afetadas com dados temporários.
-4. Revise o diff: não inclua dados, logs, segredos, builds ou executáveis.
-5. Abra uma revisão, conforme o [guia de colaboração](../COLABORACAO.md).
+## Release e site
+
+O workflow `.github/workflows/release.yml` é acionado por tags `v*`, branches `release/**` ou execução manual. A versão vem de `horas_jogadas_qt/release.py`. Ambos os sistemas precisam passar testes e autoteste antes da publicação dos pacotes e dos SHA-256. Depois o site é publicado no GitHub Pages, com origem GitHub Actions.
+
+```bash
+python scripts/build_site.py
+python -m http.server 8000 --directory build/site
+```
+
+O site usa assets locais e links estáveis `releases/latest/download/`. As capturas devem conter apenas dados fictícios. Não versionar `build/`, `dist/`, `release/`, diagnósticos nem dados pessoais.

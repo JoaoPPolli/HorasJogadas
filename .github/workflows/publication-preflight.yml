@@ -1,7 +1,5 @@
 name: Publication preflight
 on:
-  push:
-    branches: ['interface/pyside6-revisao']
   workflow_dispatch:
 permissions:
   contents: write
@@ -11,13 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply owner-authorized public visibility
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/publication-metadata"
-          gh api --method PATCH "repos/$REPOSITORY" -F private=false > "$RUNNER_TEMP/publication-metadata/visibility.json" 2> "$RUNNER_TEMP/publication-metadata/visibility-error.txt" || true
       - name: Inspect repository publication settings
         env:
           GH_TOKEN: ${{ github.token }}

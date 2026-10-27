@@ -22,7 +22,7 @@ if errorlevel 1 (
   .venv_qt\Scripts\python.exe -m pip install -r requirements-qt.txt
   if errorlevel 1 goto falha
 )
-.venv_qt\Scripts\python.exe app_qt.py %*
+.venv_qt\Scripts\python.exe app_qt.py --review %*
 if errorlevel 1 goto falha
 exit /b 0
 :falha

@@ -55,3 +55,8 @@ Desktop.ini
 .qt-preferences.json
 .horasjogadas-preview.json
 full-backups/
+
+# Preparação e publicação
+build-diagnostics/
+.publication-status/
+.horasjogadas-release.json

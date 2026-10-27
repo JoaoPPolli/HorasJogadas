@@ -3,6 +3,11 @@ from horas_jogadas.i18n import idioma_atual
 
 TEXTS = {
  'pt': {
+  'release_review':'VERSÃO 3.0.0', 'release_separate':'Dados locais',
+  'release_copy':'Seus registros são armazenados neste computador.', 'release_data':'Seus dados',
+  'release_about':'HorasJogadas 3.0.0', 'release_updates':'Baixe novas versões pelo site oficial. Seus dados ficam separados da instalação.',
+  'release_copy_data':'Criar cópia para testar…', 'release_copy_help':'Uma cópia isolada será criada para testes, sem mesclar ou sobrescrever os registros oficiais.',
+  'release_confirm_clear':'Apagar TODO o histórico? Um backup completo será criado antes.', 'download_latest':'Ver downloads e atualizações',
   'no_completions':'Nenhum jogo registrado neste ano.', 'top_five':'Top 5 · mais jogados', 'games':'Jogos', 'delete_history':'Excluir histórico', 'no_playtime':'Nenhuma sessão registrada ainda.',
   'all_count':'{n} jogos', 'one_game':'1 jogo', 'paused_count':'{n} em pausa', 'empty_chart':'Nenhuma sessão neste período.', 'space':'SEU ESPAÇO', 'separate':'Cópia para revisão', 'result_count':'{n} de {total} jogos', 'active_count':'{n} em andamento', 'no_active':'Nenhuma sessão ativa', 'library_hint':'Ctrl+F para buscar · Duplo clique no tempo para ajustar', 'brand_hint':'Seu diário de jogos',
   'library':'Biblioteca', 'history':'Histórico', 'stats':'Estatísticas', 'completed':'Zerados',
@@ -49,6 +54,11 @@ TEXTS = {
   'snapshot':'Nova revisão criada. Abra novamente usando esta pasta:',
  },
  'en': {
+  'release_review':'VERSION 3.0.0', 'release_separate':'Local data',
+  'release_copy':'Your records are stored on this computer.', 'release_data':'Your data',
+  'release_about':'HorasJogadas 3.0.0', 'release_updates':'Download new versions from the official site. Data is separate from the installation.',
+  'release_copy_data':'Create a test copy…', 'release_copy_help':'A separate test copy will be created without merging or replacing official records.',
+  'release_confirm_clear':'Delete ALL history? A full backup will be created first.', 'download_latest':'Downloads and updates',
   'no_completions':'No games recorded in this year.', 'top_five':'Top 5 · most played', 'games':'Games', 'delete_history':'Delete history', 'no_playtime':'No sessions recorded yet.',
   'all_count':'{n} games', 'one_game':'1 game', 'paused_count':'{n} paused', 'empty_chart':'No sessions in this period.', 'space':'YOUR SPACE', 'separate':'Review copy', 'result_count':'{n} of {total} games', 'active_count':'{n} running', 'no_active':'No active sessions', 'library_hint':'Ctrl+F to search · Double-click a timer to adjust', 'brand_hint':'Your gaming journal',
   'library':'Library', 'history':'History', 'stats':'Statistics', 'completed':'Completed',

@@ -1,0 +1,16 @@
+Componentes de terceiros
+
+Python: Python Software Foundation License. https://www.python.org/psf/license/
+PySide6 / Shiboken6 6.8.3: LGPLv3/GPLv3/commercial; esta distribuição usa os termos LGPLv3.
+Qt 6.8.3 (módulos QtCore, QtGui, QtWidgets e QtSvg): LGPLv3 e avisos dos componentes.
+O aplicativo usa bibliotecas compartilhadas sem modificar o código desses componentes.
+Fontes correspondentes: https://code.qt.io/cgit/pyside/pyside-setup.git/tag/?h=v6.8.3
+Qt: https://download.qt.io/archive/qt/6.8/6.8.3/submodules/
+Licenças: https://www.qt.io/licensing/open-source-lgpl-obligations
+PyInstaller: GPLv2 com exceção para distribuição de aplicativos empacotados.
+https://pyinstaller.org/en/stable/license.html
+
+Estes avisos não alteram a licença nem a autoria do código do HorasJogadas.
+Os diretórios de bibliotecas do pacote podem ser inspecionados e substituídos
+por versões compatíveis, conforme as licenças aplicáveis. O código-fonte do
+aplicativo está no repositório informado na página de download.
