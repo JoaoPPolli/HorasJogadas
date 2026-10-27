@@ -106,6 +106,31 @@ def cache_directory():
     return base/'HorasJogadas'/'updates'
 
 
+def update_environment(environ=None,system=None,frozen=None):
+    """Novo processo independente; ferramentas do sistema usam bibliotecas do sistema.
+
+    PyInstaller injeta LD_LIBRARY_PATH e caminhos Qt no ambiente do aplicativo.
+    Herdá-los em cp/mv ou em outro bundle quebra o reinício, sobretudo no Arch.
+    """
+    env=dict(os.environ if environ is None else environ)
+    system=system or sys.platform
+    frozen=getattr(sys,'frozen',False) if frozen is None else frozen
+    bundled=frozen or '_PYI_APPLICATION_HOME_DIR' in env or '_PYI_ARCHIVE_FILE' in env
+    roots=[Path(p).resolve() for p in (getattr(sys,'_MEIPASS',None),env.get('_PYI_APPLICATION_HOME_DIR')) if p]
+    if system.startswith('linux') and bundled:
+        original=env.pop('LD_LIBRARY_PATH_ORIG',None)
+        if original:env['LD_LIBRARY_PATH']=original
+        else:env.pop('LD_LIBRARY_PATH',None)
+        for key in ('QT_PLUGIN_PATH','QT_QPA_PLATFORM_PLUGIN_PATH','QML2_IMPORT_PATH','QML_IMPORT_PATH'):
+            paths=[p for p in env.get(key,'').split(os.pathsep) if p and not any(Path(p).resolve().is_relative_to(root) for root in roots)]
+            if paths:env[key]=os.pathsep.join(paths)
+            else:env.pop(key,None)
+    for key in tuple(env):
+        if key.startswith('_PYI_') or key=='_MEIPASS2':env.pop(key)
+    env['PYINSTALLER_RESET_ENVIRONMENT']='1'
+    return env
+
+
 def stage_linux(archive,target,version):
     """Extrai somente arquivos e links internos do bundle, em um diretório vizinho."""
     target=Path(target).resolve()
@@ -144,7 +169,14 @@ def stage_linux(archive,target,version):
         executable=bundle/'HorasJogadas'
         if not executable.is_file() or not os.access(executable,os.X_OK): raise ValueError('Executável ausente')
         # Testa a nova versão antes de encerrar a atual; só usa dados fictícios.
-        subprocess.run([str(executable),'--self-test',str(stage/'self-test.json')],check=True,timeout=120)
+        env=update_environment()
+        # A prévia usa somente dados fictícios e não abre janelas no desktop atual.
+        env['QT_QPA_PLATFORM']='offscreen'
+        result=subprocess.run([str(executable),'--self-test',str(stage/'self-test.json')],
+                              env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=120)
+        if result.returncode:
+            detail=result.stdout.decode('utf-8',errors='replace')[-8000:]
+            raise ValueError('Autoteste da atualização falhou / Update self-test failed:\n'+detail)
         if not json.loads((stage/'self-test.json').read_text(encoding='utf-8')).get('ok'): raise ValueError('Autoteste da atualização falhou')
         return bundle
     except Exception:
@@ -154,6 +186,8 @@ def stage_linux(archive,target,version):
 LINUX_HELPER=r'''#!/bin/sh
 set -u
 pid=$1; target=$2; staged=$3; previous=$4; log=$5
+ready=${6-}
+exec >> "$log" 2>&1
 count=0
 while kill -0 "$pid" 2>/dev/null; do
   count=$((count + 1))
@@ -174,8 +208,29 @@ done
 if mv -- "$target" "$previous"; then
   if mv -- "$staged" "$target"; then
     printf '%s\n' 'Update installed' >> "$log"
-    "$target/HorasJogadas" >> "$log" 2>&1 &
-    exit 0
+    if [ -z "$ready" ]; then "$target/HorasJogadas" & exit 0; fi
+    "$target/HorasJogadas" --update-ready-file "$ready" &
+    child=$!
+    count=0
+    while kill -0 "$child" 2>/dev/null; do
+      if [ -s "$ready" ]; then printf '%s\n' 'Restart confirmed' >> "$log"; exit 0; fi
+      count=$((count + 1))
+      if [ "$count" -ge 120 ]; then
+        printf '%s\n' 'Restart not confirmed: process still running; both versions preserved' >> "$log"
+        exit 1
+      fi
+      sleep 1
+    done
+    if [ -s "$ready" ]; then printf '%s\n' 'Restart confirmed' >> "$log"; exit 0; fi
+    wait "$child"
+    printf '%s\n' 'Restart failed; restoring previous version' >> "$log"
+    # Guarda também qualquer arquivo escrito pela tentativa de abertura.
+    if mv -- "$target" "$staged-failed" && mv -- "$previous" "$target"; then
+      "$target/HorasJogadas" &
+      exit 1
+    fi
+    printf '%s\n' 'Rollback incomplete; installation directories preserved' >> "$log"
+    exit 1
   fi
   mv -- "$previous" "$target"
 fi
@@ -195,6 +250,10 @@ def launch_update(package,staged=None,executable=None,system=None):
         helper=Path(package).parent/'apply-update.sh'; helper.write_text(LINUX_HELPER,encoding='utf-8')
         previous=target.with_name(target.name+'-previous-'+str(int(time.time())))
         if previous.exists(): raise FileExistsError(previous)
-        command=['/bin/sh',str(helper),str(os.getpid()),str(target),str(staged),str(previous),str(Path(package).parent/'update.log')]
+        ready=Path(package).parent/'restart-ready.json';ready.unlink(missing_ok=True)
+        command=['/bin/sh',str(helper),str(os.getpid()),str(target),str(staged),str(previous),str(Path(package).parent/'update.log'),str(ready)]
     else: raise ValueError('Sistema não suportado')
-    return subprocess.Popen(command,cwd=str(Path(package).parent),stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=system!='win32')
+    # Mantém erros de loader/cp/mv, que antes desapareciam em /dev/null.
+    with (Path(package).parent/'update.log').open('ab') as log:
+        return subprocess.Popen(command,cwd=str(Path(package).parent),env=update_environment(system=system),
+                                stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=system!='win32')

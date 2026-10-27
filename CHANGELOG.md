@@ -2,6 +2,14 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.2.1
+
+- Corrigido o ambiente herdado pelo atualizador Linux: comandos do sistema e a nova versão não usam as bibliotecas privadas da instalação anterior.
+- Reinício independente do PyInstaller, preservando a sessão gráfica X11/Wayland e os caminhos de bibliotecas personalizados do sistema.
+- A nova janela confirma a abertura; se encerrar antes de ficar pronta, o auxiliar tenta restaurar e reabrir a versão anterior, preservando ambas as cópias.
+- Erros do reinício e da troca de arquivos ficam em update.log na pasta do download, em vez de serem descartados.
+- Testes do ciclo real de atualização e reinício do executável Linux em Ubuntu e Arch antes de publicar.
+
 ## 3.2.0
 
 - Busca de capas em Steam, GOG e Wikipedia, com filtro por fonte e identificação em cada resultado.

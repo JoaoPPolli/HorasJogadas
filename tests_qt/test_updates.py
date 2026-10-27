@@ -53,8 +53,8 @@ class UpdateTests(unittest.TestCase):
             self.assertEqual(list(Path(folder).iterdir()),[])
 
     def test_windows_installer_uses_current_path_and_restart_without_shell(self):
-        with patch('horas_jogadas_qt.updates.subprocess.Popen') as popen:
-            updates.launch_update(Path('/tmp/update path/Setup.exe'),executable='/tmp/App with spaces/HorasJogadas.exe',system='win32')
+        with tempfile.TemporaryDirectory() as folder,patch('horas_jogadas_qt.updates.subprocess.Popen') as popen:
+            updates.launch_update(Path(folder)/'Setup.exe',executable='/tmp/App with spaces/HorasJogadas.exe',system='win32')
             args=popen.call_args.args[0]
             self.assertIn('/DIR='+str(Path('/tmp/App with spaces/HorasJogadas.exe').resolve().parent),args);self.assertIn('/RESTARTAPP',args)
             self.assertNotIn('shell',popen.call_args.kwargs)
@@ -120,3 +120,81 @@ class UpdateDialogTests(unittest.TestCase):
         self.assertFalse(dialog.busy);self.assertNotEqual(threads[0],app.thread())
         self.assertIn(updates.VERSION,dialog.status.text())
         dialog.reject();dialog.deleteLater();parent.deleteLater();app.sendPostedEvents(None,QEvent.DeferredDelete)
+
+
+class LinuxRestartTests(unittest.TestCase):
+    def test_frozen_environment_restores_system_libraries_and_keeps_desktop_session(self):
+        env={'LD_LIBRARY_PATH':'/old/_internal:/custom/lib','LD_LIBRARY_PATH_ORIG':'/custom/lib',
+             '_PYI_APPLICATION_HOME_DIR':'/old/_internal','_PYI_ARCHIVE_FILE':'/old/HorasJogadas',
+             '_PYI_PARENT_PROCESS_LEVEL':'1','QT_PLUGIN_PATH':'/old/_internal/PySide6/Qt/plugins',
+             'QML2_IMPORT_PATH':'/old/_internal/PySide6/Qt/qml','DISPLAY':':1','WAYLAND_DISPLAY':'wayland-1',
+             'XDG_RUNTIME_DIR':'/run/user/1000','DBUS_SESSION_BUS_ADDRESS':'unix:path=/run/user/1000/bus'}
+        clean=updates.update_environment(env,system='linux',frozen=True)
+        self.assertEqual(clean['LD_LIBRARY_PATH'],'/custom/lib')
+        self.assertNotIn('LD_LIBRARY_PATH_ORIG',clean)
+        self.assertNotIn('QT_PLUGIN_PATH',clean);self.assertNotIn('QML2_IMPORT_PATH',clean)
+        self.assertFalse(any(k.startswith('_PYI_') for k in clean))
+        self.assertEqual(clean['PYINSTALLER_RESET_ENVIRONMENT'],'1')
+        for key in ['DISPLAY','WAYLAND_DISPLAY','XDG_RUNTIME_DIR','DBUS_SESSION_BUS_ADDRESS']:
+            self.assertEqual(clean[key],env[key])
+        self.assertIn('_PYI_APPLICATION_HOME_DIR',env)
+
+    def test_frozen_without_original_library_path_drops_bundled_libraries(self):
+        clean=updates.update_environment({'LD_LIBRARY_PATH':'/bundle/_internal'},system='linux',frozen=True)
+        self.assertNotIn('LD_LIBRARY_PATH',clean)
+        clean=updates.update_environment({'LD_LIBRARY_PATH':'/developer/lib'},system='linux',frozen=False)
+        self.assertEqual(clean['LD_LIBRARY_PATH'],'/developer/lib')
+
+    @unittest.skipIf(os.name=='nt','Reinício Linux')
+    def test_new_app_acknowledges_restart_and_existing_records_stay_unchanged(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);target=root/"app ' $ com espaços";target.mkdir();staged=root/'stage';staged.mkdir()
+            (target/'registros.json').write_bytes(b'original records')
+            (target/'HorasJogadas').write_text('#!/bin/sh\nexit 0\n');(target/'HorasJogadas').chmod(0o755)
+            (staged/'HorasJogadas').write_text('#!/bin/sh\n[ "$1" = "--update-ready-file" ] || exit 2\nprintf ready > "$2"\nexit 0\n')
+            (staged/'HorasJogadas').chmod(0o755)
+            helper=root/'helper.sh';helper.write_text(updates.LINUX_HELPER)
+            subprocess.run(['/bin/sh',str(helper),'2147483647',str(target),str(staged),str(root/'previous'),str(root/'log'),str(root/'ready')],check=True,timeout=10)
+            self.assertIn('Restart confirmed',(root/'log').read_text())
+            self.assertEqual((target/'registros.json').read_bytes(),b'original records')
+            self.assertEqual((root/'previous/registros.json').read_bytes(),b'original records')
+
+    @unittest.skipIf(os.name=='nt','Reinício Linux')
+    def test_crashing_new_app_rolls_back_and_keeps_both_copies_of_data(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);target=root/'app';target.mkdir();staged=root/'stage';staged.mkdir()
+            (target/'registros.json').write_bytes(b'original records')
+            # A versão antiga deixa evidência do seu reinício; a nova simula erro do loader.
+            (target/'HorasJogadas').write_text('#!/bin/sh\nprintf old > "'+str(root/'old-restarted')+'"\n')
+            (target/'HorasJogadas').chmod(0o755)
+            (staged/'HorasJogadas').write_text('#!/bin/sh\nexit 127\n');(staged/'HorasJogadas').chmod(0o755)
+            helper=root/'helper.sh';helper.write_text(updates.LINUX_HELPER)
+            result=subprocess.run(['/bin/sh',str(helper),'2147483647',str(target),str(staged),str(root/'previous'),str(root/'log'),str(root/'ready')],timeout=10)
+            self.assertEqual(result.returncode,1)
+            self.assertEqual((target/'registros.json').read_bytes(),b'original records')
+            self.assertEqual((root/'stage-failed/registros.json').read_bytes(),b'original records')
+            self.assertIn('Restart failed',(root/'log').read_text())
+            import time
+            for _ in range(50):
+                if (root/'old-restarted').exists():break
+                time.sleep(.01)
+            self.assertTrue((root/'old-restarted').exists())
+
+class UpdateHandoffTests(unittest.TestCase):
+    def test_dialog_keeps_staged_files_after_giving_them_to_installer(self):
+        from PySide6.QtWidgets import QApplication,QWidget,QMessageBox
+        from PySide6.QtCore import QEvent
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from horas_jogadas_qt.update_dialog import UpdateDialog
+        app=QApplication.instance() or QApplication([])
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);cache=root/'cache';cache.mkdir();stage=root/'.horasjogadas-update-test';stage.mkdir()
+            bundle=stage/'HorasJogadas';bundle.mkdir();package=cache/'archive';package.write_bytes(b'package')
+            parent=QWidget();parent.c=SimpleNamespace(folder=root,save_pending=Mock());parent.resolve_pending=lambda:True
+            parent.close=Mock();dialog=UpdateDialog(parent);dialog.package=package;dialog.staged=bundle;dialog.work_dir=cache
+            with patch('horas_jogadas_qt.update_dialog.QMessageBox.question',return_value=QMessageBox.Yes),patch('horas_jogadas_qt.backup.create_full'),patch('horas_jogadas_qt.updates.launch_update') as launch:
+                dialog.next_step();dialog.cleanup()
+            self.assertTrue(dialog.handed_off);parent.close.assert_called_once();launch.assert_called_once_with(package,bundle)
+            self.assertTrue(bundle.exists());self.assertEqual(package.read_bytes(),b'package')
+            dialog.deleteLater();parent.deleteLater();app.sendPostedEvents(None,QEvent.DeferredDelete)

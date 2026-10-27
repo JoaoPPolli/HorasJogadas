@@ -15,6 +15,7 @@ def main(argv=None):
     parser.add_argument('--source', help='Pasta dos dados atuais, usada apenas como origem da cópia')
     parser.add_argument('--review-dir', help='Pasta separada dos dados de revisão')
     parser.add_argument('--demo', action='store_true', help='Usa dados fictícios, sem ler os registros atuais')
+    parser.add_argument('--update-ready-file',help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     try:
         from PySide6.QtCore import QTimer
@@ -83,6 +84,10 @@ def main(argv=None):
         window = Window(c,lock,mode='review' if review_mode else 'release')
         window.show()
         def ready():
+            if args.update_ready_file:
+                from horas_jogadas.storage import escrever_json_atomico
+                import os
+                escrever_json_atomico(args.update_ready_file,{'pid':os.getpid(),'version':VERSION},backup=False)
             if version_backup:
                 QMessageBox.information(window,'HorasJogadas','Seus registros foram preservados. Um backup completo anterior à atualização foi criado em:\n'+str(version_backup))
             for warning in c.repo.pop_avisos() + c.zerados.avisos:

@@ -25,7 +25,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.2.0.
+2. Instale ou extraia a versão 3.2.1.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -63,7 +63,7 @@ Os ícones substituem as iniciais e funcionam mesmo com capas desativadas. Em **
 
 ## Atualizar
 
-Abra **Configurações → Verificar atualizações**, baixe o pacote e escolha **Instalar e reiniciar**. O app confere o SHA-256 e cria um backup antes de fechar. No Windows, o instalador atualiza a pasta em uso; no Linux, o novo pacote passa por autoteste e a pasta anterior é preservada. A consulta automática de versões pode ser desativada nas Configurações. Não há instalação automática sem confirmação. No Linux, arquivos pessoais que estiverem junto do executável também são preservados, e a versão 3.1 recupera a base caso a atualização 3.0.1 tenha movido a pasta de dados junto do programa. A versão 3.0.0 precisa ser atualizada manualmente uma vez para receber esse recurso.
+Abra **Configurações → Verificar atualizações**, baixe o pacote e escolha **Instalar e reiniciar**. O app confere o SHA-256 e cria um backup antes de fechar. No Windows, o instalador atualiza a pasta em uso; no Linux, o novo pacote passa por autoteste e a pasta anterior é preservada. A consulta automática de versões pode ser desativada nas Configurações. Não há instalação automática sem confirmação. No Linux, arquivos pessoais que estiverem junto do executável também são preservados, e a versão 3.1 recupera a base caso a atualização 3.0.1 tenha movido a pasta de dados junto do programa. A versão 3.2.1 corrige o ambiente herdado no Linux, confirma a abertura da nova janela e tenta reabrir a versão anterior se a nova encerrar antes de ficar pronta. O ciclo de atualização é testado também em Arch Linux. Erros ficam em `~/.cache/HorasJogadas/updates/v<versão>-<identificador>/update.log` (ou na pasta de cache configurada pelo sistema). A versão 3.0.0 precisa ser atualizada manualmente uma vez para receber esse recurso.
 
 ## Executar pelo código
 

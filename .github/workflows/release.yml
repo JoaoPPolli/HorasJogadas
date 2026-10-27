@@ -72,6 +72,16 @@ jobs:
           HORASJOGADAS_NETWORK_SELFTEST: '1'
           GH_TOKEN: ${{ github.token }}
         run: xvfb-run -a python scripts/ci_build.py
+      - name: Verify Linux update and actual restart
+        if: runner.os == 'Linux'
+        run: python scripts/verify_linux_update.py dist/HorasJogadas release/HorasJogadas-Linux-x86_64.tar.gz --result build-diagnostics/linux-update.json
+      - name: Verify update on Arch Linux
+        if: runner.os == 'Linux'
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/project:ro" -v "$GITHUB_WORKSPACE/build-diagnostics:/diagnostics" -w /project archlinux:base bash -e -c '
+            pacman -Syu --noconfirm python libglvnd libxkbcommon fontconfig ttf-dejavu libxrender libxext libx11 libxcb dbus glib2
+            python scripts/verify_linux_update.py dist/HorasJogadas release/HorasJogadas-Linux-x86_64.tar.gz --result /diagnostics/linux-arch-update.json
+          '
       - name: Windows installer
         if: runner.os == 'Windows'
         shell: pwsh

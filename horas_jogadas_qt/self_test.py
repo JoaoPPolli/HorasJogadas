@@ -16,6 +16,10 @@ from .release import VERSION
 
 
 def run_self_test(result_path):
+    update_archive=os.environ.pop('HORASJOGADAS_UPDATE_SELFTEST_ARCHIVE',None)
+    if update_archive:
+        from .update_self_test import run_update_self_test
+        return run_update_self_test(result_path,update_archive)
     from app_qt import seed_demo
     result = {'version':VERSION,'ok':False}
     app = QApplication.instance() or QApplication(['HorasJogadas-self-test'])

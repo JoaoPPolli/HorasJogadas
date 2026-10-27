@@ -15,6 +15,7 @@ class UpdateDialog(QDialog):
         super().__init__(window)
         self.window=window; self.release=release; self.package=None; self.staged=None
         self.busy=False; self.pending_close=False; self.work_dir=None
+        self.handed_off=False
         self.setWindowTitle(tr('update_title')); self.resize(560,440)
         box=QVBoxLayout(self); box.setSpacing(14)
         self.status=QLabel(tr('update_current').format(version=VERSION)); self.status.setWordWrap(True); box.addWidget(self.status)
@@ -67,6 +68,7 @@ class UpdateDialog(QDialog):
                 from .backup import create_full
                 self.window.c.save_pending(); create_full(self.window.c.folder)
                 updates.launch_update(self.package,self.staged)
+                self.handed_off=True
                 self.window.closing_allowed=True
                 self.accept(); self.window.close()
             except Exception as error: QMessageBox.warning(self,tr('error'),str(error))
@@ -96,6 +98,7 @@ class UpdateDialog(QDialog):
             self.cleanup(); super().reject()
 
     def cleanup(self):
+        if self.handed_off:return
         if self.staged and self.staged.parent.name.startswith('.horasjogadas-update-'):
             shutil.rmtree(self.staged.parent,ignore_errors=True)
         if self.work_dir: shutil.rmtree(self.work_dir,ignore_errors=True)

@@ -1,13 +1,13 @@
-# HorasJogadas 3.2.0 — mais capas e ícones para seus jogos
+# HorasJogadas 3.2.1 — correção de instalar e reiniciar no Linux
 
-Encontre capas em mais fontes e troque as iniciais dos cartões por ícones dos jogos, mantendo seus registros e a opção de usar o visual compacto.
+Corrige o ambiente herdado pelo atualizador Linux, que podia fazer o app fechar sem abrir a nova versão, especialmente em sistemas baseados em Arch, como CachyOS.
 
-- **Mais fontes:** Steam, GOG e Wikipedia para capas, com filtro por fonte e identificação de cada sugestão. Não exige conta nem chave de API.
-- **Nomes com erros de digitação:** busca aproximada e novas tentativas com títulos reconhecidos. Confira as sugestões; títulos incertos e sequências semelhantes precisam de escolha manual.
-- **Ícones dos jogos:** Configurações → Gerenciar ícones, ou clique nas iniciais do cartão. Busque na Steam e GOG, veja a prévia e importe em lote. Imagem local, inclusive PNG transparente, também funciona.
-- **Seu visual:** ícones funcionam com as capas desligadas. Desative Exibir ícones dos jogos para voltar às iniciais sem apagar imagens. Capas continuam opcionais e desativadas por padrão.
-- **Seus dados:** capas e ícones ficam locais e acompanham os backups completos. Nenhuma busca de imagem ocorre ao abrir ou rolar a biblioteca. Só os títulos pesquisados e tentativas de correção são enviados às fontes escolhidas; em Todas as fontes a Wikipedia ajuda a reconhecer nomes.
+- Ferramentas do sistema usam as bibliotecas do sistema; a nova versão inicia com seu próprio ambiente PyInstaller.
+- Preserva as variáveis da sessão gráfica X11/Wayland e os caminhos de bibliotecas personalizados anteriores à abertura do app.
+- A nova janela confirma a abertura. Se o processo encerrar antes de ficar pronto, o auxiliar tenta restaurar e abrir a versão anterior, mantendo as duas cópias dos arquivos.
+- Erros da troca e do reinício são registrados em `update.log` na pasta de cache daquele download.
+- Testes de atualização real, desde o executável empacotado até a reabertura da janela, em Ubuntu e Arch Linux antes de publicar.
 
-Atualize pelas Configurações → Verificar atualizações ou use os downloads abaixo. O app mantém a mesma pasta de dados e cria um backup verificado antes da primeira abertura desta versão. Se ainda estiver na 3.1.0 com o erro de certificados no Linux, baixe pelo navegador uma vez. Não apague sua pasta de dados.
+**Se a atualização anterior fechou o app e ele não voltou:** baixe o pacote Linux pelo navegador, feche qualquer instância aberta e extraia em uma pasta nova. Abra `HorasJogadas` nessa pasta. Não apague `~/HorasJogadas`: seus registros continuam na mesma pasta de dados. O atualizador antigo precisa desta instalação manual uma vez para receber a correção.
 
-Windows: instalador ou ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Não precisa instalar Python. Confira `SHA256SUMS.txt`.
+Capas, ícones e registros da 3.2 continuam compatíveis. Windows: instalador ou ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Não precisa instalar Python. Confira `SHA256SUMS.txt`.
