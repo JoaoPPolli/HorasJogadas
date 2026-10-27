@@ -249,7 +249,8 @@ class Ranking(QWidget):
     def __init__(self, groups, parent=None):
         super().__init__(parent)
         self.groups = groups
-        self.setMinimumHeight(max(55,len(groups)*52))
+        self.row_height = 32
+        self.setMinimumHeight(max(55,len(groups)*self.row_height))
         self.setAccessibleName(tr('top'))
         self.setMouseTracking(True)
 
@@ -264,29 +265,30 @@ class Ranking(QWidget):
             painter.drawText(self.rect(),Qt.AlignCenter,tr('no_playtime'))
             painter.end(); return
         maximum=max(group.total for group in self.groups) or 1
+        metrics=painter.fontMetrics()
+        # Mesmo arranjo do gráfico original: nome | barra de horas | duração.
+        # Não há trilho nem valor-alvo: todas as barras representam tempo, não conclusão.
+        name_width=int(min(max(max(metrics.horizontalAdvance(g.nome) for g in self.groups)+16,120),self.width()*.4))
+        duration_width=max(metrics.horizontalAdvance(formatar_hhmmss(g.total,simplificado=True)) for g in self.groups)+12
+        plot_width=max(1,self.width()-name_width-duration_width-8)
+        fill=QColor('#7567f0' if self.palette().window().color().lightness()<128 else '#6250d8')
         for index,group in enumerate(self.groups):
-            top=index*52
-            duration=formatar_hhmmss(group.total,simplificado=True)
-            duration_width=painter.fontMetrics().horizontalAdvance(duration)+12
-            painter.setPen(muted)
-            painter.drawText(QRect(0,top+1,24,22),Qt.AlignLeft|Qt.AlignVCenter,f'{index+1:02d}')
+            top=index*self.row_height
             painter.setPen(foreground)
-            name_width=max(20,self.width()-duration_width-42)
-            painter.drawText(QRect(32,top+1,name_width,22),Qt.AlignLeft|Qt.AlignVCenter,
-                             painter.fontMetrics().elidedText(group.nome,Qt.ElideRight,name_width))
+            painter.drawText(QRect(0,top,name_width-14,self.row_height),Qt.AlignLeft|Qt.AlignVCenter,
+                             metrics.elidedText(group.nome,Qt.ElideRight,name_width-14))
+            width=max(2,int(plot_width*group.total/maximum))
+            bar=QRect(name_width,top+(self.row_height-14)//2,width,14)
+            painter.setPen(Qt.NoPen); painter.setBrush(fill)
+            painter.drawRect(bar)
             painter.setPen(muted)
-            painter.drawText(QRect(self.width()-duration_width,top+1,duration_width,22),Qt.AlignRight|Qt.AlignVCenter,duration)
-            rail=QColor(foreground); rail.setAlpha(20)
-            painter.setPen(Qt.NoPen); painter.setBrush(rail)
-            painter.drawRoundedRect(QRect(32,top+31,max(1,self.width()-32),5),2,2)
-            fill=QColor(foreground); fill.setAlpha(190 if index==0 else 95)
-            painter.setBrush(fill)
-            painter.drawRoundedRect(QRect(32,top+31,max(2,int((self.width()-32)*group.total/maximum)),5),2,2)
+            painter.drawText(QRect(bar.right()+8,top,duration_width,self.row_height),Qt.AlignLeft|Qt.AlignVCenter,
+                             formatar_hhmmss(group.total,simplificado=True))
         painter.end()
 
     def mouseMoveEvent(self,event):
         from horas_jogadas.utils import formatar_hhmmss
-        index=int(event.position().y()//52)
+        index=int(event.position().y()//self.row_height)
         if 0<=index<len(self.groups):
             group=self.groups[index]
             self.setToolTip(group.nome+' · '+formatar_hhmmss(group.total,simplificado=True))

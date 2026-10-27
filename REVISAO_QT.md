@@ -21,12 +21,12 @@ O pacote anterior continua independente; esta revisão reutiliza a mesma pasta d
 
 - **Zerados:** os jogos aparecem em cartões agrupados por mês, com tempo, platina, data opcional, notas e ações de editar, nova jogada e excluir.
 - **Ano:** seleção por uma lista de anos disponíveis, sem campo editável nem cursor piscando. A roda do mouse não troca o ano quando a lista está fechada.
-- **Estatísticas:** Top 5 com barras proporcionais; a lista completa usa cartões com status, sessões, primeiro e último registro e filtro por status.
+- **Estatísticas:** Top 5 com barras proporcionais; a lista completa segue a sessão mais recente, com cartões de status, sessões, primeiro e último registro e filtro por status. Jogos sem sessões ficam no fim. O Top 5 continua ordenado pelas horas jogadas, com barras sólidas sem trilho de fundo e a duração ao lado de cada barra. As duas datas ficam juntas, com espaçamento uniforme.
 - **Identidade:** a lateral usa o `icon.ico` original do aplicativo.
 - **Tempo:** campos de horas, minutos e segundos; atalhos acumulativos de +5, +10, +15 e +30 minutos; valores negativos para remover; ao pausar, duração atualizada e botão para usar esse valor.
 - **Histórico:** apresentação e fluxo preservados.
 
-[Ver Zerados](docs/qt/completed.png) · [Ver ranking](docs/qt/ranking.png) · [Ver ajuste de tempo](docs/qt/adjust-time.png)
+[Ver Zerados](docs/qt/completed.png) · [Ver ranking](docs/qt/ranking.png) · [Ver jogos por recência](docs/qt/stats-games.png) · [Ver ajuste de tempo](docs/qt/adjust-time.png)
 
 ## Abrir no Windows
 

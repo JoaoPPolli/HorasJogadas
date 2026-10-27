@@ -8,7 +8,7 @@ if importlib.util.find_spec('PySide6') is None:
 from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, QEvent
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import (QApplication, QLineEdit, QDialogButtonBox, QTableWidget,
                                QMessageBox, QComboBox, QPlainTextEdit, QCheckBox, QFormLayout)
@@ -43,6 +43,9 @@ class UiTests(unittest.TestCase):
 
     def tearDown(self):
         self.w.timer.stop(); self.w.closing_allowed=True; self.w.close()
+        APP.removeEventFilter(self.w)
+        self.w.deleteLater()
+        APP.sendPostedEvents(None,QEvent.DeferredDelete)
         APP.processEvents()
         self.assertEqual(inventory(self.source),self.before)
         i18n.definir_idioma('pt')

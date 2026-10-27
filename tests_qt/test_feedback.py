@@ -128,6 +128,7 @@ class FeedbackTests(unittest.TestCase):
             QTest.mouseClick(d.use_pause,Qt.LeftButton)
             self.assertEqual([field.text() for field in d.fields],['0','1','15'])
             self.save_dialog(d)
+            self.assertFalse(d.pause_tick.isActive())
         self.dialog(fill,lambda:self.w.adjust_timer(key))
         self.assertEqual(self.c.timers[key].seconds(),95)
         self.assertTrue(self.c.timers[key].pausado)
@@ -142,3 +143,31 @@ class FeedbackTests(unittest.TestCase):
         self.assertEqual(self.c.timers[key].seconds(),0)
         self.assertFalse(self.c.timers[key].pending)
         self.assertEqual(self.warning.call_count,1)
+
+    def test_game_list_uses_recent_sessions_while_top_five_uses_hours(self):
+        from datetime import datetime, timedelta
+        self.w.navigate('stats'); APP.processEvents()
+        self.assertEqual([group.nome for group in self.w.stat_groups[:4]],
+                         ['Outer Wilds','Celeste','Stardew Valley','Hollow Knight'])
+        self.assertEqual(self.w.top_ranking.groups[0].nome,'Hollow Knight')
+        game=next(game for game in self.c.repo.jogos if game.nome=='Hades')
+        self.w.perform(lambda:self.c.repo.adicionar_sessao(game.id,game.nome,60,None,datetime.now()-timedelta(minutes=1)))
+        self.assertEqual(self.w.stat_groups[0].nome,'Hades')
+        self.assertEqual(self.w.top_ranking.groups[0].nome,'Hollow Knight')
+        self.w.stats_status.setCurrentIndex(self.w.stats_status.findData('Jogando'))
+        self.assertEqual([self.c.repo.jogo_por_id(key).nome for key in self.w.stat_group_cards],
+                         ['Stardew Valley','Hollow Knight'])
+        self.assertEqual(self.critical.call_count,0)
+
+    def test_first_and_last_dates_stay_close_despite_delete_button(self):
+        from horas_jogadas.i18n import t
+        self.w.navigate('stats'); APP.processEvents()
+        group=next(group for group in self.w.stat_groups if group.sessoes)
+        card=self.w.stat_group_cards[group.chave]
+        first_text=t('dash.primeira',data=group.primeira.strftime(t('fmt.data')))
+        last_text=t('dash.ultima',data=group.ultima.strftime(t('fmt.data_hora')))
+        first=next(item for item in card.findChildren(QLabel) if item.text()==first_text)
+        last=next(item for item in card.findChildren(QLabel) if item.text()==last_text)
+        gap=last.mapTo(card,QPoint(0,0)).y()-first.mapTo(card,QPoint(0,0)).y()-first.height()
+        self.assertGreaterEqual(gap,0)
+        self.assertLessEqual(gap,6)

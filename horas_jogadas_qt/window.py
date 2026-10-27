@@ -622,7 +622,7 @@ class Window(QMainWindow):
         self.stats_status.setCurrentIndex(max(0,self.stats_status.findData(self.stats_filter)))
         self.stats_status.currentIndexChanged.connect(lambda:self.change_stats_filter(self.stats_status.currentData()))
         box.addWidget(row(label(tr('games'),'gameName'),None,self.stats_status))
-        self.stat_groups=sorted(groups,key=lambda group:group.total,reverse=True)
+        self.stat_groups=list(groups)  # O domínio já ordena pela sessão mais recente, como no app atual.
         self.stat_group_cards={}
         for group in self.stat_groups:
             if self.stats_filter is not None and group.status!=self.stats_filter:
@@ -639,13 +639,16 @@ class Window(QMainWindow):
             content.addWidget(label(tr('total')+' · '+formatar_hhmmss(group.total)+' · '+sessions,'muted'))
             first=group.primeira.strftime(t('fmt.data')) if group.primeira else '—'
             last=group.ultima.strftime(t('fmt.data_hora')) if group.ultima else '—'
-            content.addWidget(label(t('dash.primeira',data=first),'muted'))
-            last_label=label(t('dash.ultima',data=last),'muted')
+            dates=QWidget(); dates.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Maximum)
+            dates_box=QVBoxLayout(dates); dates_box.setContentsMargins(0,0,0,0); dates_box.setSpacing(4)
+            dates_box.setAlignment(Qt.AlignTop)
+            dates_box.addWidget(label(t('dash.primeira',data=first),'muted'))
+            dates_box.addWidget(label(t('dash.ultima',data=last),'muted'))
             if group.sessoes:
                 remove=button(tr('delete_history'),lambda checked=False,key=group.chave:self.delete_group_by_key(key),'danger')
-                content.addWidget(row(last_label,None,remove))
+                content.addWidget(row(dates,None,remove))
             else:
-                content.addWidget(last_label)
+                content.addWidget(dates)
             self.stat_group_cards[group.chave]=card
             box.addWidget(card)
         box.addWidget(row(button(tr('export_summary'),lambda:self.export_csv(True)),None))
