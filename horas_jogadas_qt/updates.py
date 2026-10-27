@@ -14,7 +14,8 @@ import time
 from dataclasses import dataclass
 from pathlib import Path,PurePosixPath
 from urllib.parse import urlparse
-from urllib.request import Request,urlopen
+from urllib.request import Request
+from .network import urlopen
 from .release import VERSION
 
 REPOSITORY='JoaoPPolli/HorasJogadas'

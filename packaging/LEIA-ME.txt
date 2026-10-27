@@ -1,4 +1,4 @@
-HORASJOGADAS 3.1.0
+HORASJOGADAS 3.1.1
 
 WINDOWS
 Use o instalador ou extraia a pasta inteira do pacote portátil e abra HorasJogadas.exe.

@@ -21,7 +21,15 @@ def run_self_test(result_path):
     app = QApplication.instance() or QApplication(['HorasJogadas-self-test'])
     try:
         if os.environ.get('HORASJOGADAS_NETWORK_SELFTEST')=='1':
-            from urllib.request import urlopen
+            from .network import urlopen,ssl_context
+            import ssl
+            if os.environ.get('HORASJOGADAS_NO_SYSTEM_CA_SELFTEST')=='1':
+                if ssl.create_default_context().get_ca_certs():raise RuntimeError('A simulação ainda contém certificados do sistema')
+                result['system_ca_unavailable']=True
+            context=ssl_context()
+            result['portable_ca_count']=len(context.get_ca_certs())
+            if context.verify_mode!=ssl.CERT_REQUIRED or not context.check_hostname:
+                raise RuntimeError('Validação TLS desativada')
             from .updates import check_release,API
             def authenticated_api(request,timeout):
                 token=os.environ.get('GH_TOKEN')

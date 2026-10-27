@@ -33,7 +33,7 @@ def build():
     command=[sys.executable,'-m','PyInstaller','--noconfirm','--clean','--onedir','--windowed',
         '--noupx','--name','HorasJogadas','--distpath',output,'--workpath',work/'work',
         '--specpath',work,'--paths',ROOT,'--collect-submodules','horas_jogadas_qt',
-        '--collect-data','horas_jogadas_qt','--hidden-import','PySide6.QtSvg',
+        '--collect-data','horas_jogadas_qt','--collect-data','certifi','--hidden-import','PySide6.QtSvg',
         '--add-data',str(ROOT/'icon.ico')+os.pathsep+'.']
     if sys.platform=='win32': command+=['--icon',ROOT/'icon.ico']
     translations=Path(QLibraryInfo.path(QLibraryInfo.TranslationsPath))
@@ -46,13 +46,22 @@ def build():
     if not executable.exists(): raise RuntimeError('Executável ausente')
     results=work/'self-test.json'
     # No Linux, o runner chama este script dentro de xvfb-run.
-    run([executable,'--self-test',results],cwd=bundle,timeout=180)
+    test_environment=os.environ.copy()
+    if sys.platform.startswith('linux') and test_environment.get('HORASJOGADAS_NETWORK_SELFTEST')=='1':
+        empty_ca=work/'empty-ca';empty_ca.mkdir()
+        test_environment.update(SSL_CERT_FILE=str(work/'missing-ca.pem'),SSL_CERT_DIR=str(empty_ca),
+                                HORASJOGADAS_NO_SYSTEM_CA_SELFTEST='1')
+    run([executable,'--self-test',results],cwd=bundle,timeout=180,env=test_environment)
     evidence=json.loads(results.read_text(encoding='utf-8'))
     if not evidence.get('ok'): raise RuntimeError(str(evidence))
     (bundle/'package.json').write_text(json.dumps({'version':VERSION,'platform':'windows' if sys.platform=='win32' else 'linux'}),encoding='utf-8')
     shutil.copy2(ROOT/'packaging'/'LEIA-ME.txt',bundle/'LEIA-ME.txt')
     licenses=bundle/'THIRD-PARTY'; licenses.mkdir(exist_ok=True)
     shutil.copy2(ROOT/'packaging'/'THIRD-PARTY.txt',licenses/'NOTICES.txt')
+    certificate_distribution=importlib.metadata.distribution('certifi')
+    certificate_license=next((p for p in certificate_distribution.files or [] if p.name in {'LICENSE','LICENSE.txt'}),None)
+    if certificate_license is None:raise RuntimeError('Licença do certifi ausente')
+    shutil.copy2(certificate_distribution.locate_file(certificate_license),licenses/'Certifi-LICENSE.txt')
     # Textos integrais dos componentes são copiados de fontes oficiais pelo workflow.
     legal=ROOT/'build'/'legal'
     if legal.exists():

@@ -2,6 +2,13 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.1.1
+
+- Corrigida a verificação de atualizações no Linux quando o pacote não encontra os certificados raiz do sistema.
+- Certificados de confiança incluídos no aplicativo, mantendo a validação HTTPS e os certificados locais do sistema.
+- A mesma correção vale para downloads de atualizações e importação de capas da Steam.
+- Autoteste do executável Linux verifica o acesso HTTPS com os certificados do sistema indisponíveis.
+
 ## 3.1.0
 
 - Capas opcionais, desativadas por padrão, preservando o layout compacto.

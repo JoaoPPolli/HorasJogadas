@@ -1,2 +1,3 @@
-# Interface de revisão; o aplicativo Tkinter continua independente.
+# Interface oficial e certificados HTTPS portáteis.
 PySide6==6.8.3
+certifi==2026.10.23

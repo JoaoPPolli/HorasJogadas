@@ -9,7 +9,8 @@ from dataclasses import dataclass
 from difflib import SequenceMatcher
 from pathlib import Path
 from urllib.parse import urlencode,urlparse
-from urllib.request import Request,urlopen
+from urllib.request import Request
+from .network import urlopen
 from horas_jogadas.storage import escrever_json_atomico
 
 MAX_IMAGE=10*1024*1024

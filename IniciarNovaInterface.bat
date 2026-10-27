@@ -17,7 +17,7 @@ if not exist .venv_qt\Scripts\python.exe (
   python -m venv .venv_qt
   if errorlevel 1 goto falha
 )
-.venv_qt\Scripts\python.exe -c "import PySide6; assert PySide6.__version__ == '6.8.3'" >nul 2>nul
+.venv_qt\Scripts\python.exe -c "import PySide6,certifi; assert PySide6.__version__ == '6.8.3' and certifi.__version__ == '2026.10.23'" >nul 2>nul
 if errorlevel 1 (
   .venv_qt\Scripts\python.exe -m pip install -r requirements-qt.txt
   if errorlevel 1 goto falha

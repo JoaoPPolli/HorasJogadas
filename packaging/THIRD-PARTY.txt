@@ -19,3 +19,8 @@ Capas opcionais: obtidas pelo usuário da loja pública da Steam e guardadas loc
 As imagens pertencem aos respectivos titulares; nenhuma capa de jogo é incluída nos
 pacotes do HorasJogadas. Steam e o logotipo Steam são marcas da Valve Corporation.
 Fonte consultada: https://store.steampowered.com/
+
+Certifi 2026.10.23: Mozilla Public License 2.0 (MPL-2.0).
+Certificados raiz distribuídos pelo projeto certifi/Mozilla, sem alterações.
+https://github.com/certifi/python-certifi
+Texto integral: Certifi-LICENSE.txt nesta pasta.
