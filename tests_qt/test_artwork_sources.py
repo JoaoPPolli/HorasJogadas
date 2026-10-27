@@ -33,7 +33,7 @@ image_bytes = cover_tests.image_bytes
 APP = QApplication.instance() or QApplication([])
 GOG_IMAGE = 'https://images.gog-statics.com/' + 'a'*64 + '.jpg'
 WIKI_IMAGE = 'https://upload.wikimedia.org/wikipedia/en/8/88/Demo.png'
-STEAM_ICON = 'https://shared.fastly.steamstatic.com/steamcommunity/public/images/apps/42/' + 'a'*40 + '.jpg'
+STEAM_ICON = 'https://shared.fastly.steamstatic.com/community_assets/images/apps/42/' + 'a'*40 + '.jpg'
 
 
 def gog(name='Stardew Valley', key=42):
@@ -179,6 +179,21 @@ class IconDataTests(unittest.TestCase):
         data=download(candidate(),threading.Event(),opener,kind='icon')
         self.assertTrue(data.startswith(b'\x89PNG'))
         self.assertEqual(len(calls),3)
+
+    def test_steam_icon_handles_cdn_path_and_format_transitions(self):
+        from urllib.error import HTTPError
+        final=STEAM_ICON.replace('community_assets','steamcommunity/public').replace('.jpg','.ico')
+        calls=[]
+        def opener(request,timeout):
+            calls.append(request.full_url)
+            if 'api.steampowered.com' in request.full_url:
+                return response({'response':{'apps':[{'appid':42,'icon':'a'*40}]}})
+            if request.full_url!=final:raise HTTPError(request.full_url,404,'missing',{},None)
+            return io.BytesIO(image_bytes())
+        data=download(candidate(),threading.Event(),opener,kind='icon')
+        self.assertTrue(data.startswith(b'\x89PNG'))
+        self.assertEqual(calls[-1],final)
+        self.assertLessEqual(len(calls),7)
 
     def test_steam_has_no_icon_never_crops_header_as_substitute(self):
         with self.assertRaises(ValueError):

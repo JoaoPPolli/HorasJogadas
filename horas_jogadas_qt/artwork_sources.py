@@ -63,7 +63,7 @@ def image_url_valid(candidate, url, kind):
             host = p.hostname or ''
             return (p.scheme == 'https' and (host.endswith('.steamstatic.com') or host == 'cdn.akamai.steamstatic.com')
                     and not p.username and not p.password and p.port is None
-                    and re.fullmatch(r'/steamcommunity/public/images/apps/' + str(candidate.app_id) + r'/[a-fA-F0-9]+\.(?:jpg|png|ico)', p.path) is not None)
+                    and re.fullmatch(r'/(?:steamcommunity/public|community_assets)/images/apps/' + str(candidate.app_id) + r'/[a-fA-F0-9]+\.(?:jpg|png|ico)', p.path) is not None)
         except (TypeError, ValueError):
             return False
     if candidate.source == 'GOG':
@@ -202,7 +202,7 @@ def search_artwork(query, opener=urlopen, *, source=None, kind='cover', cancel=N
     return SearchResults(selected, warnings)
 
 
-def _steam_icon_url(app_id, opener, cancel):
+def _steam_icon_urls(app_id, opener, cancel):
     # APIs oficiais públicas retornam o hash do ícone sem conta, chave ou HTML.
     inputs = [
         ('ICommunityService/GetApps', {'appids': [app_id]}),
@@ -221,7 +221,8 @@ def _steam_icon_url(app_id, opener, cancel):
                     continue
                 digest = item.get('icon') if method.startswith('ICommunity') else item.get('assets', {}).get('community_icon')
                 if isinstance(digest, str) and re.fullmatch(r'[a-fA-F0-9]{40}', digest):
-                    return 'https://shared.fastly.steamstatic.com/steamcommunity/public/images/apps/' + str(app_id) + '/' + digest + '.jpg'
+                    return ['https://shared.fastly.steamstatic.com/'+prefix+'/images/apps/'+str(app_id)+'/'+digest+'.'+extension
+                            for prefix in ('community_assets','steamcommunity/public') for extension in ('jpg','png','ico')]
         except Cancelled:
             raise
         except Exception:
@@ -236,7 +237,13 @@ def download_artwork(candidate, cancel, opener=urlopen, kind='cover'):
     url = candidate.image_url
     if kind == 'icon':
         if candidate.source == 'Steam':
-            url = _steam_icon_url(candidate.app_id, opener, cancel)
+            last_error=None
+            for url in _steam_icon_urls(candidate.app_id, opener, cancel):
+                if not image_url_valid(candidate,url,kind):continue
+                try:return normalize_image(_read(url,opener,cancel,MAX_IMAGE),kind)
+                except Cancelled:raise
+                except Exception as error:last_error=error
+            raise ValueError('Ícone indisponível na Steam / Steam icon unavailable') from last_error
         elif candidate.source == 'GOG':
             value = _json('https://api.gog.com/products/' + str(candidate.app_id), opener, cancel)
             images = value.get('images', {})
