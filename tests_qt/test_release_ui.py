@@ -23,7 +23,7 @@ from app_qt import main,seed_demo
 from horas_jogadas.constants import DATA_DIR
 from horas_jogadas_qt.preview import inventory
 from horas_jogadas.instancia import TravaInstancia
-source=Path(DATA_DIR); source.mkdir(parents=True); seed_demo(source)
+source=Path(DATA_DIR).resolve(); source.mkdir(parents=True); seed_demo(source)
 before=inventory(source)
 app_exec=QApplication.exec
 errors=[]
@@ -34,15 +34,19 @@ def run(self):
             assert window.mode==MODE
             if MODE=='release':
                 assert window.c.folder==source
-                other=TravaInstancia(str(source))
-                assert not other.adquirir()
+                import subprocess
+                check="from horas_jogadas.instancia import TravaInstancia; import sys; t=TravaInstancia(sys.argv[1]); acquired=t.adquirir(); active=t.ativa; t.liberar(); sys.exit(1 if acquired and active else 0)"
+                other=subprocess.run([sys.executable,'-c',check,str(source)],capture_output=True,text=True,timeout=10)
+                assert other.returncode==0,other.stdout+other.stderr
                 assert (source/'.horasjogadas-release.json').exists()
             else:
                 assert window.c.folder!=source
                 assert not (source/'.horasjogadas-release.json').exists()
             assert len(window.c.repo.jogos)==6
             for name,digest in before.items(): assert inventory(source)[name]==digest
-        except Exception as error: errors.append(str(error))
+        except Exception:
+            import traceback
+            errors.append(traceback.format_exc())
         self.quit()
     QTimer.singleShot(100,ready)
     return app_exec()

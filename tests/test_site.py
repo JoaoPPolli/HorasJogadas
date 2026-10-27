@@ -9,7 +9,7 @@ class SiteTests(unittest.TestCase):
     def test_generated_site_has_direct_downloads_and_no_template_tokens(self):
         with tempfile.TemporaryDirectory() as temporary:
             output=build(Path(temporary)/'site')
-            html=(output/'index.html').read_text()
+            html=(output/'index.html').read_text(encoding='utf-8')
             self.assertNotIn('__RELEASE__',html)
             for name in ('HorasJogadas-Windows-Setup.exe','HorasJogadas-Windows-Portable.zip','HorasJogadas-Linux-x86_64.tar.gz','SHA256SUMS.txt'):
                 self.assertIn('https://github.com/JoaoPPolli/HorasJogadas/releases/latest/download/'+name,html)
