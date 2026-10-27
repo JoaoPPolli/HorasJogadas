@@ -22,6 +22,7 @@ jobs:
       - name: Record public catalog diagnostics
         run: |
           cp artwork-endpoints.json "$RUNNER_TEMP/artwork-endpoints.json"
+          rm artwork-endpoints.json
           git fetch origin automation/publication-status
           git switch -C automation/publication-status FETCH_HEAD
           cp "$RUNNER_TEMP/artwork-endpoints.json" artwork-endpoints.json
