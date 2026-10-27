@@ -1,0 +1,52 @@
+name: Publication preflight
+on:
+  push:
+    branches: ['interface/pyside6-revisao']
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect repository publication settings
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/publication-metadata"
+          gh api "repos/$REPOSITORY" --jq '{name: .full_name, private, default_branch, has_pages, html_url}' > "$RUNNER_TEMP/publication-metadata/repository.json"
+          gh api "repos/$REPOSITORY/pages" > "$RUNNER_TEMP/publication-metadata/pages.json" 2> "$RUNNER_TEMP/publication-metadata/pages-error.txt" || true
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'publication-metadata'
+          value=json.loads((root/'repository.json').read_text())
+          value['run_url']=os.environ['RUN_URL']
+          value['phase']='preflight'
+          if (root/'pages.json').stat().st_size:
+              try: value['pages']=json.loads((root/'pages.json').read_text())
+              except ValueError: pass
+          (root/'status.json').write_text(json.dumps(value,indent=2)+'\n')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          path: .publication-status
+      - name: Record non-secret publication status
+        working-directory: .publication-status
+        run: |
+          if git ls-remote --exit-code origin refs/heads/automation/publication-status; then
+            git fetch origin automation/publication-status
+            git switch -C automation/publication-status FETCH_HEAD
+          else
+            git switch --orphan automation/publication-status
+          fi
+          cp "$RUNNER_TEMP/publication-metadata/status.json" status.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add status.json
+          git diff --cached --quiet || git commit -m 'Record publication preflight'
+          git push origin HEAD:automation/publication-status
