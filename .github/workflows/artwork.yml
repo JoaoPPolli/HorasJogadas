@@ -1,0 +1,33 @@
+name: Artwork catalog verification
+on:
+  push:
+    branches: ['feature/fontes-e-icones']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: artwork-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  catalogs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/probe_artwork_endpoints.py
+      - name: Record public catalog diagnostics
+        run: |
+          cp artwork-endpoints.json "$RUNNER_TEMP/artwork-endpoints.json"
+          git fetch origin automation/publication-status
+          git switch -C automation/publication-status FETCH_HEAD
+          cp "$RUNNER_TEMP/artwork-endpoints.json" artwork-endpoints.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add artwork-endpoints.json
+          git diff --cached --quiet || git commit -m 'Record public artwork catalog diagnostics'
+          git pull --rebase origin automation/publication-status
+          git push origin HEAD:automation/publication-status
