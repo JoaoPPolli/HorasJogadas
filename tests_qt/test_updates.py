@@ -56,7 +56,7 @@ class UpdateTests(unittest.TestCase):
         with patch('horas_jogadas_qt.updates.subprocess.Popen') as popen:
             updates.launch_update(Path('/tmp/update path/Setup.exe'),executable='/tmp/App with spaces/HorasJogadas.exe',system='win32')
             args=popen.call_args.args[0]
-            self.assertIn('/DIR=/tmp/App with spaces',args);self.assertIn('/RESTARTAPP',args)
+            self.assertIn('/DIR='+str(Path('/tmp/App with spaces/HorasJogadas.exe').resolve().parent),args);self.assertIn('/RESTARTAPP',args)
             self.assertNotIn('shell',popen.call_args.kwargs)
 
     @unittest.skipIf(os.name=='nt','Helper de atualização Linux')
