@@ -141,7 +141,7 @@ class CoverUiTests(unittest.TestCase):
         dialog=CoverDialog(self.w);dialog.show();APP.processEvents()
         for row,combo in enumerate(dialog.selectors):self.assertLessEqual(combo.height(),dialog.table.rowHeight(row))
         names=[game.nome for game in dialog.games];baseline=self.c.repo.totais_por_jogo_id()
-        def found(query):return [candidate(42,query,1)]
+        def found(query,**kwargs):return [candidate(42,query,1)]
         with patch('horas_jogadas_qt.cover_dialog.search',side_effect=found),patch('horas_jogadas_qt.cover_dialog.download',return_value=normalize_image(image_bytes())):
             dialog.find_all();self.wait(dialog)
             for row in range(len(names)):self.assertIsNotNone(dialog.selected(row))

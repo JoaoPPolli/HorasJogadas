@@ -61,7 +61,9 @@ class GameCard(QFrame):
         more.setToolTip(tr('actions'))
         more.setAccessibleName(tr('actions'))
         more.setFixedSize(30, 30)
-        top = row(GameAvatar(game.nome), identity, more)
+        avatar=GameAvatar(game.nome,path=window.icon_store.path(key) if window.icons_enabled else None)
+        avatar.clicked.connect(lambda:window.manage_icons(key))
+        top = row(avatar, identity, more)
         top.layout().setStretch(1, 1)
         box.addWidget(top)
         box.addSpacing(6)
@@ -333,6 +335,7 @@ class Window(QMainWindow):
 
     def build_library(self):
         self.covers_enabled=bool(preferences.read(self.c.folder).get('covers_enabled',False))
+        self.icons_enabled=bool(preferences.read(self.c.folder).get('icons_enabled',True))
         widget = QWidget()
         box = QVBoxLayout(widget); box.setContentsMargins(0,0,0,0); box.setSpacing(16)
         self.search = QLineEdit()
@@ -368,6 +371,7 @@ class Window(QMainWindow):
         self.cards = {}
         from .covers import CoverStore
         self.cover_store=CoverStore(self.c.folder)
+        self.icon_store=CoverStore(self.c.folder,'icon')
         for game in self.c.repo.jogos:
             card = GameCard(self, game.id)
             self.cards[game.id] = card
@@ -474,6 +478,7 @@ class Window(QMainWindow):
             action.setCheckable(True); action.setChecked(game.status == status)
         if preferences.read(self.c.folder).get('covers_enabled',False):
             menu.addAction(tr('covers_choose'),lambda:self.manage_covers(key))
+        menu.addAction(tr('game_icons_choose'),lambda:self.manage_icons(key))
         menu.addAction(tr('adjust'), lambda: self.adjust_timer(key))
         pause_action = menu.addAction(tr('count_pause'), lambda: self.timer_action(key,'pause'))
         pause_action.setEnabled(self.c.timers[key].pausado)
@@ -873,7 +878,11 @@ class Window(QMainWindow):
         covers.setChecked(bool(preferences.read(self.c.folder).get('covers_enabled',False)))
         form.addWidget(covers);form.addWidget(label(tr('covers_help'),'muted',True))
         form.addWidget(button(tr('covers_manage'),self.manage_covers))
-        form.addWidget(button(tr('save'),lambda:self.save_settings(theme.currentData(),language.currentData(),auto.isChecked(),covers.isChecked()),'primary'))
+        game_icons=QCheckBox(tr('game_icons_enabled'));game_icons.setObjectName('iconsEnabled')
+        game_icons.setChecked(bool(preferences.read(self.c.folder).get('icons_enabled',True)))
+        form.addWidget(game_icons);form.addWidget(label(tr('game_icons_help'),'muted',True))
+        form.addWidget(button(tr('game_icons_manage'),self.manage_icons))
+        form.addWidget(button(tr('save'),lambda:self.save_settings(theme.currentData(),language.currentData(),auto.isChecked(),covers.isChecked(),game_icons.isChecked()),'primary'))
         box.addWidget(appearance)
         data=QFrame(); data.setObjectName('card'); data_box=QVBoxLayout(data); data_box.setContentsMargins(22,20,22,20); data_box.setSpacing(12)
         data_box.addWidget(label(self.ui_text('data'),'gameName'))
@@ -901,6 +910,12 @@ class Window(QMainWindow):
         from .cover_dialog import CoverDialog
         # clicked(bool) não é um ID de jogo.
         dialog=CoverDialog(self,key if isinstance(key,str) else None)
+        try:dialog.exec()
+        finally:dialog.deleteLater()
+
+    def manage_icons(self,key=None):
+        from .cover_dialog import CoverDialog
+        dialog=CoverDialog(self,key if isinstance(key,str) else None,kind='icon')
         try:dialog.exec()
         finally:dialog.deleteLater()
 
@@ -933,7 +948,7 @@ class Window(QMainWindow):
     def theme_name(self):
         return preferences.read(self.c.folder).get('theme','dark')
 
-    def save_settings(self,theme,language,check_updates=None,covers_enabled=None):
+    def save_settings(self,theme,language,check_updates=None,covers_enabled=None,icons_enabled=None):
         from horas_jogadas.storage import escrever_json_atomico
         def save():
             self.c.config['idioma']=language
@@ -941,6 +956,7 @@ class Window(QMainWindow):
             changes={'theme':theme}
             if check_updates is not None: changes['check_updates']=check_updates
             if covers_enabled is not None: changes['covers_enabled']=covers_enabled
+            if icons_enabled is not None: changes['icons_enabled']=icons_enabled
             preferences.save(self.c.folder,**changes)
         if self.perform(save,False):
             i18n.definir_idioma(language)

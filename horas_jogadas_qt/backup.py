@@ -9,8 +9,8 @@ from datetime import datetime
 from pathlib import Path
 
 FILES=('cronometros.json','registros.json','zerados.json','config.json','em_andamento.json')
-EXTRAS=('.qt-preferences.json','covers/index.json')
-IMAGE=re.compile(r'covers/[a-f0-9]{64}\.jpg')
+EXTRAS=('.qt-preferences.json','covers/index.json','icons/index.json')
+IMAGE=re.compile(r'(?:covers/[a-f0-9]{64}\.jpg|icons/[a-f0-9]{64}\.png)')
 
 
 def safe_path(root,path):
@@ -30,13 +30,14 @@ def create_full(folder):
     stage=Path(tempfile.mkdtemp(prefix='.building-',dir=root))
     try:
         names=list(FILES+EXTRAS)
-        index=folder/'covers'/'index.json'
-        if index.exists():
-            entries=json.loads(index.read_text(encoding='utf-8'))
-            if not isinstance(entries,dict):raise ValueError('Índice de capas inválido')
-            for entry in entries.values():
-                name='covers/'+str(entry.get('file','')) if isinstance(entry,dict) else ''
-                if IMAGE.fullmatch(name):names.append(name)
+        for category in ('covers','icons'):
+            index=folder/category/'index.json'
+            if index.exists():
+                entries=json.loads(index.read_text(encoding='utf-8'))
+                if not isinstance(entries,dict):raise ValueError('Índice de imagens inválido')
+                for entry in entries.values():
+                    name=category+'/'+str(entry.get('file','')) if isinstance(entry,dict) else ''
+                    if IMAGE.fullmatch(name):names.append(name)
         hashes={}
         for name in dict.fromkeys(names):
             source=folder/name

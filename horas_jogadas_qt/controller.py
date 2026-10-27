@@ -43,7 +43,7 @@ class Controller:
     @contextmanager
     def transaction(self):
         """Guarda estado anterior na revisão antes de operações com vários arquivos."""
-        names = ['cronometros.json', 'registros.json', 'config.json', 'zerados.json', 'em_andamento.json', '.qt-preferences.json', 'covers/index.json']
+        names = ['cronometros.json', 'registros.json', 'config.json', 'zerados.json', 'em_andamento.json', '.qt-preferences.json', 'covers/index.json', 'icons/index.json']
         files = {n: (self.folder / n).read_bytes() if (self.folder / n).exists() else None for n in names}
         state = copy.deepcopy((self.repo.jogos, self.repo.sessoes, self.zerados.registros,
                                self.zerados.automaticos, self.timers, self.undo, self.config))
@@ -73,7 +73,8 @@ class Controller:
             return
         files = json.loads(journal.read_text(encoding='utf-8'))
         allowed = {'cronometros.json', 'registros.json', 'config.json', 'zerados.json', 'em_andamento.json'}
-        if not isinstance(files,dict) or set(files) not in (allowed,allowed|{'.qt-preferences.json','covers/index.json'}):
+        extras={'.qt-preferences.json','covers/index.json'}
+        if not isinstance(files,dict) or set(files) not in (allowed,allowed|extras,allowed|extras|{'icons/index.json'}):
             raise ValueError('Diário de recuperação inválido; arquivos preservados para revisão.')
         for name, data in files.items():
             target = folder / name

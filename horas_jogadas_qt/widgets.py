@@ -1,8 +1,8 @@
 """Widgets Qt com layout adaptável e pintura em buffer da própria Qt."""
 import math
 import hashlib
-from PySide6.QtCore import Qt, QRect, QSize, QPointF
-from PySide6.QtGui import QColor, QPainter, QFont, QFontMetrics
+from PySide6.QtCore import Qt, QRect, QRectF, QSize, QPointF
+from PySide6.QtGui import QColor, QPainter, QFont, QFontMetrics, QImage, QPainterPath
 from PySide6.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QFrame, QVBoxLayout,
                               QHBoxLayout, QLayout, QDialog, QFormLayout, QDialogButtonBox,
                               QMessageBox, QTableWidget, QHeaderView, QAbstractItemView)
@@ -202,12 +202,17 @@ class Chart(QWidget):
         painter.end()
 
 
-class GameAvatar(QWidget):
-    def __init__(self, name, parent=None):
+class GameAvatar(QPushButton):
+    def __init__(self, name, parent=None, path=None):
         super().__init__(parent)
         self.name = name
+        self.image = QImage(str(path)) if path else QImage()
+        self.setObjectName('gameAvatar')
+        self.setStyleSheet('QPushButton#gameAvatar { padding: 0; min-height: 42px; max-height: 42px; min-width: 42px; max-width: 42px; border: none; }')
         self.setFixedSize(42, 42)
-        self.setAccessibleName(name)
+        self.setAccessibleName(tr('game_icons_for').format(name=name))
+        self.setToolTip(tr('game_icons_choose'))
+        self.setCursor(Qt.PointingHandCursor)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -218,9 +223,19 @@ class GameAvatar(QWidget):
         foreground = QColor.fromHslF(hue, .25, .77 if dark else .28)
         painter.setBrush(background); painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(QRect(0, 0, 42, 42), 10, 10)
-        initials = ''.join(word[0] for word in self.name.split()[:2]).upper()
-        painter.setFont(QFont('Segoe UI', 11, QFont.DemiBold)); painter.setPen(foreground)
-        painter.drawText(self.rect(), Qt.AlignCenter, initials)
+        if not self.image.isNull():
+            painter.setRenderHint(QPainter.SmoothPixmapTransform)
+            clip=QPainterPath();clip.addRoundedRect(QRectF(self.rect()),10,10);painter.setClipPath(clip)
+            size=self.image.size().scaled(self.size(),Qt.KeepAspectRatio)
+            target=QRectF((42-size.width())/2,(42-size.height())/2,size.width(),size.height())
+            painter.drawImage(target,self.image);painter.setClipping(False)
+        else:
+            initials = ''.join(word[0] for word in self.name.split()[:2]).upper()
+            painter.setFont(QFont('Segoe UI', 11, QFont.DemiBold)); painter.setPen(foreground)
+            painter.drawText(self.rect(), Qt.AlignCenter, initials)
+        if self.hasFocus():
+            painter.setBrush(Qt.NoBrush);painter.setPen(self.palette().highlight().color())
+            painter.drawRoundedRect(QRectF(self.rect()).adjusted(1,1,-1,-1),9,9)
         painter.end()
 
 

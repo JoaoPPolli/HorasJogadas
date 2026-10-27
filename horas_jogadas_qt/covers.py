@@ -32,8 +32,13 @@ class Candidate:
     name:str
     image_url:str
     score:float=0
+    source:str='Steam'
+    page_url:str=''
+    icon_url:str=''
     @property
-    def page(self):return 'https://store.steampowered.com/app/'+str(self.app_id)+'/'
+    def cache_key(self):return self.source,self.app_id
+    @property
+    def page(self):return self.page_url or 'https://store.steampowered.com/app/'+str(self.app_id)+'/'
 
 
 def normalized(name):
@@ -44,8 +49,10 @@ def normalized(name):
 
 def similarity(query,name):
     a,b=normalized(query),normalized(name)
+    roman={'i':'1','ii':'2','iii':'3','iv':'4','v':'5','vi':'6','vii':'7','viii':'8','ix':'9','x':'10'}
+    a,b=(' '.join(roman.get(word,word) for word in value.split()) for value in (a,b))
     score=SequenceMatcher(None,a,b).ratio()
-    numbers=lambda value:re.findall(r'\b(?:\d+|ii|iii|iv|vi|vii|viii|ix)\b',value)
+    numbers=lambda value:[roman.get(n,n) for n in re.findall(r'\b(?:\d+|i|ii|iii|iv|v|vi|vii|viii|ix|x)\b',value)]
     if numbers(a)!=numbers(b):score=min(score,.85)
     return score
 
@@ -67,7 +74,7 @@ def search(query,opener=urlopen):
     return sorted(candidates.values(),key=lambda item:item.score,reverse=True)[:8]
 
 
-def normalize_image(data):
+def normalize_image(data,kind='cover'):
     from PySide6.QtCore import QBuffer,QIODevice,Qt
     from PySide6.QtGui import QImageReader,QImage
     if len(data)>MAX_IMAGE:raise ValueError('Imagem muito grande / Image too large')
@@ -79,13 +86,20 @@ def normalize_image(data):
     if max(size.width(),size.height())>1280:reader.setScaledSize(size.scaled(1280,1280,Qt.KeepAspectRatio))
     image=reader.read()
     if image.isNull():raise ValueError('Imagem ilegível / Unreadable image')
-    image=image.convertToFormat(QImage.Format_RGB32)
+    if kind=='icon':
+        if max(image.width(),image.height())>256:
+            image=image.scaled(256,256,Qt.KeepAspectRatio,Qt.SmoothTransformation)
+        image=image.convertToFormat(QImage.Format_ARGB32)
+    else:image=image.convertToFormat(QImage.Format_RGB32)
     output=QBuffer();output.open(QIODevice.WriteOnly)
-    if not image.save(output,'JPEG',90):raise ValueError('Não foi possível salvar a imagem / Cannot save image')
+    if not image.save(output,'PNG' if kind=='icon' else 'JPEG',90):raise ValueError('Não foi possível salvar a imagem / Cannot save image')
     return bytes(output.data())
 
 
-def download(candidate,cancel,opener=urlopen):
+def download(candidate,cancel,opener=urlopen,kind='cover'):
+    if candidate.source!='Steam' or kind=='icon':
+        from .artwork_sources import download_artwork
+        return download_artwork(candidate,cancel,opener,kind)
     from .tasks import Cancelled
     if type(candidate.app_id) is not int or not 0<candidate.app_id<100000000 or not valid_image_url(candidate.image_url,candidate.app_id):
         raise ValueError('URL de capa inválida / Invalid cover URL')
@@ -123,8 +137,9 @@ def download(candidate,cancel,opener=urlopen):
 
 
 class CoverStore:
-    def __init__(self,folder):
-        self.folder=Path(folder)/'covers';self.index_path=self.folder/'index.json'
+    def __init__(self,folder,kind='cover'):
+        self.kind=kind
+        self.folder=Path(folder)/('icons' if kind=='icon' else 'covers');self.index_path=self.folder/'index.json'
         try:
             value=json.loads(self.index_path.read_text(encoding='utf-8'))
             self.entries=value if isinstance(value,dict) else {}
@@ -133,7 +148,8 @@ class CoverStore:
     def path(self,key):
         entry=self.entries.get(key,{})
         name=entry.get('file') if isinstance(entry,dict) else None
-        if not isinstance(name,str) or not FILE_PATTERN.fullmatch(name):return None
+        pattern=r'[a-f0-9]{64}\.png' if self.kind=='icon' else FILE_PATTERN
+        if not isinstance(name,str) or not re.fullmatch(pattern,name):return None
         path=self.folder/name
         return path if path.is_file() and not path.is_symlink() else None
 
@@ -142,7 +158,7 @@ class CoverStore:
         if self.folder.is_symlink():raise ValueError('Pasta de capas inválida')
         self.folder.mkdir(parents=True,exist_ok=True);entries=dict(self.entries)
         for key,image,metadata in records:
-            name=hashlib.sha256(image).hexdigest()+'.jpg';path=self.folder/name
+            name=hashlib.sha256(image).hexdigest()+('.png' if self.kind=='icon' else '.jpg');path=self.folder/name
             if not path.exists():
                 fd,temporary=tempfile.mkstemp(prefix='.cover-',dir=self.folder)
                 try:

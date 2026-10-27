@@ -112,3 +112,57 @@ TEXTS['en'].update({'covers_enabled': 'Show covers in the library', 'covers_help
 
 def tr(key):
     return TEXTS[idioma_atual()].get(key, key)
+
+# Capas e ícones usam o mesmo fluxo de revisão; os textos descrevem cada arte.
+TEXTS['pt'].update({
+    'artwork_all_sources': 'Todas as fontes', 'artwork_source': 'Fonte da busca',
+    'covers_intro': 'Busque na Steam, GOG e Wikipedia, confira a fonte e escolha antes de importar. A busca tenta reconhecer erros de digitação. Somente os títulos pesquisados são enviados aos serviços; seus registros ficam no computador.',
+    'covers_suggestion': 'Resultado · fonte',
+    'covers_source': 'Fontes: Steam, GOG e Wikipedia. Você também pode escolher uma imagem local.',
+    'covers_searching': 'Buscando sugestões e reconhecendo os títulos…',
+    'covers_search_errors': '{n} busca(s) tiveram falhas em uma ou mais fontes. Os resultados disponíveis continuam na lista; detalhes ao passar o mouse.',
+    'game_icons_enabled': 'Exibir ícones dos jogos',
+    'game_icons_help': 'Substitui as iniciais por ícones importados, mesmo com as capas desativadas. Desative para voltar às iniciais; suas imagens ficam salvas.',
+})
+TEXTS['en'].update({
+    'artwork_all_sources': 'All sources', 'artwork_source': 'Search source',
+    'covers_intro': 'Search Steam, GOG and Wikipedia, check the source and choose before importing. Search attempts to recognize typos. Only searched titles are sent to the services; your records stay on this computer.',
+    'covers_suggestion': 'Result · source',
+    'covers_source': 'Sources: Steam, GOG and Wikipedia. You can also choose a local image.',
+    'covers_searching': 'Finding suggestions and recognizing titles…',
+    'covers_search_errors': '{n} search(es) had errors in one or more sources. Available results remain in the list; hover for details.',
+    'game_icons_enabled': 'Show game icons',
+    'game_icons_help': 'Replaces initials with imported icons, even when covers are off. Turn off to return to initials; saved images are preserved.',
+})
+for language in ('pt', 'en'):
+    TEXTS[language].update({key.replace('covers_', 'game_icons_'): value
+                            for key, value in list(TEXTS[language].items()) if key.startswith('covers_')
+                            and key not in ('covers_enabled', 'covers_help')})
+TEXTS['pt'].update({
+    'game_icons_manage': 'Gerenciar ícones',
+    'game_icons_intro': 'Busque ícones oficiais na Steam e GOG para substituir as iniciais. A Wikipedia ajuda a reconhecer nomes quando todas as fontes estão selecionadas. Só os títulos pesquisados são enviados; seus registros ficam no computador.',
+    'game_icons_search_all': 'Buscar ícones dos jogos marcados',
+    'game_icons_search_hint': 'Ajuste o nome para buscar o ícone deste jogo…',
+    'game_icons_preview': 'Selecione um resultado para ver o ícone',
+    'game_icons_source': 'Ícones oficiais da Steam e GOG, sem conta nem chave. Se não houver um ícone disponível, escolha outra fonte ou uma imagem local.',
+    'game_icons_remove': 'Remover ícone', 'game_icons_ready': 'Os jogos sem ícone já estão marcados. Clique em buscar para começar.',
+    'game_icons_for': 'Ícone de {name}', 'game_icons_choose': 'Escolher ou trocar ícone',
+    'game_icons_find': 'Buscar ícone', 'game_icons_saved': 'Ícone salvo neste computador.',
+    'game_icons_importing': 'Baixando os ícones selecionados…', 'game_icons_done': '{n} ícone(s) importado(s).',
+    'game_icons_import_errors': '{n} ícone(s) não puderam ser baixados. Os demais foram preservados.',
+    'game_icons_cancelling': 'Cancelando… Os ícones anteriores serão preservados.',
+})
+TEXTS['en'].update({
+    'game_icons_manage': 'Manage icons',
+    'game_icons_intro': 'Find official Steam and GOG icons to replace initials. Wikipedia helps recognize names when all sources are selected. Only searched titles are sent; your records stay on this computer.',
+    'game_icons_search_all': 'Find icons for checked games',
+    'game_icons_search_hint': 'Adjust the name to find this game’s icon…',
+    'game_icons_preview': 'Select a result to preview its icon',
+    'game_icons_source': 'Official Steam and GOG icons, no account or key needed. If an icon is unavailable, choose another source or a local image.',
+    'game_icons_remove': 'Remove icon', 'game_icons_ready': 'Games without icons are already checked. Click search to begin.',
+    'game_icons_for': 'Icon for {name}', 'game_icons_choose': 'Choose or replace icon',
+    'game_icons_find': 'Find icon', 'game_icons_saved': 'Icon saved on this computer.',
+    'game_icons_importing': 'Downloading selected icons…', 'game_icons_done': '{n} icon(s) imported.',
+    'game_icons_import_errors': '{n} icon(s) could not be downloaded. Other icons were preserved.',
+    'game_icons_cancelling': 'Cancelling… Previous icons will be preserved.',
+})

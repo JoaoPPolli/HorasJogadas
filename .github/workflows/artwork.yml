@@ -1,7 +1,8 @@
 name: Artwork catalog verification
 on:
   push:
-    branches: ['feature/fontes-e-icones']
+    branches: ['feature/fontes-e-icones', main]
+    paths: ['horas_jogadas_qt/artwork_sources.py', 'horas_jogadas_qt/covers.py', 'scripts/probe_artwork_sources.py', '.github/workflows/artwork.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,17 +19,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python scripts/probe_artwork_endpoints.py
+      - run: python -m pip install -r requirements-qt.txt
+      - run: python scripts/probe_artwork_sources.py
       - name: Record public catalog diagnostics
+        if: always()
         run: |
-          cp artwork-endpoints.json "$RUNNER_TEMP/artwork-endpoints.json"
-          rm artwork-endpoints.json
+          cp artwork-catalogs.json "$RUNNER_TEMP/artwork-catalogs.json"
+          rm artwork-catalogs.json
           git fetch origin automation/publication-status
           git switch -C automation/publication-status FETCH_HEAD
-          cp "$RUNNER_TEMP/artwork-endpoints.json" artwork-endpoints.json
+          cp "$RUNNER_TEMP/artwork-catalogs.json" artwork-catalogs.json
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add artwork-endpoints.json
+          git add artwork-catalogs.json
           git diff --cached --quiet || git commit -m 'Record public artwork catalog diagnostics'
           git pull --rebase origin automation/publication-status
           git push origin HEAD:automation/publication-status
