@@ -1,5 +1,5 @@
 {
-  "commit": "0eb98e34c34d217c1247db771474bf93a52c48df",
+  "commit": "2cad4318935686176daa1c9ef13886ad60ea193c",
   "checks": [
     {
       "kind": "cover",
@@ -44,32 +44,17 @@
       "matches": [
         {
           "source": "GOG",
-          "name": "The Witcher 3 REDkit",
-          "score": 0.744
+          "name": "The Witcher 3: Wild Hunt \u2014 Remastered",
+          "score": 1.0
         },
         {
           "source": "GOG",
-          "name": "The Witcher: Enhanced Edition",
-          "score": 0.647
-        },
-        {
-          "source": "GOG",
-          "name": "The Witcher Adventure Game",
-          "score": 0.612
-        },
-        {
-          "source": "GOG",
-          "name": "The Witcher 2: Assassins of Kings Enhanced Edition",
-          "score": 0.582
-        },
-        {
-          "source": "GOG",
-          "name": "Reigns: The Witcher",
-          "score": 0.537
+          "name": "The Witcher 3: Wild Hunt \u2014 Songs of the Past",
+          "score": 0.719
         }
       ],
       "ok": true,
-      "image_bytes": 159649,
+      "image_bytes": 141942,
       "width": 1280,
       "height": 592
     },
@@ -126,7 +111,12 @@
         }
       ],
       "ok": false,
-      "error": "Imagem indispon\u00edvel nesta fonte / Image unavailable from this source"
+      "error": "Imagem indispon\u00edvel nesta fonte / Image unavailable from this source",
+      "diagnostic_tags": [
+        "<a class=\"menuitem\" href=\"https://steamcommunity.com/login/home/?goto=app%2F292030%2F\">",
+        "<a class=\"global_action_link\" href=\"https://steamcommunity.com/login/home/?goto=app%2F292030%2F\">",
+        "<img class=\"contentcheck_app_img\" src=\"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/292030/4b5b1ba5061b8a992cc69ac58b4245434edb4296/header.jpg?t=1790845156\" />"
+      ]
     },
     {
       "kind": "icon",
@@ -135,34 +125,19 @@
       "matches": [
         {
           "source": "GOG",
-          "name": "The Witcher 3 REDkit",
-          "score": 0.744
+          "name": "The Witcher 3: Wild Hunt \u2014 Remastered",
+          "score": 1.0
         },
         {
           "source": "GOG",
-          "name": "The Witcher: Enhanced Edition",
-          "score": 0.647
-        },
-        {
-          "source": "GOG",
-          "name": "The Witcher Adventure Game",
-          "score": 0.612
-        },
-        {
-          "source": "GOG",
-          "name": "The Witcher 2: Assassins of Kings Enhanced Edition",
-          "score": 0.582
-        },
-        {
-          "source": "GOG",
-          "name": "Reigns: The Witcher",
-          "score": 0.537
+          "name": "The Witcher 3: Wild Hunt \u2014 Songs of the Past",
+          "score": 0.719
         }
       ],
       "ok": true,
-      "image_bytes": 63177,
-      "width": 125,
-      "height": 125
+      "image_bytes": 66233,
+      "width": 128,
+      "height": 128
     },
     {
       "kind": "cover",
@@ -173,6 +148,11 @@
           "source": "GOG",
           "name": "Stardew Valley",
           "score": 0.963
+        },
+        {
+          "source": "GOG",
+          "name": "Stardew Valley Soundtrack",
+          "score": 0.684
         }
       ],
       "ok": true,
