@@ -4,8 +4,9 @@
   "html_url": "https://github.com/JoaoPPolli/HorasJogadas",
   "name": "JoaoPPolli/HorasJogadas",
   "private": true,
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40557753888",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40559349578",
   "phase": "preflight",
+  "visibility_change_error": "gh: Resource not accessible by integration (HTTP 403)\n",
   "pages": {
     "message": "Not Found",
     "documentation_url": "https://docs.github.com/rest/pages/pages#get-a-apiname-pages-site",
