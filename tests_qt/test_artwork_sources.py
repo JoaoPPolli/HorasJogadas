@@ -100,6 +100,20 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(results[0].source, 'Wikipedia')
         self.assertTrue(any('GOG' in error for error in results.warnings))
 
+    def test_store_recognition_corrects_other_sources_without_inflating_score(self):
+        queries = []
+        def opener(request, timeout):
+            url = request.full_url; params = parse_qs(urlparse(url).query)
+            term = params.get('query', params.get('term', params.get('gsrsearch', [''])))[0]
+            queries.append((urlparse(url).hostname, term))
+            if 'catalog.gog.com' in url: return response({'products': [gog()]})
+            if 'wikipedia.org' in url: return response(wiki() if term == 'Stardew Valley' else {})
+            return response({'items': [{'id': 42, 'name': 'Stardew Valley', 'tiny_image': candidate().image_url}] if term == 'Stardew Valley' else []})
+        results = search_artwork('stardew valey', opener)
+        self.assertEqual({item.source for item in results}, {'Steam', 'GOG', 'Wikipedia'})
+        self.assertTrue(all(item.score == similarity('stardew valey', 'Stardew Valley') for item in results))
+        self.assertIn(('store.steampowered.com', 'Stardew Valley'), queries)
+
     def test_all_sources_failed_is_an_error_and_cancellation_propagates(self):
         with self.assertRaises(ValueError):
             search_artwork('Demo', lambda *a, **k: (_ for _ in ()).throw(OSError('offline')))
@@ -116,7 +130,7 @@ class CatalogTests(unittest.TestCase):
         self.assertLess(similarity('Hades 2', 'Hades III'), .93)
         self.assertLess(similarity('The Witcher 3', 'The Witcher 2'), .93)
         self.assertLess(similarity('Civilization VI', 'Civilization V'), .93)
-        self.assertGreaterEqual(similarity('Hades 2', 'Hades II'), .6)
+        self.assertEqual(similarity('Hades 2', 'Hades II'), 1)
 
     def test_image_host_validation_does_not_accept_spoofed_domains(self):
         for source, good in [('GOG', GOG_IMAGE), ('Wikipedia', WIKI_IMAGE), ('Steam', STEAM_ICON)]:

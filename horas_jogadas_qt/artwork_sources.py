@@ -24,9 +24,9 @@ def _check(cancel):
         raise Cancelled()
 
 
-def _read(url, opener, cancel=None, limit=2*1024*1024):
+def _read(url, opener, cancel=None, limit=2*1024*1024, headers=None):
     _check(cancel)
-    with opener(Request(url, headers={'User-Agent': USER_AGENT}), timeout=10) as response:
+    with opener(Request(url, headers={'User-Agent': USER_AGENT, **(headers or {})}), timeout=10) as response:
         chunks = []; size = 0
         while True:
             _check(cancel)
@@ -169,20 +169,24 @@ def search_artwork(query, opener=urlopen, *, source=None, kind='cover', cancel=N
         confident = any(item.score >= .93 for item in collected.values())
         if not confident and 'Wikipedia' in lookup_sources:
             absorb([run('Wikipedia', query, True)])
-        if not confident:
-            canonical = sorted((item for item in collected.values() if item.source == 'Wikipedia' and item.score >= .65),
-                               key=lambda item: item.score, reverse=True)
-            # Consulta as lojas pelo título reconhecido, mas pontua sempre contra o nome original.
-            corrected = canonical[0].name if canonical else ''
-            if corrected and normalized(corrected) != normalized(query):
-                absorb(pool.map(lambda name: run(name, corrected), [name for name in sources if name != 'Wikipedia']))
-            elif not canonical:
-                # Busca parcial cobre pequenos erros mesmo se a enciclopédia estiver indisponível.
-                words = normalized(query).split()
-                token = max(words, key=len, default='')
-                partial = token[:max(3, len(token)-2)]
-                if len(partial) >= 3 and partial != normalized(query):
-                    absorb(pool.map(lambda name: run(name, partial), [name for name in sources if name != 'Wikipedia']))
+        canonical = sorted((item for item in collected.values() if item.score >= .65 and
+                            (item.source == 'Wikipedia' or item.score >= .88)),
+                           key=lambda item: item.score, reverse=True)
+        # Consulta novamente as fontes que não reconheceram o título; mantém a
+        # pontuação contra o texto digitado, sem transformar sugestão em certeza.
+        corrected = canonical[0].name if canonical else ''
+        if corrected and normalized(corrected) != normalized(query):
+            missing = [name for name in lookup_sources if not any(
+                item.source == name and normalized(item.name) == normalized(corrected)
+                for item in collected.values())]
+            absorb(pool.map(lambda name: run(name, corrected), missing))
+        elif not canonical:
+            # Busca parcial cobre pequenos erros mesmo se a enciclopédia estiver indisponível.
+            words = normalized(query).split()
+            token = max(words, key=len, default='')
+            partial = token[:max(3, len(token)-2)]
+            if len(partial) >= 3 and partial != normalized(query):
+                absorb(pool.map(lambda name: run(name, partial), [name for name in sources if name != 'Wikipedia']))
     _check(cancel)
     if not successful:
         raise ValueError('\n'.join(warnings) or 'Busca indisponível / Search unavailable')
@@ -223,7 +227,8 @@ def download_artwork(candidate, cancel, opener=urlopen, kind='cover'):
     if kind == 'icon':
         if candidate.source == 'Steam':
             # A página oficial fornece o hash verdadeiro do ícone. Não recorta a capa.
-            raw = _read('https://steamcommunity.com/app/' + str(candidate.app_id) + '/', opener, cancel)
+            raw = _read('https://steamcommunity.com/app/' + str(candidate.app_id) + '/', opener, cancel,
+                        headers={'Cookie': 'wants_mature_content=1'})
             parser = _SteamIcon(); parser.feed(raw.decode('utf-8', errors='replace'))
             url = next((u for u in parser.urls if image_url_valid(candidate, u, kind)), '')
         elif candidate.source == 'GOG':

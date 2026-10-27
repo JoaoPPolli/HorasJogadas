@@ -34,7 +34,6 @@ class Candidate:
     score:float=0
     source:str='Steam'
     page_url:str=''
-    icon_url:str=''
     @property
     def cache_key(self):return self.source,self.app_id
     @property
