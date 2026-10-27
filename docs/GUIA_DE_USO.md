@@ -7,7 +7,7 @@ Use a [página de download](https://joaoppolli.github.io/HorasJogadas/). No Wind
 No Linux x86_64, extraia o `.tar.gz`, abra um terminal na pasta e execute `./HorasJogadas`. É necessária uma sessão gráfica. Em Ubuntu 22.04 ou superior, se faltar alguma biblioteca Qt/X11, instale:
 
 ```bash
-sudo apt-get install libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0
+sudo apt-get install libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0 libxcb-keysyms1 libxcb-shape0 libxcb-icccm4
 ```
 
 Os pacotes não são assinados digitalmente. Baixe somente das Releases oficiais. Atualizações são feitas por um novo instalador ou por extração em uma pasta nova. Feche o app antigo antes. A desinstalação remove o aplicativo, sem remover os registros pessoais.
@@ -36,7 +36,7 @@ O resumo anual soma os valores informados: jogos e DLCs concluídos, duração r
 
 ## Aparência e idioma
 
-Em **Configurações**, escolha **Escuro minimalista** ou **Original**, inspirado no cinza e roxo do app anterior. A barra de título acompanha o tema em versões compatíveis do Windows. Idiomas disponíveis: português e inglês.
+Em **Configurações**, escolha **Escuro minimalista**, **Original** (cinza e roxo do app anterior), **Violeta** ou **Claro**. A barra de título acompanha o tema em versões compatíveis do Windows. Idiomas disponíveis: português e inglês.
 
 ## Dados, backups e recuperação
 

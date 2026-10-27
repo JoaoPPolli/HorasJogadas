@@ -44,7 +44,7 @@ As partidas feitas na **cópia para revisão** continuam separadas: elas não s�
 - Histórico com edição e exportação CSV.
 - Estatísticas com jogos ordenados pela sessão mais recente e gráfico dos cinco mais jogados.
 - Zerados por ano e mês, campanhas, DLCs, novas jogadas, observações e horas adicionais de platina; importação e exportação TXT.
-- Temas **Escuro minimalista** e **Original**, inspirado na paleta roxa da edição anterior; barra de título nativa escura no Windows compatível.
+- Quatro temas: **Escuro minimalista**, **Original** (a paleta roxa da edição anterior), **Violeta** e **Claro**; barra de título nativa escura no Windows compatível.
 - Português e inglês, backups completos, restauração e bloqueio para impedir duas instâncias de alterarem a mesma pasta.
 
 ## Atualizar

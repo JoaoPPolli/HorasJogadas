@@ -29,7 +29,7 @@ No PowerShell: `$env:QT_QPA_PLATFORM='offscreen'` antes do segundo comando. Os t
 Use `QT_QPA_PLATFORM=offscreen` para testes de widgets. Para validar o pacote executável com uma sessão X11 real:
 
 ```bash
-sudo apt-get install xvfb xauth libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0
+sudo apt-get install xvfb xauth libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0 libxcb-keysyms1 libxcb-shape0 libxcb-icccm4
 xvfb-run -a python scripts/build_release.py
 ```
 
