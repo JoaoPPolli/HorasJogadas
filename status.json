@@ -1,51 +1,87 @@
 {
   "phase": "release",
-  "version": "3.0.1",
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40592521771",
-  "commit": "936517fd3cd5cfb725464ab66fc6bfc035f6443d",
+  "version": "3.1.0",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40594766170",
+  "commit": "fe97ae945671a432fdc817a495cae3e656b200e5",
   "build": "success",
   "publish": "success",
   "pages": "separate-workflow",
-  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.0.1",
+  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.1.0",
   "site_url": "https://joaoppolli.github.io/HorasJogadas/",
   "diagnostics": {
+    "tests-tests_qt-linux": {
+      "ok": true,
+      "exit_code": 0,
+      "log_tail": "aise()\nThis plugin does not support grabbing the keyboard\n............This plugin does not support propagateSizeHints()\n.......This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n...............\n----------------------------------------------------------------------\nRan 89 tests in 15.558s\n\nOK\n"
+    },
+    "linux": {
+      "platform": "linux",
+      "ok": true,
+      "exit_code": 0
+    },
+    "tests-tests_qt-windows": {
+      "ok": true,
+      "exit_code": 0,
+      "log_tail": "...................................................................................ss....\n----------------------------------------------------------------------\nRan 89 tests in 48.589s\n\nOK (skipped=2)\n"
+    },
+    "tests-tests-windows": {
+      "ok": true,
+      "exit_code": 0,
+      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.433s\n\nOK\n"
+    },
+    "installer-windows": {
+      "ok": true,
+      "run_url": "",
+      "checksum": true,
+      "installed": true,
+      "bundle": {
+        "version": "3.1.0",
+        "ok": true,
+        "covers": true,
+        "covers_optional": true,
+        "pages": 5,
+        "seconds_saved": 90,
+        "source_unchanged": true,
+        "svg": true
+      },
+      "uninstalled": true,
+      "existing_data_unchanged": true
+    },
     "windows": {
       "platform": "windows",
       "ok": true,
       "exit_code": 0
     },
-    "tests-tests-windows": {
+    "tests-tests-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 4.653s\n\nOK\n"
-    },
-    "tests-tests_qt-linux": {
-      "ok": true,
-      "exit_code": 0,
-      "log_tail": "aise()\nThis plugin does not support grabbing the keyboard\n............This plugin does not support propagateSizeHints()\n.......This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n...............\n----------------------------------------------------------------------\nRan 73 tests in 18.913s\n\nOK\n"
+      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 0.721s\n\nOK\n"
     },
     "cover-source": {
-      "source": "Steam public Store search",
+      "source": "Steam public Store search + appdetails",
       "titles": [
         {
           "query": "DAVE THE DIVER",
           "matches": [
             {
               "id": 1868140,
-              "name": "DAVE THE DIVER"
+              "name": "DAVE THE DIVER",
+              "score": 1.0
             },
             {
-              "id": 5246570,
-              "name": "DAVE THE DIVER - Subnautica 2 Content Pack"
+              "id": 2410560,
+              "name": "DAVE THE DIVER Soundtrack",
+              "score": 0.717948717948718
             },
             {
-              "id": 4394810,
-              "name": "DAVE THE DIVER - In the Jungle Content Pack"
+              "id": 2492320,
+              "name": "DAVE THE DIVER Digital Extra",
+              "score": 0.6666666666666666
             }
           ],
           "image": {
-            "status": 200,
-            "bytes": 28849
+            "normalized_jpeg_bytes": 22071,
+            "ok": true
           }
         },
         {
@@ -53,25 +89,43 @@
           "matches": [
             {
               "id": 292030,
-              "name": "The Witcher 3: Wild Hunt \u2014 Remastered"
-            },
-            {
-              "id": 5006530,
-              "name": "The Witcher 3: Wild Hunt \u2014 Songs of the Past"
+              "name": "The Witcher 3: Wild Hunt \u2014 Remastered",
+              "score": 1.0
             },
             {
               "id": 1229320,
-              "name": "The Witcher 3: Wild Hunt \u2014 Remastered Soundtrack"
+              "name": "The Witcher 3: Wild Hunt \u2014 Remastered Soundtrack",
+              "score": 0.8070175438596491
+            },
+            {
+              "id": 5006530,
+              "name": "The Witcher 3: Wild Hunt \u2014 Songs of the Past",
+              "score": 0.71875
             }
           ],
           "image": {
-            "status": 200,
-            "bytes": 39618
+            "normalized_jpeg_bytes": 35513,
+            "ok": true
           }
         },
         {
           "query": "Valor Mortis",
-          "error": "HTTP Error 404: Not Found"
+          "matches": [
+            {
+              "id": 2828710,
+              "name": "Valor Mortis",
+              "score": 1.0
+            },
+            {
+              "id": 5250300,
+              "name": "Valor Mortis Deluxe Edition Upgrade",
+              "score": 0.5106382978723404
+            }
+          ],
+          "image": {
+            "normalized_jpeg_bytes": 33266,
+            "ok": true
+          }
         }
       ]
     },
@@ -312,37 +366,6 @@
           }
         ]
       }
-    ],
-    "linux": {
-      "platform": "linux",
-      "ok": true,
-      "exit_code": 0
-    },
-    "tests-tests-linux": {
-      "ok": true,
-      "exit_code": 0,
-      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 0.995s\n\nOK\n"
-    },
-    "tests-tests_qt-windows": {
-      "ok": true,
-      "exit_code": 0,
-      "log_tail": "...................................................................ss....\n----------------------------------------------------------------------\nRan 73 tests in 43.935s\n\nOK (skipped=2)\n"
-    },
-    "installer-windows": {
-      "ok": true,
-      "run_url": "",
-      "checksum": true,
-      "installed": true,
-      "bundle": {
-        "version": "3.0.1",
-        "ok": true,
-        "pages": 5,
-        "seconds_saved": 90,
-        "source_unchanged": true,
-        "svg": true
-      },
-      "uninstalled": true,
-      "existing_data_unchanged": true
-    }
+    ]
   }
 }
