@@ -2,6 +2,14 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.3.0
+
+- Rolagem automática vertical com o botão central nas páginas e listas do app, incluindo diálogos com listas roláveis.
+- Direção e velocidade controladas pela distância do mouse ao ponto inicial, com indicador visual e cursor de direção.
+- Clique para ativar e outro clique ou Esc para parar; também aceita segurar a roda, mover e soltar para encerrar.
+- Interrompe ao sair da janela, mudar de página, fechar ou perder o foco. Cliques usados para cancelar não acionam botões por baixo.
+- Campos de edição preservam a colagem pelo botão central no Linux; os cronômetros e os registros permanecem independentes da rolagem.
+
 ## 3.2.2
 
 - Corrigidos o alinhamento e o espaçamento dos seletores nas listas de capas e ícones, evitando sobreposição entre linhas.

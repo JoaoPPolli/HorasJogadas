@@ -20,6 +20,12 @@ O menu do cartão permite renomear, ajustar o tempo, trocar status e excluir. O 
 
 `Ctrl+F` abre a busca; `Esc` limpa o filtro. Se uma sessão ficou pendente depois de um encerramento inesperado, o app oferece a recuperação na próxima abertura.
 
+## Rolar páginas com o botão central
+
+Clique na roda do mouse sobre o conteúdo de uma página ou lista e solte. Mova o mouse para cima ou para baixo para controlar a direção e a velocidade: quanto mais distante do ponto do clique, mais rápido. Clique novamente ou pressione **Esc** para parar.
+
+Também é possível segurar a roda, mover e soltar para encerrar a rolagem. Sair da janela, mudar de página ou abrir outra janela interrompe o modo. Campos de texto mantêm o comportamento normal do botão central, inclusive a colagem no Linux.
+
 ## Histórico
 
 Consulte as sessões, filtre por jogo e período, edite ou exclua registros e exporte CSV. Edições atualizam os totais da biblioteca e das estatísticas.

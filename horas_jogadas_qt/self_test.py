@@ -96,6 +96,18 @@ def run_self_test(result_path):
                 if 'icons/index.json' not in read_full(create_full(c.folder)):raise RuntimeError('Ícones ausentes do backup')
                 result.update(game_icons=True,icons_optional=True,icons_backup=True)
 
+                from PySide6.QtCore import QPoint
+                window.resize(840,620);window.navigate('library');app.processEvents()
+                area=window.library_scroll;bar=area.verticalScrollBar()
+                if not bar.maximum():raise RuntimeError('Página fictícia sem rolagem para o teste')
+                anchor=area.viewport().mapToGlobal(QPoint(30,30))
+                window.autoscroll.start(area,anchor);app.processEvents()
+                window.autoscroll.move(anchor+QPoint(0,120));window.autoscroll.advance(.2)
+                if bar.value()<=0 or window.autoscroll.overlay.grab().isNull():raise RuntimeError('Rolagem automática não funcionou')
+                window.navigate('history');app.processEvents()
+                if window.autoscroll.active:raise RuntimeError('Rolagem continuou após mudar de página')
+                result['middle_button_scroll']=True
+
                 if before != inventory(source): raise RuntimeError('A origem do teste foi alterada')
                 result.update(ok=True,pages=5,seconds_saved=90,source_unchanged=True,svg=True)
             finally:

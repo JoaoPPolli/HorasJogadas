@@ -1,4 +1,4 @@
-HORASJOGADAS 3.2.2
+HORASJOGADAS 3.3.0
 
 WINDOWS
 Use o instalador ou extraia a pasta inteira do pacote portátil e abra HorasJogadas.exe.
@@ -57,3 +57,9 @@ Em Configurações, abra Gerenciar ícones ou clique nas iniciais de um jogo.
 Busque ícones na Steam e GOG, confira a prévia e importe os escolhidos.
 A opção Exibir ícones dos jogos permite voltar às iniciais sem apagar imagens.
 Ícones funcionam com as capas desativadas e são incluídos nos backups completos.
+
+
+ROLAGEM AUTOMÁTICA
+Clique na roda sobre o conteúdo de uma página ou lista. Mova o mouse para cima
+ou para baixo: quanto mais distante do ponto inicial, mais rápido. Clique novamente
+ou pressione Esc para parar. Você também pode segurar a roda, mover e soltar.

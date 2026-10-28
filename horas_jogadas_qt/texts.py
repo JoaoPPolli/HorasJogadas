@@ -166,3 +166,6 @@ TEXTS['en'].update({
     'game_icons_import_errors': '{n} icon(s) could not be downloaded. Other icons were preserved.',
     'game_icons_cancelling': 'Cancelling… Previous icons will be preserved.',
 })
+
+TEXTS['pt']['library_hint'] += ' · Clique na roda para rolar'
+TEXTS['en']['library_hint'] += ' · Middle-click to auto-scroll'

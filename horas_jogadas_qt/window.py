@@ -146,6 +146,8 @@ class Window(QMainWindow):
         self.shortcut = QShortcut(QKeySequence.Find, self)
         self.shortcut.activated.connect(self.focus_search)
         QApplication.instance().installEventFilter(self)
+        from .autoscroll import AutoScroll
+        self.autoscroll=AutoScroll(self)
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.tick)
@@ -284,6 +286,7 @@ class Window(QMainWindow):
             QTimer.singleShot(0, widget, lambda: grid.verticalScrollBar().setValue(state.get('table_scroll', 0)))
 
     def refresh(self, preserve_view=True):
+        if hasattr(self,'autoscroll'):self.autoscroll.stop()
         if preserve_view:
             self.remember_view()
         old = self.pages.get(self.page)
@@ -1089,6 +1092,7 @@ class Window(QMainWindow):
             self.timer.start()
 
     def closeEvent(self,event):
+        self.autoscroll.stop()
         from .tasks import Task
         running=[task for task in self.findChildren(Task) if task.thread.isRunning()]
         if running:

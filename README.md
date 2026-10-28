@@ -25,7 +25,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.2.2.
+2. Instale ou extraia a versão 3.3.0.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -40,6 +40,7 @@ As partidas feitas na **cópia para revisão** continuam separadas: elas não s�
 ## O que há no app
 
 - Biblioteca com busca, filtros, status e ordenação manual.
+- Rolagem automática com o botão central: clique na roda sobre uma página ou lista e mova o mouse para cima ou para baixo. Quanto mais longe do ponto inicial, mais rápido; outro clique ou Esc para parar. Também permite segurar a roda, mover e soltar para encerrar.
 - Cronômetros com pausa, recuperação de sessões e ajustes de tempo, inclusive valores negativos e atalhos de minutos.
 - Histórico com edição e exportação CSV.
 - Estatísticas com jogos ordenados pela sessão mais recente e gráfico dos cinco mais jogados.
