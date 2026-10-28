@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt,QTimer
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QPushButton,
-    QTableWidget,QTableWidgetItem,QHeaderView,QComboBox,QProgressBar,QFileDialog,QMessageBox,QAbstractItemView)
+    QTableWidget,QTableWidgetItem,QHeaderView,QComboBox,QProgressBar,QFileDialog,QMessageBox,QAbstractItemView,QWidget)
 from .tasks import Task,Cancelled
 from .covers import CoverStore,download,normalize_image,normalized
 from .artwork_sources import search_artwork as search,COVER_SOURCES,ICON_SOURCES
@@ -26,8 +26,12 @@ class CoverDialog(QDialog):
         for name in (ICON_SOURCES if kind=='icon' else COVER_SOURCES):self.sources.addItem(name,name)
         self.sources.setAccessibleName(tr('artwork_source'))
         tools.addWidget(self.search_all);tools.addWidget(select_all);tools.addStretch();tools.addWidget(self.sources);box.addLayout(tools)
-        self.table=QTableWidget(len(self.games),2);self.table.setHorizontalHeaderLabels([tr('game'),self.text('covers_suggestion')])
-        self.table.verticalHeader().hide();self.table.verticalHeader().setDefaultSectionSize(46)
+        self.table=QTableWidget(len(self.games),2);self.table.setObjectName('artworkResults')
+        self.table.setHorizontalHeaderLabels([tr('game'),self.text('covers_suggestion')])
+        # O padding vertical da tabela geral encolhia a célula, mas o combo
+        # mantinha sua altura mínima e transbordava na linha seguinte.
+        self.table.setStyleSheet('QTableView#artworkResults::item { padding: 0px 10px; }')
+        self.table.verticalHeader().hide();self.table.verticalHeader().setDefaultSectionSize(48)
         self.table.horizontalHeader().setDefaultAlignment(Qt.AlignLeft|Qt.AlignVCenter)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection);self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -36,18 +40,27 @@ class CoverDialog(QDialog):
             item=QTableWidgetItem(game.nome);item.setFlags(item.flags()|Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Unchecked if self.store.path(game.id) else Qt.Checked);self.table.setItem(row,0,item)
             combo=QComboBox();combo.addItem(self.text('covers_choose_result'),None)
-            combo.currentIndexChanged.connect(lambda index,r=row:self.choice_changed(r));self.table.setCellWidget(row,1,combo)
+            combo.currentIndexChanged.connect(lambda index,r=row:self.choice_changed(r))
+            combo.activated.connect(lambda index,r=row:self.table.setCurrentCell(r,1))
+            cell=QWidget();cell_box=QHBoxLayout(cell);cell_box.setContentsMargins(0,5,0,5)
+            cell_box.addWidget(combo);self.table.setCellWidget(row,1,cell)
+            combo.ensurePolished()
+            self.table.setRowHeight(row,max(48,combo.sizeHint().height()+12))
             self.selectors.append(combo)
         self.table.itemChanged.connect(self.update_count);self.table.currentCellChanged.connect(self.row_changed);box.addWidget(self.table,1)
         search_row=QHBoxLayout();self.query=QLineEdit();self.query.setPlaceholderText(self.text('covers_search_hint'))
         self.search_one=QPushButton(self.text('covers_search_one'));self.search_one.clicked.connect(self.find_one);self.query.returnPressed.connect(self.find_one)
         search_row.addWidget(self.query,1);search_row.addWidget(self.search_one);box.addLayout(search_row)
-        preview_row=QHBoxLayout();self.preview=QLabel(self.text('covers_preview'));self.preview.setTextFormat(Qt.PlainText);self.preview.setAlignment(Qt.AlignCenter)
-        self.preview.setFixedSize(108,108) if kind=='icon' else self.preview.setFixedSize(230,108);self.preview.setObjectName('coverPreview');preview_row.addWidget(self.preview)
-        detail=QVBoxLayout();self.source=QLabel(self.text('covers_source'));self.source.setTextFormat(Qt.PlainText);self.source.setWordWrap(True);detail.addWidget(self.source)
+        preview_row=QHBoxLayout();preview_row.setSpacing(16)
+        self.preview=QLabel(self.text('covers_preview'));self.preview.setTextFormat(Qt.PlainText);self.preview.setAlignment(Qt.AlignCenter)
+        self.preview.setWordWrap(True);self.preview.setContentsMargins(8,8,8,8)
+        self.preview.setFixedSize(108,108) if kind=='icon' else self.preview.setFixedSize(230,108)
+        self.preview.setObjectName('coverPreview');preview_row.addWidget(self.preview,0,Qt.AlignTop)
+        detail=QVBoxLayout();detail.setSpacing(12)
+        self.source=QLabel(self.text('covers_source'));self.source.setTextFormat(Qt.PlainText);self.source.setWordWrap(True);detail.addWidget(self.source)
         self.local=QPushButton(self.text('covers_local'));self.local.clicked.connect(self.import_local)
         self.remove=QPushButton(self.text('covers_remove'));self.remove.clicked.connect(self.remove_cover)
-        buttons=QHBoxLayout();buttons.addWidget(self.local);buttons.addWidget(self.remove);buttons.addStretch();detail.addLayout(buttons)
+        buttons=QHBoxLayout();buttons.addWidget(self.local);buttons.addWidget(self.remove);buttons.addStretch();detail.addLayout(buttons);detail.addStretch()
         preview_row.addLayout(detail,1);box.addLayout(preview_row)
         self.status=QLabel(self.text('covers_ready'));self.status.setTextFormat(Qt.PlainText);self.status.setWordWrap(True);box.addWidget(self.status)
         self.progress=QProgressBar();self.progress.hide();box.addWidget(self.progress)
@@ -177,7 +190,7 @@ class CoverDialog(QDialog):
 
     def paint_preview(self,data):
         pixmap=QPixmap();pixmap.loadFromData(data)
-        self.preview.setPixmap(pixmap.scaled(self.preview.size(),Qt.KeepAspectRatio,Qt.SmoothTransformation))
+        self.preview.setPixmap(pixmap.scaled(self.preview.contentsRect().size(),Qt.KeepAspectRatio,Qt.SmoothTransformation))
 
     def import_selected(self):
         rows=[(self.games[r],self.selected(r)) for r in range(len(self.games)) if self.checked(r) and self.selected(r)]

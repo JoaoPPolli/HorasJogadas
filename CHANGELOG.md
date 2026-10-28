@@ -2,6 +2,12 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.2.2
+
+- Corrigidos o alinhamento e o espaçamento dos seletores nas listas de capas e ícones, evitando sobreposição entre linhas.
+- Prévia com texto completo em várias linhas, margens para as imagens e alinhamento dos botões de imagem local e remoção.
+- Removida do FAQ do site a pergunta sobre registros da versão de revisão.
+
 ## 3.2.1
 
 - Corrigido o ambiente herdado pelo atualizador Linux: comandos do sistema e a nova versão não usam as bibliotecas privadas da instalação anterior.

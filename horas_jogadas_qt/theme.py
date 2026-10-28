@@ -52,6 +52,7 @@ def apply_theme(app, name='dark'):
       QLabel#badge {{ background: {side}; color: {muted}; border-radius: 5px; padding: 4px 8px; font-size: 11px; }}
       QLabel#running {{ color: #56bc95; }}
       QLabel#paused {{ color: #d9ae60; }}
+      QLabel#coverPreview {{ background: {card}; color: {muted}; border: 1px solid {border}; border-radius: 8px; }}
       QLabel#review {{ background: {side}; color: {muted}; border: 1px solid {border};
                        border-radius: 8px; padding: 9px 12px; font-size: 11px; }}
       QPushButton {{ background: {button_bg}; border: 1px solid {border}; border-radius: 7px;
