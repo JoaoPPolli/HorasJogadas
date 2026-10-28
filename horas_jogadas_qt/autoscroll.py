@@ -19,18 +19,11 @@ def symbol(direction=0,ratio=1):
 
 
 class ScrollOverlay(QWidget):
-    def __init__(self,window,anchor):
+    def __init__(self,window):
         super().__init__(window)
-        self.anchor=self.mapFromGlobal(anchor);self.symbol=symbol(ratio=window.devicePixelRatioF())
         self.setObjectName('autoScrollOverlay');self.setMouseTracking(True)
         self.setFocusPolicy(Qt.NoFocus);self.setAttribute(Qt.WA_NoSystemBackground)
         self.setGeometry(window.rect())
-
-    def paintEvent(self,event):
-        painter=QPainter(self);painter.setRenderHint(QPainter.Antialiasing)
-        painter.setPen(QPen(QColor(255,255,255,140),1));painter.setBrush(QColor(30,32,36,210))
-        painter.drawEllipse(QPointF(self.anchor),15,15)
-        painter.drawPixmap(self.anchor-QPoint(16,16),self.symbol)
 
 
 class AutoScroll(QObject):
@@ -78,7 +71,7 @@ class AutoScroll(QObject):
     def start(self,area,anchor):
         self.stop();self.area=area;self.anchor=QPoint(anchor);self.pointer=QPoint(anchor)
         self.awaiting_release=True;self.dragged=False;self.fraction=0.;self.last_tick=time.monotonic()
-        self.overlay=ScrollOverlay(area.window(),anchor)
+        self.overlay=ScrollOverlay(area.window())
         ratio=area.window().devicePixelRatioF()
         self.cursors={n:QCursor(symbol(n,ratio),16,16) for n in (-1,0,1)}
         self.overlay.setCursor(self.cursors[0]);self.overlay.show();self.overlay.raise_();self.timer.start()

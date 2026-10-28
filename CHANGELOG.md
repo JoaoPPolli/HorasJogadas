@@ -2,6 +2,11 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.3.1
+
+- Removido o marcador fixo desenhado no ponto inicial da rolagem automática. Apenas o cursor do mouse indica a direção.
+- Mantidos os controles de velocidade, clique para cancelar, Esc e o modo de segurar e soltar a roda.
+
 ## 3.3.0
 
 - Rolagem automática vertical com o botão central nas páginas e listas do app, incluindo diálogos com listas roláveis.
