@@ -32,6 +32,9 @@ def run(self):
         try:
             window=next(w for w in self.topLevelWidgets() if hasattr(w,'navigate'))
             assert window.mode==MODE
+            from horas_jogadas_qt.desktop import DESKTOP_ID
+            assert self.desktopFileName()==DESKTOP_ID
+            assert not window.windowIcon().isNull()
             if MODE=='release':
                 assert window.c.folder==source
                 import subprocess

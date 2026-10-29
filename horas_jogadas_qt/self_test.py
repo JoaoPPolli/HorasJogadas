@@ -23,7 +23,13 @@ def run_self_test(result_path):
     from app_qt import seed_demo
     result = {'version':VERSION,'ok':False}
     app = QApplication.instance() or QApplication(['HorasJogadas-self-test'])
+    app.setApplicationName('HorasJogadas')
     try:
+        from .desktop import configure_application, register_linux, DESKTOP_ID
+        application_icon = configure_application(app)
+        if application_icon.isNull() or app.desktopFileName() != DESKTOP_ID:
+            raise RuntimeError('Identidade ou ícone do aplicativo ausente')
+        result['application_icon'] = True
         if os.environ.get('HORASJOGADAS_NETWORK_SELFTEST')=='1':
             from .network import urlopen,ssl_context
             import ssl
@@ -42,6 +48,15 @@ def run_self_test(result_path):
             check_release(opener=authenticated_api)
             result['updater_https']=True
         with tempfile.TemporaryDirectory(prefix='horasjogadas-selftest-') as temporary:
+            import sys
+            if sys.platform.startswith('linux'):
+                desktop_data = Path(temporary) / 'desktop-data'
+                register_linux(application_icon, sys.executable, desktop_data)
+                entry = desktop_data / 'applications' / (DESKTOP_ID + '.desktop')
+                png = desktop_data / 'icons' / 'hicolor' / '48x48' / 'apps' / (DESKTOP_ID + '.png')
+                if not entry.is_file() or QImage(str(png)).isNull():
+                    raise RuntimeError('Lançador ou ícone Linux não foi registrado')
+                result['linux_desktop_icon'] = True
             source=Path(temporary)/'source'; source.mkdir(); seed_demo(source)
             before=inventory(source)
             c=Controller(prepare_preview(source,Path(temporary)/'review'))
@@ -49,6 +64,16 @@ def run_self_test(result_path):
             window=Window(c,mode='review')
             try:
                 window.show(); app.processEvents()
+                if window.windowIcon().isNull(): raise RuntimeError('Janela sem ícone do aplicativo')
+                if sys.platform.startswith('linux') and app.platformName() == 'xcb':
+                    import shutil, subprocess
+                    if shutil.which('xprop'):
+                        from .updates import update_environment
+                        properties = subprocess.run(['xprop', '-id', hex(int(window.winId())), 'WM_CLASS', '_NET_WM_ICON'],
+                            env=update_environment(), capture_output=True, text=True, check=True, timeout=10).stdout
+                        if '"HorasJogadas"' not in properties or '_NET_WM_ICON(CARDINAL)' not in properties:
+                            raise RuntimeError('Ícone ou associação X11 ausente: ' + properties[:300])
+                        result['x11_window_icon'] = True
                 for page in ('library','history','stats','completed','settings'):
                     window.navigate(page); app.processEvents()
                     if window.grab().isNull(): raise RuntimeError('Falha ao desenhar '+page)

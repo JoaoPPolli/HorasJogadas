@@ -12,6 +12,8 @@ sudo apt-get install libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0 
 
 Os pacotes não são assinados digitalmente. Baixe somente das Releases oficiais. A partir da versão 3.0.1, use Configurações → Verificar atualizações: baixe e escolha Instalar e reiniciar. O pacote é validado por SHA-256 e os registros recebem um backup antes do encerramento. A verificação de versões ao abrir é opcional. A versão 3.0.0 precisa receber este recurso por uma instalação manual inicial. Feche o app antigo antes. A desinstalação remove o aplicativo, sem remover os registros pessoais.
 
+No Linux, a partir da 3.3.2, abrir o pacote oficial registra o ícone e o atalho do HorasJogadas no menu do usuário, sem sudo. O mesmo identificador associa o ícone à janela no X11 e no Wayland. Se mover a pasta do programa, abra o executável uma vez na nova pasta para atualizar o atalho. Os arquivos ficam em `$XDG_DATA_HOME/applications` e `$XDG_DATA_HOME/icons/hicolor` (por padrão, `~/.local/share`). Não é necessário alterar a pasta dos registros.
+
 ## Biblioteca e cronômetros
 
 Clique em **Adicionar jogo**. Use busca, filtros de status e ordenação para organizar os cartões. No cartão, **Iniciar** começa uma sessão, **Pausar** interrompe a contagem e **Parar** salva a sessão no histórico.

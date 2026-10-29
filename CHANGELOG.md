@@ -2,6 +2,13 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.3.2
+
+- Ícone do aplicativo associado ao lançador Linux, com identificador de desktop consistente para X11 e Wayland.
+- O pacote oficial registra automaticamente o atalho no menu do usuário e os ícones PNG do tema, sem sudo e sem alterar os registros.
+- Atalho atualizado ao abrir o executável em outra pasta; caminhos com espaços e caracteres especiais são preservados.
+- Autotestes verificam o ícone da janela X11, o lançador e os ícones após a atualização e o reinício nativo em Ubuntu e Arch Linux.
+
 ## 3.3.1
 
 - Removido o marcador fixo desenhado no ponto inicial da rolagem automática. Apenas o cursor do mouse indica a direção.

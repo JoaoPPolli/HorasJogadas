@@ -19,7 +19,6 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         from PySide6.QtCore import QTimer
-        from PySide6.QtGui import QIcon
         from PySide6.QtWidgets import QApplication, QMessageBox
     except ImportError:
         print('Instale a interface com: python -m pip install -r requirements-qt.txt', file=sys.stderr)
@@ -40,6 +39,8 @@ def main(argv=None):
     review_mode = bool(args.review or args.review_dir or args.source or args.demo)
     app.setApplicationName('HorasJogadas — Revisão' if review_mode else 'HorasJogadas')
     app.setOrganizationName('HorasJogadas')
+    from horas_jogadas_qt.desktop import configure_application, register_official_application
+    app_icon = configure_application(app)
     demo_temp = None
     lock = None
     log_folder = None
@@ -78,11 +79,10 @@ def main(argv=None):
             theme = 'dark'
         apply_theme(app,theme)
         translate_standard_controls(app,c.config['idioma'])
-        icon = Path(__file__).parent / 'icon.ico'
-        if icon.exists():
-            app.setWindowIcon(QIcon(str(icon)))
         window = Window(c,lock,mode='review' if review_mode else 'release')
         window.show()
+        if not review_mode:
+            register_official_application(app_icon)
         def ready():
             if args.update_ready_file:
                 from horas_jogadas.storage import escrever_json_atomico

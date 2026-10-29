@@ -29,7 +29,9 @@ def verify(bundle,archive):
             preferences.save(data,check_updates=False)
             (data/'.horasjogadas-release.json').write_text(json.dumps({'version':VERSION}),encoding='utf-8')
             before=inventory(data)
-            env=dict(os.environ,APPDATA=str(profile),HORASJOGADAS_UPDATE_SELFTEST_ARCHIVE=str(package))
+            desktop_data=root/'desktop-data'
+            env=dict(os.environ,APPDATA=str(profile),XDG_DATA_HOME=str(desktop_data),
+                     HORASJOGADAS_UPDATE_SELFTEST_ARCHIVE=str(package))
             # Offscreen reproduz loader, shell, troca e janela sem depender de um compositor.
             env['QT_QPA_PLATFORM']=os.environ.get('QT_QPA_PLATFORM','offscreen')
             handoff=root/'handoff.json'
@@ -48,6 +50,13 @@ def verify(bundle,archive):
             os.kill(pid,0)
             if Path('/proc/'+str(pid)+'/exe').resolve()!=target/'HorasJogadas':
                 raise RuntimeError('Executável reaberto fora da instalação atual')
+            from horas_jogadas_qt.desktop import DESKTOP_ID, desktop_exec
+            entry=(desktop_data/'applications'/(DESKTOP_ID+'.desktop')).read_text(encoding='utf-8')
+            if 'Exec='+desktop_exec(target/'HorasJogadas')+'\n' not in entry or 'Icon='+DESKTOP_ID+'\n' not in entry:
+                raise RuntimeError('Lançador Linux não aponta para a instalação atual')
+            png=(desktop_data/'icons'/'hicolor'/'48x48'/'apps'/(DESKTOP_ID+'.png')).read_bytes()
+            if not png.startswith(b'\x89PNG\r\n\x1a\n'):
+                raise RuntimeError('Ícone Linux ausente após atualizar')
             for name,digest in before.items():
                 if inventory(data).get(name)!=digest:raise RuntimeError('Registro fictício alterado: '+name)
             previous=list(root.glob(target.name+'-previous-*'))
@@ -58,7 +67,8 @@ def verify(bundle,archive):
                 time.sleep(.1)
             else:raise RuntimeError('Auxiliar não confirmou o reinício')
             result.update(ok=True,frozen_environment=evidence['frozen_environment_detected'],
-                          stage_test=True,swapped=True,reopened=True,previous_preserved=True,records_unchanged=True)
+                          stage_test=True,swapped=True,reopened=True,previous_preserved=True,records_unchanged=True,
+                          desktop_launcher=True,desktop_icon=True)
         except Exception as error:
             result['error']=str(error)
             log=cache/'update.log'

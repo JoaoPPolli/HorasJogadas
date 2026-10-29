@@ -1,4 +1,4 @@
-HORASJOGADAS 3.3.1
+HORASJOGADAS 3.3.2
 
 WINDOWS
 Use o instalador ou extraia a pasta inteira do pacote portátil e abra HorasJogadas.exe.
@@ -7,6 +7,10 @@ Não precisa instalar Python. Não execute de dentro do ZIP.
 LINUX (x86_64, Ubuntu 22.04+ ou distribuição compatível, ambiente gráfico)
 Extraia o pacote e abra o arquivo HorasJogadas (ou execute ./HorasJogadas no terminal).
 Não precisa instalar Python.
+
+O pacote oficial registra automaticamente o ícone e o atalho no menu do usuário
+ao abrir, sem sudo. Se mover a pasta, abra o executável na nova localização uma
+vez para atualizar o atalho. Compatível com a associação de janelas X11 e Wayland.
 
 SEUS DADOS
 Windows: %APPDATA%\HorasJogadas
