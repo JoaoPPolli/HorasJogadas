@@ -79,10 +79,10 @@ def main(argv=None):
             theme = 'dark'
         apply_theme(app,theme)
         translate_standard_controls(app,c.config['idioma'])
-        window = Window(c,lock,mode='review' if review_mode else 'release')
-        window.show()
         if not review_mode:
             register_official_application(app_icon)
+        window = Window(c,lock,mode='review' if review_mode else 'release')
+        window.show()
         def ready():
             if args.update_ready_file:
                 from horas_jogadas.storage import escrever_json_atomico

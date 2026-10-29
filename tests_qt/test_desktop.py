@@ -47,12 +47,13 @@ class DesktopTests(unittest.TestCase):
             self.assertEqual(before, {p: p.stat().st_mtime_ns for p in files})
             desktop.register_linux(icon, root / 'new' / 'HorasJogadas', root / 'xdg')
             entry = root / 'xdg' / 'applications' / (desktop.DESKTOP_ID + '.desktop')
-            self.assertIn('Exec=' + desktop.desktop_exec(root / 'new' / 'HorasJogadas'), entry.read_text())
+            self.assertIn('Exec=' + desktop.desktop_exec((root / 'new' / 'HorasJogadas').resolve()), entry.read_text())
             self.assertEqual(len(list((root / 'xdg' / 'applications').iterdir())), 1)
 
     def test_xdg_location_follows_spec_and_rejects_relative_override(self):
-        with patch.dict(os.environ, {'XDG_DATA_HOME': '/tmp/fake-desktop'}):
-            self.assertEqual(desktop.data_directory(), Path('/tmp/fake-desktop'))
+        configured = Path(tempfile.gettempdir()).resolve() / 'fake-desktop'
+        with patch.dict(os.environ, {'XDG_DATA_HOME': str(configured)}):
+            self.assertEqual(desktop.data_directory(), configured)
         with patch.dict(os.environ, {'XDG_DATA_HOME': 'relative'}):
             self.assertEqual(desktop.data_directory(), Path.home() / '.local' / 'share')
 
