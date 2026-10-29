@@ -1,140 +1,49 @@
 {
   "phase": "release",
-  "version": "3.3.1",
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40781349452",
-  "commit": "d088e99f8be4cbcda0da543185df3827b69032b2",
-  "build": "success",
-  "publish": "success",
+  "version": "3.3.2",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/40801454195",
+  "commit": "0161fa209fd137cb57ed1497a00475b3c8dc1376",
+  "build": "failure",
+  "publish": "skipped",
   "pages": "separate-workflow",
-  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.3.1",
+  "release_url": "",
   "site_url": "https://joaoppolli.github.io/HorasJogadas/",
   "diagnostics": {
-    "windows": {
-      "platform": "windows",
-      "ok": true,
-      "exit_code": 0
-    },
     "linux-arch-update": {
-      "version": "3.3.1",
+      "version": "3.3.2",
       "ok": true,
       "frozen_environment": true,
       "stage_test": true,
       "swapped": true,
       "reopened": true,
       "previous_preserved": true,
-      "records_unchanged": true
+      "records_unchanged": true,
+      "desktop_launcher": true,
+      "desktop_icon": true
     },
     "tests-tests-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.393s\n\nOK\n"
+      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.776s\n\nOK\n"
     },
     "linux-update": {
-      "version": "3.3.1",
+      "version": "3.3.2",
       "ok": true,
       "frozen_environment": true,
       "stage_test": true,
       "swapped": true,
       "reopened": true,
       "previous_preserved": true,
-      "records_unchanged": true
+      "records_unchanged": true,
+      "desktop_launcher": true,
+      "desktop_icon": true
     },
     "tests-tests_qt-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": " plugin does not support grabbing the keyboard\n.................This plugin does not support propagateSizeHints()\n.......This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 133 tests in 24.882s\n\nOK\n"
+      "log_tail": " plugin does not support grabbing the keyboard\n.................This plugin does not support propagateSizeHints()\n.......This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 139 tests in 23.959s\n\nOK\n"
     },
     "jobs": [
-      {
-        "conclusion": "success",
-        "name": "build (windows-latest, windows)",
-        "steps": [
-          {
-            "conclusion": "success",
-            "name": "Set up job"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Linux desktop prerequisites"
-          },
-          {
-            "conclusion": "success",
-            "name": "Dependencies"
-          },
-          {
-            "conclusion": "success",
-            "name": "Validate tag version"
-          },
-          {
-            "conclusion": "success",
-            "name": "Core tests"
-          },
-          {
-            "conclusion": "success",
-            "name": "Qt and data transition tests"
-          },
-          {
-            "conclusion": "success",
-            "name": "Dependency license texts"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Evaluate public cover source"
-          },
-          {
-            "conclusion": "success",
-            "name": "Build and test Windows bundle"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Build and test Linux bundle"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Verify Linux update and actual restart"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Verify update on Arch Linux"
-          },
-          {
-            "conclusion": "success",
-            "name": "Windows installer"
-          },
-          {
-            "conclusion": "success",
-            "name": "Verify installer before publication"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Complete job"
-          }
-        ]
-      },
       {
         "conclusion": "success",
         "name": "build (ubuntu-22.04, linux)",
@@ -226,8 +135,8 @@
         ]
       },
       {
-        "conclusion": "success",
-        "name": "publish",
+        "conclusion": "failure",
+        "name": "build (windows-latest, windows)",
         "steps": [
           {
             "conclusion": "success",
@@ -239,15 +148,71 @@
           },
           {
             "conclusion": "success",
-            "name": "Run actions/download-artifact@v4"
+            "name": "Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Linux desktop prerequisites"
           },
           {
             "conclusion": "success",
-            "name": "Checksums"
+            "name": "Dependencies"
           },
           {
             "conclusion": "success",
-            "name": "Publish release"
+            "name": "Validate tag version"
+          },
+          {
+            "conclusion": "success",
+            "name": "Core tests"
+          },
+          {
+            "conclusion": "failure",
+            "name": "Qt and data transition tests"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Dependency license texts"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Evaluate public cover source"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Build and test Windows bundle"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Build and test Linux bundle"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify Linux update and actual restart"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify update on Arch Linux"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Windows installer"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify installer before publication"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Post Run actions/setup-python@v5"
           },
           {
             "conclusion": "success",
@@ -272,7 +237,7 @@
             "name": "Run actions/checkout@v4"
           },
           {
-            "conclusion": "success",
+            "conclusion": null,
             "name": "Run actions/download-artifact@v4"
           },
           {
@@ -296,10 +261,15 @@
             "name": "Post Run actions/checkout@v4"
           }
         ]
+      },
+      {
+        "conclusion": "skipped",
+        "name": "publish",
+        "steps": []
       }
     ],
     "artwork-catalogs": {
-      "commit": "d088e99f8be4cbcda0da543185df3827b69032b2",
+      "commit": "0161fa209fd137cb57ed1497a00475b3c8dc1376",
       "checks": [
         {
           "kind": "cover",
@@ -519,34 +489,12 @@
     "tests-tests-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 0.670s\n\nOK\n"
+      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 0.771s\n\nOK\n"
     },
     "tests-tests_qt-windows": {
-      "ok": true,
-      "exit_code": 0,
-      "log_tail": "......................................................................................................................s..s.....ss....\n----------------------------------------------------------------------\nRan 133 tests in 66.683s\n\nOK (skipped=4)\n"
-    },
-    "installer-windows": {
-      "ok": true,
-      "run_url": "",
-      "checksum": true,
-      "installed": true,
-      "bundle": {
-        "version": "3.3.1",
-        "ok": true,
-        "covers": true,
-        "covers_optional": true,
-        "game_icons": true,
-        "icons_optional": true,
-        "icons_backup": true,
-        "middle_button_scroll": true,
-        "pages": 5,
-        "seconds_saved": 90,
-        "source_unchanged": true,
-        "svg": true
-      },
-      "uninstalled": true,
-      "existing_data_unchanged": true
+      "ok": false,
+      "exit_code": 1,
+      "log_tail": ".......................................................................F..s.F...............................................s..s.....ss....\n======================================================================\nFAIL: test_idempotent_registration_and_relocation (tests_qt.test_desktop.DesktopTests.test_idempotent_registration_and_relocation)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests_qt\\test_desktop.py\", line 50, in test_idempotent_registration_and_relocation\n    self.assertIn('Exec=' + desktop.desktop_exec(root / 'new' / 'HorasJogadas'), entry.read_text())\nAssertionError: 'Exec=/usr/bin/env \"C:\\\\\\\\\\\\\\\\Users\\\\\\\\\\\\\\\\RUNNER~1\\\\\\\\\\\\\\\\AppData\\\\\\\\\\\\\\\\Local\\\\\\\\\\\\\\\\Temp\\\\\\\\\\\\\\\\tmpcanfvjew\\\\\\\\\\\\\\\\new\\\\\\\\\\\\\\\\HorasJogadas\"' not found in '[Desktop Entry]\\nType=Application\\nVersion=1.0\\nName=HorasJogadas\\nComment=Track your gaming time\\nComment[pt_BR]=Seu di\u00e1rio de jogos\\nExec=/usr/bin/env \"C:\\\\\\\\\\\\\\\\Users\\\\\\\\\\\\\\\\runneradmin\\\\\\\\\\\\\\\\AppData\\\\\\\\\\\\\\\\Local\\\\\\\\\\\\\\\\Temp\\\\\\\\\\\\\\\\tmpcanfvjew\\\\\\\\\\\\\\\\new\\\\\\\\\\\\\\\\HorasJogadas\"\\nIcon=io.github.JoaoPPolli.HorasJogadas\\nTerminal=false\\nCategories=Game;Utility;\\nStartupNotify=false\\nStartupWMClass=HorasJogadas\\n'\n\n======================================================================\nFAIL: test_xdg_location_follows_spec_and_rejects_relative_override (tests_qt.test_desktop.DesktopTests.test_xdg_location_follows_spec_and_rejects_relative_override)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests_qt\\test_desktop.py\", line 55, in test_xdg_location_follows_spec_and_rejects_relative_override\n    self.assertEqual(desktop.data_directory(), Path('/tmp/fake-desktop'))\nAssertionError: WindowsPath('C:/Users/runneradmin/.local/share') != WindowsPath('/tmp/fake-desktop')\n\n----------------------------------------------------------------------\nRan 139 tests in 63.537s\n\nFAILED (failures=2, skipped=5)\n"
     }
   }
 }
