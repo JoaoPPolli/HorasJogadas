@@ -48,6 +48,8 @@ def apply_theme(app, name='dark'):
       QLabel#gameName {{ font-size: 15px; font-weight: 600; }}
       QLabel#timer {{ font-family: 'Consolas', 'DejaVu Sans Mono'; font-size: 30px; font-weight: 500; }}
       QFrame#card, QFrame#gameCard, QFrame#metricCard {{ background: {card}; border: 1px solid {border}; border-radius: 12px; }}
+      QFrame#phoneControlCard {{ background: {card}; border: 1px solid {border}; border-radius: 12px; }}
+      QFrame#phoneControlCard QLabel {{ background: transparent; border: none; }}
       QFrame#card QLabel {{ background: transparent; border: none; }}
       QLabel#badge {{ background: {side}; color: {muted}; border-radius: 5px; padding: 4px 8px; font-size: 11px; }}
       QLabel#running {{ color: #56bc95; }}

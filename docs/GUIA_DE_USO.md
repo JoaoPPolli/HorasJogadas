@@ -22,6 +22,23 @@ O menu do cartão permite renomear, ajustar o tempo, trocar status e excluir. O 
 
 `Ctrl+F` abre a busca; `Esc` limpa o filtro. Se uma sessão ficou pendente depois de um encerramento inesperado, o app oferece a recuperação na próxima abertura.
 
+## Controle pelo celular
+
+Use para contar partidas no PS5 ou em outro console enquanto estiver longe do teclado.
+
+1. Mantenha PC e celular na mesma rede Wi-Fi (o PC também pode usar cabo), com o computador ligado e acordado.
+2. No HorasJogadas, abra **Configurações → Controle pelo celular**. Se houver mais de uma rede, escolha a interface da sua rede doméstica e clique em **Ativar controle pelo celular**.
+3. Escaneie o QR Code com a câmera do celular. Ou copie o endereço exibido, abra no navegador do telefone e digite o código temporário de seis dígitos.
+4. Escolha o jogo, inicie a sessão e jogue. Use Pausar e Retomar quando necessário. **Encerrar e salvar** grava o tempo no histórico do PC.
+
+A página usa o tema e o idioma escolhidos no app. Também permite adicionar jogos. Bloquear a tela do celular não pausa o cronômetro: ele roda no PC. Ao retornar ao navegador, a página sincroniza antes de aceitar comandos; comandos com um estado antigo são recusados, sem substituir uma alteração feita no computador. Toques repetidos no mesmo pedido não duplicam sessões.
+
+QR Code e código expiram em cinco minutos. Gere um novo código se necessário; isso desconecta todos os aparelhos pareados. **Desconectar este celular** revoga somente o acesso daquele navegador. As credenciais ficam na memória e o servidor começa desativado em cada abertura do app.
+
+O controle usa HTTP apenas na rede local. Use uma rede de confiança e não encaminhe portas do roteador. Fechar o app desconecta os aparelhos. Desativar a conexão pelo PC ou perder o Wi-Fi do celular não para a contagem; reconecte para consultar o estado real e encerrar a sessão. Este recurso não permite usar o contador com o PC desligado.
+
+**Se não abrir:** confira o endereço atual nas Configurações, selecione a interface correta e confirme que o firewall permite o HorasJogadas em redes privadas. Redes de convidados ou com isolamento entre aparelhos podem bloquear a comunicação. Trocar de rede ou mover o PC para outra conexão exige desativar, atualizar as redes e ativar novamente. Não é necessário alterar os dados nem configurar o PS5.
+
 ## Rolar páginas com o botão central
 
 Clique na roda do mouse sobre o conteúdo de uma página ou lista e solte. Mova o mouse para cima ou para baixo para controlar a direção e a velocidade: quanto mais distante do ponto do clique, mais rápido. Clique novamente ou pressione **Esc** para parar.

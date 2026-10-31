@@ -8,6 +8,7 @@ htmlcov/
 venv/
 .venv_build/
 .venv_release/
+node_modules/
 
 # Executáveis e pacotes gerados
 *.exe

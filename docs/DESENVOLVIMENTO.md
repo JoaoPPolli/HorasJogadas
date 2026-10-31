@@ -46,6 +46,20 @@ Cada pacote executa `--self-test <resultado.json>` com dados fictícios: abre as
 
 Os builds são nativos, Windows x64 e Ubuntu 22.04 x64. Não há compilação cruzada nem pacote macOS nesta publicação. O workflow baixa os textos de licença oficiais para `build/legal` e os inclui no pacote.
 
+## Testar o controle pelo celular
+
+Os testes Qt exercitam o servidor HTTP real em loopback e as transações com perfis fictícios. O autoteste do executável também verifica os arquivos HTML/CSS/JS, a geração do QR Code, o pareamento, os comandos e uma sessão exata de três segundos no histórico, sem ler os registros pessoais. A conexão permanece desativada fora desses testes.
+
+Para validar a interface no navegador, com Node.js 22 e as dependências Qt instaladas:
+
+```bash
+npm install --no-save --package-lock=false playwright@1.56.1
+npx playwright install --with-deps chromium
+node scripts/verify_phone_browser.cjs --python python --result build-diagnostics/phone-browser.json
+```
+
+O script cria um processo Qt com dados sintéticos e uma porta aleatória em `127.0.0.1`, testa comandos, desconexão, nomes com HTML, perda de rede, quatro temas, português/inglês e larguras de 320, 390 e 1040 pixels. `--screenshots <pasta>` salva capturas fictícias. O job `phone-browser` precisa passar antes da publicação. O servidor de produção não usa esse fixture nem permite controlar testes por arquivos.
+
 ## Release e site
 
 O workflow `.github/workflows/release.yml` é acionado por tags `v*`, branches `release/**` ou execução manual. A versão vem de `horas_jogadas_qt/release.py`. Ambos os sistemas precisam passar testes e autoteste antes da publicação dos pacotes e dos SHA-256. Depois o site é publicado no GitHub Pages, com origem GitHub Actions.

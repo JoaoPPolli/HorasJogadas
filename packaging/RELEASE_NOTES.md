@@ -1,7 +1,9 @@
-# HorasJogadas 3.3.2 — ícone do aplicativo no Linux
+# HorasJogadas 3.4.0 — controle pelo celular
 
-O HorasJogadas agora registra seu ícone e um atalho no menu de aplicativos do Linux ao abrir o pacote oficial, sem sudo. O identificador do lançador associa a janela ao ícone no X11 e no Wayland, incluindo a barra de tarefas.
+Jogue no PS5 ou em outro console e controle seus cronômetros pelo navegador do celular. Em **Configurações → Controle pelo celular**, escolha a rede e ative a conexão. Escaneie o QR Code ou abra o endereço mostrado e informe o código temporário.
 
-Depois de atualizar, abra o app uma vez para registrar a integração. Se mover a pasta do programa, abra o executável na nova localização para atualizar o atalho. Os registros e as preferências continuam preservados.
+A página acompanha as quatro paletas e o idioma do app. Você pode buscar e adicionar jogos, iniciar, pausar, retomar e encerrar sessões. Tudo usa os mesmos cronômetros e registros do PC; bloquear a tela do celular não interrompe a contagem.
 
-Atualize em Configurações → Verificar atualizações ou use os arquivos abaixo. Registros e cronômetros permanecem preservados. Windows: instalador ou ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Não precisa instalar Python. Confira `SHA256SUMS.txt`.
+O PC precisa ficar ligado e acordado, com o app aberto, na mesma rede do celular. Use uma rede de confiança: é HTTP local, sem servidor na nuvem ou configuração do roteador. A conexão começa desativada a cada abertura. QR Code e código expiram em cinco minutos; gerar um novo código desconecta os aparelhos anteriores. Fechar o app encerra o acesso. Desativar a conexão não para os cronômetros.
+
+Atualize em **Configurações → Verificar atualizações** ou baixe os arquivos abaixo. Registros e preferências preservados, com backup verificado antes do primeiro carregamento. Windows: instalador ou ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Não precisa instalar Python. Confira `SHA256SUMS.txt`.

@@ -1,4 +1,4 @@
-HORASJOGADAS 3.3.2
+HORASJOGADAS 3.4.0
 
 WINDOWS
 Use o instalador ou extraia a pasta inteira do pacote portátil e abra HorasJogadas.exe.
@@ -67,3 +67,13 @@ ROLAGEM AUTOMÁTICA
 Clique na roda sobre o conteúdo de uma página ou lista. Mova o mouse para cima
 ou para baixo: quanto mais distante do ponto inicial, mais rápido. Clique novamente
 ou pressione Esc para parar. Você também pode segurar a roda, mover e soltar.
+
+CONTROLE PELO CELULAR
+Configurações > Controle pelo celular > escolha a rede > Ativar.
+Escaneie o QR Code ou abra o endereço no celular e digite o código temporário.
+O PC deve estar ligado e acordado, com o app aberto, na mesma rede do celular.
+Inicie, pause, retome ou encerre sessões e adicione jogos pelo navegador.
+O histórico continua no PC. Bloquear o celular não interrompe a contagem.
+Use uma rede de confiança: a conexão é HTTP local, sem servidor externo.
+O recurso começa desativado a cada abertura; fechar o app desconecta aparelhos.
+Desativar somente a conexão não para os cronômetros.

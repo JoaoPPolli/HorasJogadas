@@ -27,7 +27,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.3.2.
+2. Instale ou extraia a versão 3.4.0.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -49,6 +49,16 @@ As partidas feitas na **cópia para revisão** continuam separadas: elas não s�
 - Zerados por ano e mês, campanhas, DLCs, novas jogadas, observações e horas adicionais de platina; importação e exportação TXT.
 - Quatro temas: **Escuro minimalista**, **Original** (a paleta roxa da edição anterior), **Violeta** e **Claro**; barra de título nativa escura no Windows compatível.
 - Português e inglês, backups completos, restauração e bloqueio para impedir duas instâncias de alterarem a mesma pasta.
+
+## Controle pelo celular
+
+Em **Configurações → Controle pelo celular**, selecione a rede do PC e clique em **Ativar controle pelo celular**. Escaneie o QR Code com a câmera do telefone. Como alternativa, abra o endereço mostrado e digite o código de seis dígitos; QR Code e código expiram em cinco minutos. Não precisa instalar um app no celular.
+
+O painel segue o tema e o idioma do computador. Permite buscar e adicionar jogos, iniciar, pausar, retomar e encerrar sessões. Os comandos usam os mesmos cronômetros e o histórico do PC; bloquear o telefone não interrompe a contagem. Uma sessão só entra no histórico quando você a encerra.
+
+O PC precisa permanecer **ligado, acordado e com o app aberto**, na mesma rede do celular. Use uma rede de confiança: o controle usa HTTP local, sem servidor na nuvem nem abertura de portas no roteador. Se houver várias interfaces de rede, escolha a do Wi-Fi ou cabo que conecta o PC ao celular. Confira o firewall em redes privadas se a página não abrir.
+
+A conexão começa **desativada** a cada abertura do app. Desativá-la não para os cronômetros; **Novo código e desconectar aparelhos** revoga os acessos atuais. Fechar o aplicativo também encerra a conexão. O pareamento não vai para arquivos, backups ou logs. [Guia e solução de problemas](docs/GUIA_DE_USO.md#controle-pelo-celular).
 
 ## Capas opcionais
 

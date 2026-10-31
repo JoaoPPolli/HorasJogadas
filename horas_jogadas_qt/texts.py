@@ -169,3 +169,44 @@ TEXTS['en'].update({
 
 TEXTS['pt']['library_hint'] += ' · Clique na roda para rolar'
 TEXTS['en']['library_hint'] += ' · Middle-click to auto-scroll'
+
+TEXTS['pt'].update({
+    'phone_title': 'Controle pelo celular',
+    'phone_intro': 'Jogue no console e controle seus cronômetros pelo navegador do celular, na mesma rede Wi-Fi.',
+    'phone_network': 'Rede do computador', 'phone_refresh': 'Atualizar redes',
+    'phone_enable': 'Ativar controle pelo celular', 'phone_disable': 'Desativar conexão',
+    'phone_on': 'CONEXÃO ATIVA', 'phone_off': 'DESATIVADO',
+    'phone_scan': '1. Escaneie o QR Code com a câmera do celular para conectar.',
+    'phone_qr': 'QR Code de pareamento do celular', 'phone_address': 'Endereço do controle pelo celular',
+    'phone_copy': 'Copiar endereço', 'phone_copied': 'Endereço copiado. Abra no celular e informe o código.',
+    'phone_manual': '2. Ou abra este endereço no celular e digite o código:',
+    'phone_expires': 'QR Code e código válidos por {time}.',
+    'phone_expired': 'Pareamento expirado. Gere um novo código para conectar.',
+    'phone_clients': 'Aparelhos pareados nesta conexão: {n}',
+    'phone_renew': 'Novo código e desconectar aparelhos',
+    'phone_disabled_help': 'Ative quando quiser jogar. A conexão começa desativada a cada abertura do app.',
+    'phone_connected_help': 'Mesma rede Wi-Fi · PC ligado e acordado. Desativar a conexão não para os cronômetros.',
+    'phone_no_network': 'Nenhuma rede local IPv4 encontrada. Conecte o PC ao Wi-Fi ou cabo e atualize as redes.',
+    'phone_local_help': 'Use uma rede de confiança. O controle permite iniciar, pausar, encerrar e adicionar jogos. Fechar o app desconecta os aparelhos. Se o celular não acessar, confira se estão na mesma rede e se o firewall permite o HorasJogadas em redes privadas.',
+    'phone_failed': 'Não foi possível abrir a conexão nesta rede. Atualize as redes e tente novamente.',
+})
+TEXTS['en'].update({
+    'phone_title': 'Phone control',
+    'phone_intro': 'Play on your console and control timers in your phone’s browser, on the same Wi-Fi network.',
+    'phone_network': 'Computer network', 'phone_refresh': 'Refresh networks',
+    'phone_enable': 'Enable phone control', 'phone_disable': 'Disable connection',
+    'phone_on': 'CONNECTION ACTIVE', 'phone_off': 'DISABLED',
+    'phone_scan': '1. Scan the QR code with your phone’s camera to connect.',
+    'phone_qr': 'Phone pairing QR code', 'phone_address': 'Phone control address',
+    'phone_copy': 'Copy address', 'phone_copied': 'Address copied. Open it on your phone and enter the code.',
+    'phone_manual': '2. Or open this address on your phone and enter the code:',
+    'phone_expires': 'QR code and pairing code valid for {time}.',
+    'phone_expired': 'Pairing expired. Generate a new code to connect.',
+    'phone_clients': 'Devices paired in this connection: {n}',
+    'phone_renew': 'New code and disconnect devices',
+    'phone_disabled_help': 'Enable it when you want to play. The connection starts disabled each time the app opens.',
+    'phone_connected_help': 'Same Wi-Fi network · PC on and awake. Disabling the connection does not stop timers.',
+    'phone_no_network': 'No local IPv4 network found. Connect the PC to Wi-Fi or Ethernet and refresh networks.',
+    'phone_local_help': 'Use a trusted network. The control can start, pause, finish and add games. Closing the app disconnects devices. If your phone cannot connect, check the network and allow HorasJogadas through the firewall on private networks.',
+    'phone_failed': 'Could not open a connection on this network. Refresh networks and try again.',
+})

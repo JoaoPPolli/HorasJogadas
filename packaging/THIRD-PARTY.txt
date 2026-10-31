@@ -2,7 +2,7 @@ Componentes de terceiros
 
 Python: Python Software Foundation License. https://www.python.org/psf/license/
 PySide6 / Shiboken6 6.8.3: LGPLv3/GPLv3/commercial; esta distribuição usa os termos LGPLv3.
-Qt 6.8.3 (módulos QtCore, QtGui, QtWidgets e QtSvg): LGPLv3 e avisos dos componentes.
+Qt 6.8.3 (módulos QtCore, QtGui, QtWidgets, QtNetwork e QtSvg): LGPLv3 e avisos dos componentes.
 O aplicativo usa bibliotecas compartilhadas sem modificar o código desses componentes.
 Fontes correspondentes: https://code.qt.io/cgit/pyside/pyside-setup.git/tag/?h=v6.8.3
 Qt: https://download.qt.io/archive/qt/6.8/6.8.3/submodules/
@@ -31,3 +31,7 @@ GOG é uma marca da GOG sp. z o.o. Wikipedia e Wikimedia são marcas da Wikimedi
 Foundation. As buscas utilizam interfaces públicas; o HorasJogadas não é afiliado
 nem endossado por essas fontes. A disponibilidade de artes varia conforme o título.
 Nenhuma arte de jogo desses serviços acompanha os pacotes do aplicativo.
+
+qrcode 8.2: BSD 3-Clause. https://github.com/lincolnloop/python-qrcode
+Usado para gerar o QR Code de pareamento local, sem serviços externos.
+Texto integral: QRCode-LICENSE.txt nesta pasta.

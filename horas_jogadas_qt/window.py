@@ -136,6 +136,8 @@ class Window(QMainWindow):
         self.stats_filter = None
         self.cards = {}
         self.pending_recovery = bool(self.c.repo.carregar_andamento())
+        from .phone_control import PhoneControl
+        self.phone_control = PhoneControl(self)
         self.closing_allowed = False
         self.last_heartbeat, self.last_backup = time.monotonic(), time.monotonic()
         self.setWindowTitle('HorasJogadas '+VERSION if self.mode=='release' else 'HorasJogadas · '+self.ui_text('review'))
@@ -305,6 +307,7 @@ class Window(QMainWindow):
         try:
             with self.c.transaction():
                 action()
+            self.phone_control.invalidate()
             self.totals = self.c.repo.totais_por_jogo_id()
             if refresh:
                 self.refresh()
@@ -865,6 +868,8 @@ class Window(QMainWindow):
     def build_settings(self):
         scroll=QScrollArea(); scroll.setWidgetResizable(True)
         host=QWidget(); box=QVBoxLayout(host); box.setContentsMargins(0,0,12,0); box.setSpacing(20)
+        from .phone_control import PhoneControlCard
+        box.addWidget(PhoneControlCard(self.phone_control))
         appearance=QFrame(); appearance.setObjectName('card'); form=QVBoxLayout(appearance)
         form.setContentsMargins(22,20,22,20); form.setSpacing(14)
         form.addWidget(label(tr('theme'),'gameName'))
@@ -1101,10 +1106,12 @@ class Window(QMainWindow):
             QTimer.singleShot(100,self.close)
             event.ignore(); return
         if self.closing_allowed or self.pending_recovery:
+            self.phone_control.server.stop()
             event.accept()
         elif self.resolve_pending():
             try:
                 self.c.repo.limpar_andamento()
+                self.phone_control.server.stop()
                 event.accept()
             except OSError as error:
                 QMessageBox.critical(self,tr('error'),str(error)); event.ignore()

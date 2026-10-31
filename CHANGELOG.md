@@ -2,6 +2,14 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.4.0
+
+- Controle pelo celular nas Configurações, desativado por padrão, com seleção da rede, QR Code e código temporário.
+- Página responsiva com as quatro paletas e os idiomas do app; busca e adição de jogos, iniciar, pausar, retomar e encerrar sessões.
+- Comandos usam os cronômetros e as transações do PC; validação de estado e pedidos repetidos evita encerrar uma sessão diferente ou duplicar registros.
+- Pareamento local com expiração, revogação individual ou de todos os aparelhos e encerramento ao fechar o app. Sem credenciais nos dados e backups.
+- Testes HTTP reais, testes do navegador e autoteste do pacote verificam pareamento, comandos, histórico e preservação dos dados.
+
 ## 3.3.2
 
 - Ícone do aplicativo associado ao lançador Linux, com identificador de desktop consistente para X11 e Wayland.

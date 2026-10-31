@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16191d">
+  <meta name="color-scheme" content="dark light">
+  <title>HorasJogadas · Controle pelo celular</title>
+  <link rel="icon" href="/icon.ico">
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="HorasJogadas">
+        <img src="/icon.ico" width="34" height="34" alt="">
+        <span><strong>HorasJogadas</strong><small data-text="remote">CONTROLE PELO CELULAR</small></span>
+      </a>
+      <span id="connection" class="connection" role="status"><i></i><span data-text="waiting">Aguardando conexão</span></span>
+    </header>
+
+    <main>
+      <section id="pair-view" class="pair-view" aria-labelledby="pair-title">
+        <div class="pair-intro">
+          <span class="eyebrow" data-text="your_space">SEU TEMPO DE JOGO</span>
+          <h1 id="pair-title" data-text="pair_title">Seu contador,<br>sempre por perto.</h1>
+          <p data-text="pair_intro">Escolha o jogo, inicie a sessão e aproveite a partida. Seu histórico continua no computador.</p>
+        </div>
+        <div class="pair-card">
+          <div class="device-mark" aria-hidden="true"><span class="device-screen"></span><span class="device-base"></span></div>
+          <h2 data-text="connect_title">Conectar ao seu PC</h2>
+          <p data-text="pair_help">No app, abra Configurações → Controle pelo celular e digite o código exibido.</p>
+          <form id="pair-form">
+            <label for="pair-code" data-text="pair_code">Código de conexão</label>
+            <input id="pair-code" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
+            <button id="pair-button" class="primary" type="submit" data-text="connect">Conectar</button>
+          </form>
+          <p id="pair-message" class="form-message" role="status"></p>
+          <div class="pair-note"><span class="small-dot"></span><span data-text="same_wifi">Celular e PC na mesma rede Wi-Fi. Mantenha o app aberto no computador.</span></div>
+        </div>
+      </section>
+
+      <section id="control-view" hidden aria-labelledby="library-title">
+        <div class="page-heading">
+          <div><span class="eyebrow" data-text="your_space">SEU TEMPO DE JOGO</span><h1 id="library-title" data-text="library">Biblioteca</h1><p data-text="library_intro">Seu próximo jogo. Uma sessão de cada vez.</p></div>
+          <button id="add-button" class="primary add-button" type="button"><span aria-hidden="true">+</span><span data-text="add_game">Adicionar jogo</span></button>
+        </div>
+
+        <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><button id="retry-button" type="button" class="quiet" data-text="retry" hidden>Tentar novamente</button></div>
+        <section id="active-section" class="game-section" hidden aria-labelledby="active-heading">
+          <div class="section-heading"><h2 id="active-heading" data-text="in_session">Suas sessões</h2><span id="active-count" class="section-count"></span></div>
+          <div id="active-games" class="game-grid"></div>
+        </section>
+
+        <section class="game-section" aria-labelledby="games-heading">
+          <div class="library-toolbar"><div class="section-heading"><h2 id="games-heading" data-text="all_games">Todos os jogos</h2><span id="game-count" class="section-count"></span></div><label class="search-box"><span id="search-icon" aria-hidden="true"></span><input id="search" type="search" autocomplete="off" data-placeholder="search" placeholder="Buscar na biblioteca…"><span class="sr-only" data-text="search">Buscar na biblioteca…</span></label></div>
+          <div id="library-games" class="game-grid"></div>
+          <div id="empty" class="empty" hidden><span aria-hidden="true">✦</span><h3 id="empty-title"></h3><p id="empty-description"></p></div>
+        </section>
+        <footer class="footer"><span class="footer-note" data-text="saved_on_pc">As sessões são salvas no seu computador.</span><button id="disconnect" class="text-button" type="button" data-text="disconnect">Desconectar este celular</button></footer>
+      </section>
+    </main>
+    <footer id="pair-footer" class="pair-footer"><span data-text="local_connection">Conexão local · Seus registros continuam com você</span></footer>
+  </div>
+
+  <dialog id="add-dialog" aria-labelledby="add-title">
+    <form id="add-form" class="dialog-content">
+      <span class="eyebrow" data-text="library">Biblioteca</span>
+      <h2 id="add-title" data-text="add_game">Adicionar jogo</h2>
+      <p data-text="add_hint">O jogo também aparecerá na biblioteca do seu PC.</p>
+      <label for="game-name" data-text="game_name">Nome do jogo</label>
+      <input id="game-name" maxlength="200" required autocomplete="off" data-placeholder="game_name_placeholder" placeholder="O que vamos jogar?">
+      <p id="add-message" class="form-message" role="alert"></p>
+      <div class="dialog-actions"><button class="dialog-cancel" type="button" data-text="cancel">Cancelar</button><button id="add-confirm" type="submit" class="primary" data-text="add_game">Adicionar jogo</button></div>
+    </form>
+  </dialog>
+  <dialog id="finish-dialog" aria-labelledby="finish-title">
+    <div class="dialog-content">
+      <span class="eyebrow" data-text="session">SESSÃO ATUAL</span>
+      <h2 id="finish-title" data-text="finish_title">Encerrar esta sessão?</h2>
+      <p id="finish-description"></p>
+      <div id="finish-time" class="finish-time"></div>
+      <p data-text="finish_help">O tempo será salvo no histórico do seu PC.</p>
+      <p id="finish-message" class="form-message" role="alert"></p>
+      <div class="dialog-actions"><button class="dialog-cancel" type="button" data-text="cancel">Cancelar</button><button id="finish-confirm" type="button" class="primary" data-text="finish_save">Encerrar e salvar</button></div>
+    </div>
+  </dialog>
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+</body>
+</html>

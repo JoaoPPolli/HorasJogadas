@@ -117,8 +117,33 @@ jobs:
           name: diagnostics-${{ matrix.name }}
           path: build-diagnostics/*
           if-no-files-found: ignore
+  phone-browser:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Phone control dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libopengl0
+          python -m pip install -r requirements-qt.txt
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Real phone browser and desktop integration
+        run: node scripts/verify_phone_browser.cjs --python python --result build-diagnostics/phone-browser.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostics-phone-browser
+          path: build-diagnostics/*
+          if-no-files-found: ignore
   publish:
-    needs: build
+    needs: [build, phone-browser]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -151,7 +176,7 @@ jobs:
           echo "release_url=https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag" >> "$GITHUB_OUTPUT"
   status:
     if: always()
-    needs: [build, publish]
+    needs: [build, phone-browser, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
