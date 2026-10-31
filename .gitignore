@@ -54,6 +54,8 @@ Desktop.ini
 .venv_qt/
 .qt-transaction.json
 .qt-preferences.json
+.phone-devices.json
+.phone-devices.json.bak
 .horasjogadas-preview.json
 full-backups/
 

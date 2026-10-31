@@ -1,4 +1,4 @@
-HORASJOGADAS 3.4.0
+HORASJOGADAS 3.5.0
 
 WINDOWS
 Use o instalador ou extraia a pasta inteira do pacote portátil e abra HorasJogadas.exe.
@@ -77,3 +77,16 @@ O histórico continua no PC. Bloquear o celular não interrompe a contagem.
 Use uma rede de confiança: a conexão é HTTP local, sem servidor externo.
 O recurso começa desativado a cada abertura; fechar o app desconecta aparelhos.
 Desativar somente a conexão não para os cronômetros.
+
+CELULAR: MAIS PRÁTICO
+Jogando agora destaca o cronômetro. Marque favoritos e veja o resumo ao encerrar.
+As imagens respeitam as preferências de capas e ícones do PC.
+Lembrar este aparelho é opcional e vale por até 30 dias; remova acessos nas Configurações.
+A conexão ainda precisa ser ativada no PC e usa uma porta estável.
+
+COM O PC DESLIGADO
+Abra https://joaoppolli.github.io/HorasJogadas/celular/ uma vez com internet.
+Adicione à tela inicial. Depois funciona offline, sem conta ou computador ligado.
+Exporte sessões no celular e importe em Configurações > Jogar com o PC desligado.
+Confira a prévia: a importação cria backup e não duplica sessões já importadas.
+Exporte uma cópia antes de limpar os dados do navegador do celular.

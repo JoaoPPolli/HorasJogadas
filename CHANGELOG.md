@@ -2,6 +2,16 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.5.0
+
+- Controle pelo celular com modo Jogando agora, botões grandes, favoritos e resumo ao encerrar a sessão.
+- Capas e ícones locais no painel, respeitando as preferências do PC e sem downloads externos durante a navegação.
+- Aparelhos lembrados por até 30 dias, endereço de porta estável, reconexão e revogação individual nas Configurações; autorizações não acompanham backups ou cópias de revisão.
+- Contador instalável no celular pelo site, com quatro temas, favoritos e funcionamento offline após a primeira abertura, inclusive com o PC desligado.
+- Sessões do celular preservadas ao recarregar, proteção entre abas, revisão de alterações no relógio e exportação sem apagar registros.
+- Importação revisada no PC com escolha dos jogos, backup verificado, transação e prevenção de duplicatas; exportação da biblioteca para preparar o celular.
+- Testes reais dos dois painéis no navegador e do arquivo exportado até o histórico do PC, além dos autotestes nativos de Windows/Linux.
+
 ## 3.4.0
 
 - Controle pelo celular nas Configurações, desativado por padrão, com seleção da rede, QR Code e código temporário.

@@ -110,19 +110,29 @@ def run_phone_self_test(window, app):
         clock = _Clock()
         window.c.timers[game.id].clock = clock
 
-        def action(kind):
+        def action(kind, **extra):
             status, state = request('/api/state', token=token)
             if status != 200:
                 raise RuntimeError('O celular perdeu o pareamento durante o teste')
             current = next(g for g in state['games'] if g['id'] == game.id)
-            return command({'action': kind, 'game_id': game.id, 'revision': current['revision']})
+            return command(dict(action=kind, game_id=game.id, revision=current['revision'], **extra))
 
+        _, favorite = action('favorite', enabled=True)
+        if not next(g for g in favorite['state']['games'] if g['id'] == game.id)['favorite']:
+            raise RuntimeError('Favorito do celular não foi salvo')
+        status, library = request('/api/library', token=token)
+        if status != 200 or library.get('format') != 'HorasJogadas-Library':
+            raise RuntimeError('Biblioteca para o contador offline ausente')
+        result.update(phone_favorites=True, phone_library_export=True)
         action('start')
         clock.advance(3)
         action('pause')
         clock.advance(90)
         action('start')
-        completed_body, _ = action('finish')
+        completed_body, completed = action('finish')
+        if completed.get('summary', {}).get('seconds') != 3:
+            raise RuntimeError('Resumo do celular difere da sessão salva')
+        result['phone_summary'] = True
         sessions = [s for s in Repositorio(str(window.c.folder), config_legado='').sessoes if s.jogo_id == game.id]
         if len(sessions) != 1 or sessions[0].segundos != 3 or window.c.timers[game.id].pending:
             raise RuntimeError('A sessão do celular não foi salva uma única vez com três segundos')
@@ -135,6 +145,19 @@ def run_phone_self_test(window, app):
         if status != 401:
             raise RuntimeError('Novo código não revogou o acesso anterior do celular')
         result['phone_revocation'] = True
+        from datetime import datetime, timedelta, timezone
+        from .phone_import import parse_mobile, import_mobile, ReviewDialog
+        from uuid import uuid4
+        end = datetime.now(timezone.utc) - timedelta(minutes=1)
+        imported = parse_mobile(json.dumps(dict(format='HorasJogadas-Mobile', version=1, sessions=[dict(
+            id=str(uuid4()), game='Console offline — autoteste', seconds=5,
+            started_at=(end - timedelta(seconds=5)).isoformat(), ended_at=end.isoformat())])).encode())
+        preview = ReviewDialog(window, imported); preview.show(); app.processEvents()
+        if preview.grab().isNull():raise RuntimeError('Revisão da importação não foi desenhada')
+        preview.reject(); preview.deleteLater()
+        if import_mobile(window.c, imported)['imported'] != 1 or import_mobile(window.c, imported)['imported'] != 0:
+            raise RuntimeError('Importação offline perdeu a sessão ou duplicou registros')
+        result['phone_offline_import'] = True
     finally:
         server.stop()
         app.processEvents()

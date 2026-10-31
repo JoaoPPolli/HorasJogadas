@@ -17,6 +17,15 @@ try:
             raise RuntimeError('A página publicada não contém o site esperado')
         result['site_http']=response.status
     from urllib.parse import urljoin
+    companion_url=urljoin(site,'celular/')
+    with urlopen(companion_url,timeout=60) as response:
+        companion=response.read().decode('utf-8')
+        if response.status!=200 or 'manifest.webmanifest' not in companion or 'app.js' not in companion:
+            raise RuntimeError('O contador do celular não está disponível')
+    for asset in ('app.js','app.css','sw.js','manifest.webmanifest','icon-192.png','icon-512.png'):
+        with urlopen(urljoin(companion_url,asset),timeout=60) as response:
+            if response.status!=200:raise RuntimeError('Arquivo offline indisponível: '+asset)
+    result['companion']={'url':companion_url,'http':200,'assets':True}
     history_url=urljoin(site,'changelog/')
     with urlopen(history_url,timeout=60) as response:
         history=response.read().decode('utf-8')

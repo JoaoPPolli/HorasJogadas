@@ -868,8 +868,9 @@ class Window(QMainWindow):
     def build_settings(self):
         scroll=QScrollArea(); scroll.setWidgetResizable(True)
         host=QWidget(); box=QVBoxLayout(host); box.setContentsMargins(0,0,12,0); box.setSpacing(20)
-        from .phone_control import PhoneControlCard
+        from .phone_control import PhoneControlCard, PhoneOfflineCard
         box.addWidget(PhoneControlCard(self.phone_control))
+        box.addWidget(PhoneOfflineCard(self))
         appearance=QFrame(); appearance.setObjectName('card'); form=QVBoxLayout(appearance)
         form.setContentsMargins(22,20,22,20); form.setSpacing(14)
         form.addWidget(label(tr('theme'),'gameName'))
@@ -913,6 +914,38 @@ class Window(QMainWindow):
             box.addWidget(button(tr('update_check'),self.open_updates,'primary'))
         box.addStretch(); scroll.setWidget(host)
         return scroll
+
+    def phone_import_sessions(self):
+        from .phone_import import load_mobile, ReviewDialog
+        path, _ = QFileDialog.getOpenFileName(self, tr('phone_import'), '', 'JSON (*.json)')
+        if not path:
+            return
+        try:
+            dialog = ReviewDialog(self, load_mobile(path))
+            try:
+                if dialog.exec():
+                    self.phone_control.invalidate()
+                    self.totals = self.c.repo.totais_por_jogo_id()
+                    self.refresh()
+            finally:
+                dialog.deleteLater()
+        except Exception as error:
+            QMessageBox.warning(self, tr('error'), str(error))
+
+    def phone_export_library(self):
+        from .phone_import import export_library
+        from PySide6.QtCore import QSaveFile, QIODevice
+        path, _ = QFileDialog.getSaveFileName(self, tr('phone_export_library'), 'HorasJogadas-Biblioteca.json', 'JSON (*.json)')
+        if not path:
+            return
+        try:
+            data = export_library(self.c, self.theme_name(), i18n.idioma_atual())
+            output = QSaveFile(path)
+            if not output.open(QIODevice.WriteOnly) or output.write(data) != len(data) or not output.commit():
+                raise OSError(tr('phone_export_failed'))
+            self.notify(tr('phone_library_exported'))
+        except Exception as error:
+            QMessageBox.warning(self, tr('error'), str(error))
 
     def manage_covers(self,key=None):
         from .cover_dialog import CoverDialog

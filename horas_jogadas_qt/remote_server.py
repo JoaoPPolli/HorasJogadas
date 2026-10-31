@@ -1,13 +1,14 @@
 """Controle HTTP restrito à rede local, executado no event loop do Qt.
 
 O servidor não conhece repositórios nem cria threads: snapshot e comandos são
-chamados na mesma thread dos widgets e dos cronômetros. Credenciais vivem somente
-na memória desta execução e nunca entram em logs, URLs de requisições ou backups.
+chamados na mesma thread dos widgets e dos cronômetros. Tokens de sessão vivem
+na memória; aparelhos lembrados persistem somente hashes no armazenamento próprio.
 """
 import hashlib
 import ipaddress
 import json
 import math
+import re
 import secrets
 import time
 from collections import OrderedDict
@@ -65,9 +66,10 @@ def reject_constant(text):
 class RemoteServer(QObject):
     changed = Signal()
 
-    def __init__(self, snapshot, command, parent=None):
+    def __init__(self, snapshot, command, parent=None, *, trust_store=None, media=None, library=None):
         super().__init__(parent)
         self.snapshot, self.command = snapshot, command
+        self.trust_store, self.media, self.library = trust_store, media, library
         self.server = QTcpServer(self)
         self.server.setMaxPendingConnections(MAX_CONNECTIONS)
         self.server.newConnection.connect(self._accept)
@@ -108,6 +110,24 @@ class RemoteServer(QObject):
         self._expire_sessions()
         return len(self._sessions)
 
+    @property
+    def remembered_devices(self):
+        return self.trust_store.list_devices() if self.trust_store is not None else []
+
+    def revoke_device(self, device_id):
+        if self.trust_store is not None:
+            self.trust_store.revoke(device_id)
+        for token, session in list(self._sessions.items()):
+            if session.get('device_id') == device_id:
+                del self._sessions[token]
+        self.changed.emit()
+
+    def revoke_all_devices(self):
+        if self.trust_store is not None:
+            self.trust_store.revoke_all()
+        self._sessions.clear()
+        self.changed.emit()
+
     def start(self, host, port=0):
         if self.running:
             raise ValueError('Controle remoto já está ativo')
@@ -125,7 +145,7 @@ class RemoteServer(QObject):
         if not self.server.listen(QHostAddress(str(address)), port):
             raise OSError(self.server.errorString())
         self._url = f'http://{address}:{self.server.serverPort()}'
-        self.regenerate_pairing()
+        self._new_pairing()
         self.maintenance.start()
 
     def stop(self):
@@ -148,6 +168,10 @@ class RemoteServer(QObject):
     def regenerate_pairing(self):
         if not self.running:
             return
+        self.revoke_all_devices()
+        self._new_pairing()
+
+    def _new_pairing(self):
         self._sessions.clear()
         self._secret = secrets.token_urlsafe(32)
         self._code = f'{secrets.randbelow(1000000):06d}'
@@ -268,6 +292,10 @@ class RemoteServer(QObject):
         session = self._sessions.get(token)
         if session is None:
             raise RemoteError(401, 'unauthorized')
+        if session.get('device_id') and (self.trust_store is None or self.trust_store.get(session['device_id']) is None):
+            del self._sessions[token]
+            self.changed.emit()
+            raise RemoteError(401, 'unauthorized')
         return session
 
     def _route(self, socket, method, path, headers, payload):
@@ -283,27 +311,55 @@ class RemoteServer(QObject):
                 raise RemoteError(503, 'unavailable') from error
         if method == 'GET' and path == '/api/info':
             state = self.snapshot()
-            return 200, {key: state[key] for key in ('theme', 'language', 'palette', 'version') if key in state}, None
+            return 200, {key: state[key] for key in ('theme', 'language', 'palette', 'version', 'companion_url') if key in state}, None
         if method == 'POST' and path == '/api/pair':
             return 200, self._pair(socket.peerAddress().toString(), payload), None
+        if method == 'POST' and path == '/api/resume':
+            return 200, self._resume(socket.peerAddress().toString(), payload), None
+        if method == 'POST' and path == '/api/remember':
+            session = self._session(headers)
+            if set(payload) - {'device_name'} or not isinstance(payload.get('device_name', ''), str):
+                raise RemoteError(400, 'invalid')
+            return 200, self._remember(session, payload.get('device_name', '')), None
         if method == 'GET' and path == '/api/state':
             self._session(headers)
             return 200, self.snapshot(), None
+        if method == 'GET' and path == '/api/library':
+            self._session(headers)
+            if self.library is None:
+                raise RemoteError(404, 'not_found')
+            return 200, self.library(), None
+        if method == 'GET' and path.startswith('/api/art/'):
+            self._session(headers)
+            match = re.fullmatch(r'/api/art/(cover|icon)/([A-Za-z0-9_-]{1,100})(?:\?v=[a-f0-9]{64})?', path)
+            if not match or self.media is None:
+                raise RemoteError(404, 'not_found')
+            image = self.media(match.group(2), match.group(1))
+            if not image:
+                raise RemoteError(404, 'not_found')
+            content, mime = image
+            if not isinstance(content, bytes) or not content or len(content) > 10 * 1024 * 1024 or mime not in ('image/png', 'image/jpeg'):
+                raise RemoteError(404, 'not_found')
+            return 200, content, mime
         if method == 'POST' and path == '/api/command':
             session = self._session(headers)
             return 200, self._command(session, payload), None
         if method == 'POST' and path == '/api/disconnect':
-            self._session(headers)
-            del self._sessions[headers['authorization'][7:]]
-            self.changed.emit()
+            session = self._session(headers)
+            if session.get('device_id'):
+                self.revoke_device(session['device_id'])
+            else:
+                del self._sessions[headers['authorization'][7:]]
+                self.changed.emit()
             return 200, {'ok': True}, None
         raise RemoteError(404, 'not_found')
 
     def _pair(self, peer, payload):
-        now = time.monotonic()
-        self._attempts[:] = [(when, source) for when, source in self._attempts if now - when < 60]
-        if len(self._attempts) >= 20 or sum(source == peer for _, source in self._attempts) >= 6:
-            raise RemoteError(429, 'rate_limited')
+        now = self._check_attempts(peer)
+        if (set(payload) - {'code', 'secret', 'remember', 'device_name'}
+                or type(payload.get('remember', False)) is not bool
+                or not isinstance(payload.get('device_name', ''), str)):
+            raise RemoteError(400, 'invalid')
         if not self.pairing_seconds:
             raise RemoteError(410, 'pairing_expired')
         code, secret = payload.get('code', ''), payload.get('secret', '')
@@ -315,17 +371,68 @@ class RemoteServer(QObject):
         self._expire_sessions()
         if len(self._sessions) >= 6:
             raise RemoteError(409, 'busy')
-        token = secrets.token_urlsafe(32)
-        self._sessions[token] = {'expires': now + SESSION_SECONDS, 'commands': OrderedDict()}
+        credentials = self._create_session()
+        if payload.get('remember'):
+            try:
+                credentials.update(self._remember(self._sessions[credentials['token']], payload.get('device_name', '')))
+            except Exception:
+                del self._sessions[credentials['token']]
+                raise
         self.changed.emit()
-        return {'token': token}
+        return credentials
+
+    def _check_attempts(self, peer):
+        now = time.monotonic()
+        self._attempts[:] = [(when, source) for when, source in self._attempts if now - when < 60]
+        if len(self._attempts) >= 20 or sum(source == peer for _, source in self._attempts) >= 6:
+            raise RemoteError(429, 'rate_limited')
+        return now
+
+    def _create_session(self, device_id=None):
+        self._expire_sessions()
+        if device_id:
+            for old_token, session in list(self._sessions.items()):
+                if session.get('device_id') == device_id:
+                    # Abas do mesmo aparelho compartilham o acesso ativo; girar
+                    # o token aqui faria uma aba revogar a outra continuamente.
+                    # A retomada não prolonga as doze horas dessa sessão.
+                    return {'token': old_token, 'device_id': device_id}
+        if len(self._sessions) >= 6:
+            raise RemoteError(409, 'busy')
+        token = secrets.token_urlsafe(32)
+        self._sessions[token] = {'expires': time.monotonic() + SESSION_SECONDS, 'commands': OrderedDict()}
+        if device_id:
+            self._sessions[token]['device_id'] = device_id
+        return {'token': token, 'device_id': device_id} if device_id else {'token': token}
+
+    def _remember(self, session, label):
+        if self.trust_store is None:
+            raise RemoteError(503, 'unavailable')
+        if session.get('device_id') or len(self.remembered_devices) >= 6:
+            raise RemoteError(409, 'busy')
+        credentials = self.trust_store.remember(label)
+        session['device_id'] = credentials['device_id']
+        self.changed.emit()
+        return credentials
+
+    def _resume(self, peer, payload):
+        now = self._check_attempts(peer)
+        if set(payload) != {'remember_token'}:
+            raise RemoteError(400, 'invalid')
+        device = self.trust_store.verify(payload['remember_token']) if self.trust_store is not None else None
+        if device is None:
+            self._attempts.append((now, peer))
+            raise RemoteError(401, 'unauthorized')
+        credentials = self._create_session(device['id'])
+        self.changed.emit()
+        return credentials
 
     def _command(self, session, payload):
         request_id = payload.get('request_id')
         if (not isinstance(request_id, str) or not 16 <= len(request_id) <= 100
                 or any(not (c.isascii() and (c.isalnum() or c in '-_')) for c in request_id)):
             raise RemoteError(400, 'invalid')
-        if payload.get('action') not in ('start', 'pause', 'finish', 'add'):
+        if payload.get('action') not in ('start', 'pause', 'finish', 'add', 'favorite'):
             raise RemoteError(400, 'invalid')
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':')).encode('utf-8')).hexdigest()
         commands = session['commands']
@@ -361,6 +468,6 @@ class RemoteServer(QObject):
                    "Cache-Control: no-store\r\nConnection: close\r\nX-Content-Type-Options: nosniff\r\n"
                    "Referrer-Policy: no-referrer\r\nX-Frame-Options: DENY\r\n"
                    "Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
-                   "connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\n\r\n")
+                   "connect-src 'self'; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\n\r\n")
         socket.write(headers.encode('ascii') + body)
         socket.disconnectFromHost()

@@ -56,9 +56,14 @@ Para validar a interface no navegador, com Node.js 22 e as dependências Qt inst
 npm install --no-save --package-lock=false playwright@1.56.1
 npx playwright install --with-deps chromium
 node scripts/verify_phone_browser.cjs --python python --result build-diagnostics/phone-browser.json
+node scripts/verify_companion_browser.cjs --python python --result build-diagnostics/companion-browser.json
 ```
 
 O script cria um processo Qt com dados sintéticos e uma porta aleatória em `127.0.0.1`, testa comandos, desconexão, nomes com HTML, perda de rede, quatro temas, português/inglês e larguras de 320, 390 e 1040 pixels. `--screenshots <pasta>` salva capturas fictícias. O job `phone-browser` precisa passar antes da publicação. O servidor de produção não usa esse fixture nem permite controlar testes por arquivos.
+
+O segundo script serve `site/celular` em uma origem local confiável e verifica o service worker, recarga offline, pausas, relógio, armazenamento e concorrência entre abas. O arquivo JSON exportado pelo navegador é importado e reimportado em um Controller temporário por `verify_phone_import.py`, verificando duplicatas e preservação de sessões. O contador independente usa HTTPS no GitHub Pages; ele transfere dados por arquivo revisado e não tenta acessar o servidor HTTP da LAN a partir da página HTTPS.
+
+Aparelhos lembrados ficam em `.phone-devices.json`, com hashes e escrita atômica. Esse arquivo não acompanha backups, cópias de revisão ou commits. Os favoritos ficam nas preferências Qt e acompanham os backups normais. O cache do service worker contém apenas os arquivos públicos da interface; incremente sua versão ao alterar esses arquivos. Não use `skipWaiting` para substituir uma página durante uma sessão ativa.
 
 ## Release e site
 

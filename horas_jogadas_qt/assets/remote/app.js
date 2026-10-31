@@ -42,17 +42,43 @@
       saved: "Session saved to history.", added: "Game added to your library.", started: "Timer started.", pause_done: "Timer paused.", disconnected_done: "This phone was disconnected.", confirm_name: "Session for {name}",
     },
   };
-  const model = {language: "pt", token: "", state: null, received: 0, connected: false, pairing: false, mutating: false, disconnecting: false, polling: false, epoch: 0, finishGame: null, notice: ""};
+  Object.assign(copy.pt, {
+    remember_device: "Lembrar este celular", device_name: "Nome do aparelho", device_placeholder: "Meu celular", remember_help: "Opcional, por 30 dias neste navegador. Revogue o acesso nas Configurações do PC.", remember_save: "Lembrar aparelho", remembered: "Aparelho lembrado", remember_failed: "O navegador não permitiu salvar o acesso. Você pode continuar usando o código temporário.", easy_return: "VOLTAR FICOU MAIS FÁCIL", remembering: "Reconectando ao seu PC…",
+    playing_now: "Jogando agora", focus_intro: "Aproveite a partida. Seu tempo está sendo contado.", sofa_mode: "Seu jogo, sem distrações.", show_library: "Ver biblioteca", focus_mode: "Jogando agora", choose_session: "Escolher sessão", favorites: "Seus favoritos", favorite: "Favoritar", unfavorite: "Remover dos favoritos", favorited: "Favoritos atualizados.",
+    session_ended: "SESSÃO ENCERRADA", summary_empty: "Nenhum tempo acumulado. Nada foi adicionado ao histórico.", summary_zero: "Pronto para a próxima partida.", session_saved: "SESSÃO SALVA", summary_duration: "de uma boa partida.", total_game: "Seu tempo neste jogo", summary_help: "Tudo guardado no histórico do seu PC.", done: "Pronto", more_freedom: "MAIS LIBERDADE", companion_title: "Vai jogar com o PC desligado?", companion_help: "Use o contador offline no celular e transfira suas sessões para o PC quando quiser.", open_companion: "Abrir contador offline ↗", export_library: "Levar minha biblioteca", export_done: "Biblioteca baixada. No contador offline, escolha Importar biblioteca e selecione esse arquivo.",
+    shortcut: "Atalho no celular", always_close: "SEMPRE POR PERTO", shortcut_help: "Para este controle local, salve esta página nos favoritos do navegador. Mantenha a mesma rede e ative a conexão no PC para voltar.", install_companion: "Quer um app na tela inicial?", install_help: "Abra o contador offline. No Android, use Instalar app no menu do navegador. No iPhone, use Compartilhar → Adicionar à Tela de Início."
+  });
+  Object.assign(copy.en, {
+    remember_device: "Remember this phone", device_name: "Device name", device_placeholder: "My phone", remember_help: "Optional, for 30 days in this browser. Revoke access in your PC settings.", remember_save: "Remember device", remembered: "Device remembered", remember_failed: "Your browser could not save access. You can continue using the temporary code.", easy_return: "AN EASIER WAY BACK", remembering: "Reconnecting to your PC…",
+    playing_now: "Playing now", focus_intro: "Enjoy your game. Your time is being tracked.", sofa_mode: "Your game, without distractions.", show_library: "Show library", focus_mode: "Playing now", choose_session: "Choose session", favorites: "Your favorites", favorite: "Favorite", unfavorite: "Remove favorite", favorited: "Favorites updated.",
+    session_ended: "SESSION ENDED", summary_empty: "No time accumulated. Nothing was added to history.", summary_zero: "Ready for your next game.", session_saved: "SESSION SAVED", summary_duration: "of a good game.", total_game: "Your time in this game", summary_help: "All saved in your PC history.", done: "Done", more_freedom: "MORE FREEDOM", companion_title: "Playing with your PC off?", companion_help: "Use the offline timer on your phone and transfer sessions to your PC when you want.", open_companion: "Open offline timer ↗", export_library: "Take my library", export_done: "Library downloaded. In the offline timer, choose Import library and select this file.",
+    shortcut: "Phone shortcut", always_close: "ALWAYS CLOSE BY", shortcut_help: "For this local control, bookmark this page in your browser. Stay on the same network and enable the PC connection to return.", install_companion: "Want an app on your home screen?", install_help: "Open the offline timer. On Android, use Install app in the browser menu. On iPhone, use Share → Add to Home Screen."
+  });
+  const model = {language: "pt", token: "", state: null, received: 0, connected: false, pairing: false, mutating: false, disconnecting: false, polling: false, epoch: 0, finishGame: null, notice: "", focus: true, focusGame: "", resuming: false, remembered: "", authEpoch: 0};
   const cards = new Map();
   const t = key => (copy[model.language] || copy.pt)[key] || copy.pt[key] || key;
   const storage = {
     read() { try { return sessionStorage.getItem("horasjogadas-remote") || ""; } catch (_) { return ""; } },
     write(value) { try { if (value) sessionStorage.setItem("horasjogadas-remote", value); else sessionStorage.removeItem("horasjogadas-remote"); } catch (_) {} },
   };
+  const rememberedStorage = {
+    read() { try { return localStorage.getItem("horasjogadas-remembered") || ""; } catch (_) { return ""; } },
+    write(value) { try { if (value) localStorage.setItem("horasjogadas-remembered", value); else localStorage.removeItem("horasjogadas-remembered"); return true; } catch (_) { return false; } },
+  };
+  model.remembered = rememberedStorage.read();
+  try { model.focus = localStorage.getItem("horasjogadas-focus") !== "false"; } catch (_) {}
+  const artCache = new Map();
+  let artEpoch = 0;
+  const artObserver = typeof IntersectionObserver === "function" ? new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      const card = entry.target.phoneCard;
+      if (card) { card.inView = entry.isIntersecting; if (card.inView && model.state) updateArt(card, card.game); }
+    }
+  }, {rootMargin: "250px 0px"}) : null;
   const secret = new URLSearchParams(location.hash.slice(1)).get("pair");
   if (location.hash || location.search) history.replaceState(null, "", location.pathname);
   model.token = secret ? "" : storage.read();
-  if (secret) storage.write("");
+  if (secret) { storage.write(""); rememberedStorage.write(""); model.remembered = ""; }
 
   function icon(name) {
     const paths = {play: "m7 4 11 8-11 8Z", pause: "M8 5v14M16 5v14", stop: "M6 6h12v12H6Z", search: "m21 21-5.2-5.2M18 10.5a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"};
@@ -83,6 +109,12 @@
       document.querySelectorAll("[data-placeholder]").forEach(el => { el.placeholder = t(el.dataset.placeholder); });
       document.documentElement.dataset.translated = "true";
     }
+    $("focus-picker").setAttribute("aria-label", t("choose_session"));
+    const companion = typeof info.companion_url === "string" && info.companion_url === "https://joaoppolli.github.io/HorasJogadas/celular/" ? info.companion_url : "https://joaoppolli.github.io/HorasJogadas/celular/";
+    $("companion-link").href = companion;
+    document.querySelectorAll("a.companion-link").forEach(link => { link.href = companion; });
+    $("remember-button").textContent = t(model.remembered ? "remembered" : "remember_device");
+    $("remember-button").disabled = Boolean(model.remembered);
     connection(model.connected ? "connected" : model.token && model.state ? "disconnected" : "waiting");
     if (model.notice) setNotice(model.notice);
   }
@@ -118,9 +150,9 @@
   }
 
   function disconnect(message = "") {
-    model.token = ""; storage.write(""); model.connected = false; model.state = null; model.finishGame = null; model.epoch++;
-    cards.forEach(card => card.element.remove()); cards.clear();
-    for (const dialog of [$("add-dialog"), $("finish-dialog")]) if (dialog.open) dialog.close();
+    model.authEpoch++; model.token = ""; storage.write(""); rememberedStorage.write(""); model.remembered = ""; clearArt(); document.body.classList.remove("is-focused"); model.connected = false; model.state = null; model.finishGame = null; model.epoch++;
+    cards.forEach(card => { if (artObserver) artObserver.unobserve(card.element); card.element.remove(); }); cards.clear();
+    for (const dialog of document.querySelectorAll("dialog")) if (dialog.open) dialog.close();
     $("control-view").hidden = true; $("pair-view").hidden = false; $("pair-footer").hidden = false;
     $("pair-message").textContent = message ? t(message) : ""; $("pair-code").value = "";
     connection("waiting");
@@ -128,11 +160,15 @@
 
   async function pair(body) {
     if (model.pairing) return;
+    const authEpoch = ++model.authEpoch;
     model.pairing = true; $("pair-button").disabled = true; $("pair-button").textContent = t("connecting"); $("pair-message").textContent = ""; connection("connecting");
     try {
       const result = await api("/api/pair", body, false);
       if (typeof result.token !== "string" || !result.token) throw apiError("unavailable");
+      if (authEpoch !== model.authEpoch || model.disconnecting) return;
+      if (model.token !== result.token) clearArt();
       model.token = result.token; storage.write(model.token);
+      if (result.remember_token) rememberCredential(result.remember_token);
       await syncState();
     } catch (error) { $("pair-message").textContent = errorText(error.code === "unauthorized" ? "invalid_code" : error.code); connection("waiting"); }
     finally { model.pairing = false; $("pair-button").disabled = false; $("pair-button").textContent = t("connect"); }
@@ -166,9 +202,92 @@
       if (epoch === model.epoch) acceptState(result);
     } catch (error) {
       if (epoch !== model.epoch) return;
-      if (error.code === "unauthorized") disconnect("unauthorized");
+      if (error.code === "unauthorized") { if (model.remembered) await resumeRemembered(); else disconnect("unauthorized"); }
       else markOffline();
     } finally { model.polling = false; }
+  }
+
+  function rememberCredential(value) {
+    if (typeof value !== "string" || !value) return false;
+    if (!rememberedStorage.write(value)) { setNotice("remember_failed"); return false; }
+    model.remembered = value;
+    $("remember-button").textContent = t("remembered"); $("remember-button").disabled = true;
+    return true;
+  }
+  async function resumeRemembered() {
+    if (!model.remembered || model.resuming) return;
+    const authEpoch = model.authEpoch, credential = model.remembered;
+    model.resuming = true; model.connected = false; model.epoch++; updateControls(); connection("connecting");
+    try {
+      const result = await api("/api/resume", {remember_token: credential}, false);
+      if (!result.token || typeof result.token !== "string") throw apiError("unavailable");
+      if (authEpoch !== model.authEpoch || credential !== model.remembered || model.disconnecting) return;
+      if (model.token !== result.token) clearArt();
+      model.token = result.token; storage.write(result.token);
+      const stateEpoch = model.epoch;
+      const state = await api("/api/state");
+      if (authEpoch === model.authEpoch && stateEpoch === model.epoch && !model.disconnecting && !document.hidden) acceptState(state);
+    } catch (error) {
+      if (authEpoch !== model.authEpoch || credential !== model.remembered || model.disconnecting) return;
+      if (error.code === "unauthorized") disconnect("unauthorized");
+      else { markOffline(); $("pair-message").textContent = t("unavailable"); }
+    } finally { model.resuming = false; }
+  }
+  function clearArt() {
+    artEpoch++;
+    for (const entry of artCache.values()) if (entry.blob) URL.revokeObjectURL(entry.blob);
+    artCache.clear();
+    cards.forEach(card => { for (const image of [card.avatarImage, card.cover]) { image.hidden = true; image.removeAttribute("src"); } });
+  }
+  function allowedArt(path, kind, id) {
+    if (typeof path !== "string" || typeof id !== "string" || !/^[A-Za-z0-9_-]{1,100}$/.test(id)) return false;
+    const expected = "/api/art/" + kind + "/" + id;
+    return path === expected || path.startsWith(expected + "?v=") && /^\?v=[a-f0-9]{64}$/.test(path.slice(expected.length));
+  }
+  function imageFor(image, path, kind, id) {
+    if (!allowedArt(path, kind, id)) { image.removeAttribute("src"); image.hidden = true; return; }
+    const entry = artCache.get(path);
+    if (entry && entry.failedAt && model.connected && performance.now() - entry.failedAt > 5000) { artCache.delete(path); imageFor(image, path, kind, id); return; }
+    if (entry) {
+      entry.used = performance.now();
+      if (entry.blob && image.dataset.path === path) { image.src = entry.blob; image.hidden = false; }
+      else if (!entry.blob) image.hidden = true;
+      return;
+    }
+    image.hidden = true;
+    if (!model.connected) return;
+    const generation = artEpoch;
+    const token = model.token;
+    const created = {blob: "", used: performance.now()};
+    artCache.set(path, created);
+    const abort = new AbortController(); const timeout = setTimeout(() => abort.abort(), 8000);
+    fetch(path, {headers: {Authorization: "Bearer " + token}, cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer", signal: abort.signal})
+      .then(async response => {
+        if (!response.ok || !["image/jpeg", "image/png"].includes((response.headers.get("Content-Type") || "").split(";")[0])) throw new Error("image");
+        const content = await response.blob();
+        if (content.size > 10 * 1024 * 1024 || generation !== artEpoch || token !== model.token || artCache.get(path) !== created) return;
+        created.blob = URL.createObjectURL(content);
+        if (image.dataset.path === path) { image.src = created.blob; image.hidden = false; }
+      }).catch(() => { created.failedAt = performance.now(); }).finally(() => clearTimeout(timeout));
+  }
+  function updateArt(card, game) {
+    const iconPath = model.state.icons_enabled !== false ? game.art && game.art.icon : null;
+    const coverPath = model.state.covers_enabled === true ? game.art && game.art.cover : null;
+    card.avatarImage.dataset.path = iconPath || "";
+    if (!iconPath || card.inView || artCache.has(iconPath)) imageFor(card.avatarImage, iconPath, "icon", game.id);
+    card.cover.dataset.path = coverPath || "";
+    if (!coverPath || card.inView || artCache.has(coverPath)) imageFor(card.cover, coverPath, "cover", game.id);
+    card.coverFrame.hidden = !allowedArt(coverPath, "cover", game.id);
+  }
+  function trimArt(games) {
+    const wanted = new Set();
+    for (const game of games) {
+      if (model.state.icons_enabled !== false && game.art && game.art.icon) wanted.add(game.art.icon);
+      if (model.state.covers_enabled === true && game.art && game.art.cover) wanted.add(game.art.cover);
+    }
+    for (const [key, entry] of artCache) if (!wanted.has(key)) { if (entry.blob) URL.revokeObjectURL(entry.blob); artCache.delete(key); }
+    const oldest = [...artCache.entries()].sort((a, b) => a[1].used - b[1].used);
+    while (artCache.size > 160 && oldest.length) { const [key, entry] = oldest.shift(); if (entry.blob) URL.revokeObjectURL(entry.blob); artCache.delete(key); }
   }
 
   function initials(name) { return String(name).trim().split(/\s+/).filter(Boolean).slice(0, 2).map(s => Array.from(s)[0]).join("").toUpperCase(); }
@@ -184,10 +303,19 @@
   }
   function node(tag, name, text) { const el = document.createElement(tag); if (name) el.className = name; if (text !== undefined) el.textContent = text; return el; }
   function gameCard(game) {
-    const card = {element: node("article", "game-card"), game};
+    const card = {element: node("article", "game-card"), game, inView: !artObserver};
+    card.element.phoneCard = card;
+    if (artObserver) artObserver.observe(card.element);
+    card.coverFrame = node("div", "cover-frame"); card.coverFrame.hidden = true;
+    card.cover = node("img", "card-cover"); card.cover.alt = ""; card.cover.hidden = true;
+    card.coverFrame.append(card.cover);
     const head = node("div", "game-head"), identity = node("div", "game-identity");
     card.avatar = node("div", "avatar"); card.avatar.setAttribute("aria-hidden", "true");
-    card.name = node("h3", "game-name"); card.status = node("span", "game-status"); identity.append(card.name, card.status); head.append(card.avatar, identity);
+    card.avatarLetters = node("span"); card.avatarImage = node("img"); card.avatarImage.alt = ""; card.avatarImage.hidden = true; card.avatar.append(card.avatarLetters, card.avatarImage);
+    card.name = node("h3", "game-name"); card.status = node("span", "game-status"); identity.append(card.name, card.status);
+    card.favorite = node("button", "favorite-button"); card.favorite.type = "button"; card.favorite.textContent = "☆";
+    card.favorite.addEventListener("click", () => command("favorite", card.game, undefined, {enabled: !card.game.favorite}));
+    head.append(card.avatar, identity, card.favorite);
     card.session = node("div", "session-label"); card.elapsed = node("div", "elapsed"); card.elapsed.setAttribute("aria-live", "off");
     card.activity = node("div", "activity"); card.activity.append(node("i")); card.activityText = node("span"); card.activity.append(card.activityText);
     card.total = node("p", "total");
@@ -196,13 +324,18 @@
     card.pause = node("button", "icon-button"); card.pause.type = "button"; card.pause.append(icon("pause"));
     card.finish = node("button", "icon-button stop-button"); card.finish.type = "button"; card.finish.append(icon("stop"));
     card.start.addEventListener("click", () => command("start", card.game)); card.pause.addEventListener("click", () => command("pause", card.game)); card.finish.addEventListener("click", () => showFinish(card.game));
-    actions.append(card.start, card.pause, card.finish); card.element.append(head, card.session, card.elapsed, card.activity, card.total, actions);
+    actions.append(card.start, card.pause, card.finish); card.element.append(card.coverFrame, head, card.session, card.elapsed, card.activity, card.total, actions);
     return card;
   }
   function updateCard(card, game) {
     card.game = game;
     card.element.className = "game-card" + (game.running ? " running" : game.pending ? " paused" : "");
-    card.name.textContent = game.name; card.name.title = game.name; card.avatar.textContent = initials(game.name);
+    card.name.textContent = game.name; card.name.title = game.name; card.avatarLetters.textContent = initials(game.name);
+    card.favorite.textContent = game.favorite ? "★" : "☆";
+    card.favorite.classList.toggle("is-favorite", Boolean(game.favorite));
+    card.favorite.setAttribute("aria-label", t(game.favorite ? "unfavorite" : "favorite") + " · " + game.name);
+    card.favorite.setAttribute("aria-pressed", String(Boolean(game.favorite)));
+    updateArt(card, game);
     card.status.textContent = String(game.status_label || game.status || "").toUpperCase(); card.status.dataset.status = game.status;
     card.session.textContent = t("session"); card.activityText.textContent = t(game.running ? "playing" : game.pending ? "paused" : "ready");
     card.startText.textContent = t(game.running ? "playing" : game.pending ? "resume" : "start");
@@ -222,41 +355,67 @@
     const blocked = !model.connected || model.mutating || model.disconnecting || Boolean(model.state && model.state.pending_recovery);
     card.start.disabled = blocked || card.game.running;
     card.pause.disabled = blocked || !card.game.running;
-    card.finish.disabled = blocked || !card.game.pending;
+    card.finish.disabled = blocked || !card.game.pending; card.favorite.disabled = blocked;
   }
   function updateControls() {
     cards.forEach(updateCardControls);
     const blocked = !model.connected || model.mutating || model.disconnecting || Boolean(model.state && model.state.pending_recovery);
     $("add-button").disabled = blocked; $("add-confirm").disabled = blocked; $("finish-confirm").disabled = blocked;
     $("disconnect").disabled = model.mutating || model.disconnecting;
+    $("export-library").disabled = blocked; $("remember-confirm").disabled = blocked;
+    $("remember-button").disabled = Boolean(model.remembered) || blocked;
     document.querySelectorAll(".dialog-cancel").forEach(button => { button.disabled = model.mutating; });
   }
   function renderGames() {
     if (!model.state) return;
     const games = model.state.games;
+    trimArt(games);
     const ids = new Set(games.map(game => game.id));
-    for (const [id, card] of cards) if (!ids.has(id)) { card.element.remove(); cards.delete(id); }
+    for (const [id, card] of cards) if (!ids.has(id)) { if (artObserver) artObserver.unobserve(card.element); card.element.remove(); cards.delete(id); }
     const query = normalize($("search").value.trim());
-    const active = [], other = [];
+    const active = [], favorites = [], other = [];
     for (const game of games) {
       let card = cards.get(game.id);
       if (!card) { card = gameCard(game); cards.set(game.id, card); }
       updateCard(card, game);
-      if (game.pending) active.push(card); else other.push(card);
+      if (game.pending) active.push(card); else if (game.favorite) favorites.push(card); else other.push(card);
       card.element.hidden = Boolean(query && !normalize(game.name).includes(query));
     }
-    // Keep keyed nodes in place so polling preserves keyboard focus and scrolling.
-    function place(parent, values) {
-      values.forEach((card, index) => { if (parent.children[index] !== card.element) parent.insertBefore(card.element, parent.children[index] || null); });
+    if (!active.some(card => card.game.id === model.focusGame)) model.focusGame = active.length ? active[0].game.id : "";
+    const focused = model.focus && active.length > 0 && !query;
+    $("control-view").classList.toggle("focus-mode", focused); document.body.classList.toggle("is-focused", focused);
+    $("mode-toolbar").hidden = !active.length;
+    $("focus-toggle").textContent = t(focused ? "show_library" : "focus_mode");
+    $("focus-toggle").setAttribute("aria-pressed", String(focused));
+    $("library-title").textContent = t(focused ? "playing_now" : "library");
+    document.querySelector(".page-heading p").textContent = t(focused ? "focus_intro" : "library_intro");
+    $("add-button").hidden = focused;
+    $("active-heading").textContent = t(focused ? "session" : "in_session");
+    const picker = $("focus-picker");
+    const options = JSON.stringify(active.map(card => [card.game.id, card.game.name]));
+    if (picker.dataset.options !== options) {
+      picker.replaceChildren(...active.map(card => { const option = document.createElement("option"); option.value = card.game.id; option.textContent = card.game.name; return option; }));
+      picker.dataset.options = options;
     }
-    place($("active-games"), active); place($("library-games"), other);
+    picker.value = model.focusGame; picker.hidden = !focused || active.length < 2;
+    for (const card of active) {
+      const selected = focused && card.game.id === model.focusGame;
+      card.element.classList.toggle("focus-game", selected);
+      if (focused) card.element.hidden = !selected;
+    }
+    function place(parent, values) { values.forEach((card, index) => { if (parent.children[index] !== card.element) parent.insertBefore(card.element, parent.children[index] || null); }); }
+    place($("active-games"), active); place($("favorite-games"), favorites); place($("library-games"), other);
     const visibleActive = active.filter(card => !card.element.hidden).length;
+    const visibleFavorite = favorites.filter(card => !card.element.hidden).length;
     const visibleOther = other.filter(card => !card.element.hidden).length;
     $("active-section").hidden = !visibleActive;
-    $("active-count").textContent = String(visibleActive);
-    $("games-heading").textContent = t(active.length ? "other_games" : "all_games");
+    $("active-count").textContent = String(active.length);
+    $("favorite-section").hidden = focused || !visibleFavorite;
+    $("favorite-count").textContent = String(favorites.length);
+    $("library-section").hidden = focused;
+    $("games-heading").textContent = t(active.length || favorites.length ? "other_games" : "all_games");
     $("game-count").textContent = String(other.length);
-    $("empty").hidden = Boolean(visibleActive || visibleOther);
+    $("empty").hidden = focused || Boolean(visibleActive || visibleFavorite || visibleOther);
     $("empty-title").textContent = t(games.length ? "nothing" : "no_games");
     $("empty-description").textContent = t(games.length ? "nothing_hint" : "no_games_hint");
     updateControls();
@@ -266,21 +425,32 @@
     const values = new Uint32Array(4); crypto.getRandomValues(values);
     return Array.from(values, n => n.toString(16).padStart(8, "0")).join("");
   }
-  async function command(action, game, name) {
+  async function command(action, game, name, extra = {}) {
     if (!model.connected || model.mutating || model.disconnecting) return;
     model.mutating = true; model.epoch++; updateControls();
     const commandEpoch = model.epoch;
     $("add-message").textContent = ""; $("finish-message").textContent = "";
-    const body = {request_id: requestId(), action};
+    const body = {request_id: requestId(), action, ...extra};
     if (game) { body.game_id = game.id; body.revision = game.revision; }
     if (name !== undefined) body.name = name;
     let success = false;
     try {
       const result = await api("/api/command", body);
+      if (["stale", "not_found", "invalid", "storage", "busy", "rate_limited"].includes(model.notice)) setNotice("");
       if (result.state && commandEpoch === model.epoch) acceptState(result.state);
       success = true;
-      $("announcement").textContent = t({start: "started", pause: "pause_done", finish: "saved", add: "added"}[action]);
-      if (action === "finish") $("finish-dialog").close();
+      $("announcement").textContent = t({start: "started", pause: "pause_done", finish: "saved", add: "added", favorite: "favorited"}[action]);
+      if (action === "start") { model.focusGame = game.id; if (model.focus) $("search").value = ""; renderGames(); }
+      if (action === "finish") {
+        $("finish-dialog").close();
+        const summary = result.summary;
+        if (summary && typeof summary.game === "string") {
+          const saved = Number(summary.seconds) > 0;
+          for (const [id, key] of [["summary-eyebrow", saved ? "session_saved" : "session_ended"], ["summary-help", saved ? "summary_help" : "summary_empty"], ["summary-duration-label", saved ? "summary_duration" : "summary_zero"]]) { $(id).dataset.text = key; $(id).textContent = t(key); }
+          $("summary-title").textContent = summary.game; $("summary-time").textContent = clock(summary.seconds);
+          $("summary-total").textContent = duration(summary.total_seconds); $("summary-dialog").showModal();
+        }
+      }
       if (action === "add") { $("add-dialog").close(); $("game-name").value = ""; $("search").value = ""; renderGames(); }
     } catch (error) {
       if (error.code === "unauthorized") disconnect("unauthorized");
@@ -307,12 +477,38 @@
     $("finish-dialog").showModal();
   }
 
-  $("pair-form").addEventListener("submit", event => { event.preventDefault(); pair({code: $("pair-code").value.trim()}); });
+  $("pair-form").addEventListener("submit", event => { event.preventDefault(); pair({code: $("pair-code").value.trim(), remember: $("remember-device").checked, device_name: $("device-name").value.trim() || t("device_placeholder")}); });
+  $("remember-device").addEventListener("change", () => { $("device-name-field").hidden = !$("remember-device").checked; });
+  $("focus-toggle").addEventListener("click", () => { model.focus = !$("control-view").classList.contains("focus-mode"); $("search").value = ""; try { localStorage.setItem("horasjogadas-focus", String(model.focus)); } catch (_) {} renderGames(); });
+  $("focus-picker").addEventListener("change", event => { model.focusGame = event.target.value; renderGames(); });
+  $("summary-close").addEventListener("click", () => $("summary-dialog").close());
+  $("shortcut-button").addEventListener("click", () => $("shortcut-dialog").showModal());
+  $("remember-button").addEventListener("click", () => { $("remember-message").textContent = ""; $("remember-dialog").showModal(); $("remember-name").focus(); });
+  $("remember-form").addEventListener("submit", async event => {
+    event.preventDefault(); if (!model.connected || model.mutating) return;
+    $("remember-confirm").disabled = true;
+    try {
+      const result = await api("/api/remember", {device_name: $("remember-name").value.trim() || t("device_placeholder")});
+      if (rememberCredential(result.remember_token)) $("remember-dialog").close();
+      else $("remember-message").textContent = t("remember_failed");
+    } catch (error) { $("remember-message").textContent = errorText(error.code); }
+    finally { updateControls(); }
+  });
+  $("export-library").addEventListener("click", async () => {
+    $("export-library").disabled = true; $("export-message").textContent = "";
+    try {
+      const library = await api("/api/library");
+      const url = URL.createObjectURL(new Blob([JSON.stringify(library, null, 2)], {type: "application/json"}));
+      const link = document.createElement("a"); link.href = url; link.download = "HorasJogadas-biblioteca.json"; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000); $("export-message").textContent = t("export_done");
+    } catch (error) { $("export-message").textContent = errorText(error.code); }
+    finally { updateControls(); }
+  });
   $("pair-code").addEventListener("input", event => { event.target.value = event.target.value.replace(/\D/g, "").slice(0, 6); });
   $("search").addEventListener("input", renderGames);
   $("disconnect").addEventListener("click", async () => {
     if (model.disconnecting || model.mutating) return;
-    model.disconnecting = true; updateControls();
+    model.authEpoch++; model.disconnecting = true; updateControls();
     try { if (model.token) await api("/api/disconnect", {}); } catch (_) {}
     finally { disconnect("disconnected_done"); model.disconnecting = false; updateControls(); }
   });
@@ -326,9 +522,9 @@
     model.connected = false; model.epoch++; updateControls();
     if (!document.hidden && model.token) { connection("connecting"); syncState(); }
   });
-  window.addEventListener("online", () => { if (model.token) syncState(); });
+  window.addEventListener("online", () => { if (model.token) syncState(); else if (model.remembered) resumeRemembered(); });
   window.addEventListener("offline", markOffline);
-  setInterval(() => { if (!document.hidden && model.token && !model.pairing) syncState(); }, 2000);
+  setInterval(() => { if (!document.hidden && !model.pairing) { if (model.token) syncState(); else if (model.remembered && !$("pair-code").value) resumeRemembered(); } }, 2000);
   setInterval(() => { if (!document.hidden && model.connected) cards.forEach(updateClock); }, 250);
 
   (async () => {
@@ -336,5 +532,6 @@
     try { applyInfo(await api("/api/info", undefined, false)); } catch (_) {}
     if (secret) await pair({secret});
     else if (model.token) await syncState();
+    else if (model.remembered) await resumeRemembered();
   })();
 })();

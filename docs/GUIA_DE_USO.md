@@ -33,11 +33,27 @@ Use para contar partidas no PS5 ou em outro console enquanto estiver longe do te
 
 A página usa o tema e o idioma escolhidos no app. Também permite adicionar jogos. Bloquear a tela do celular não pausa o cronômetro: ele roda no PC. Ao retornar ao navegador, a página sincroniza antes de aceitar comandos; comandos com um estado antigo são recusados, sem substituir uma alteração feita no computador. Toques repetidos no mesmo pedido não duplicam sessões.
 
-QR Code e código expiram em cinco minutos. Gere um novo código se necessário; isso desconecta todos os aparelhos pareados. **Desconectar este celular** revoga somente o acesso daquele navegador. As credenciais ficam na memória e o servidor começa desativado em cada abertura do app.
+QR Code e código expiram em cinco minutos. Gere um novo código se necessário; isso desconecta todos os aparelhos pareados, inclusive os lembrados. **Desconectar este celular** revoga somente o acesso daquele navegador. O servidor começa desativado em cada abertura do app.
 
-O controle usa HTTP apenas na rede local. Use uma rede de confiança e não encaminhe portas do roteador. Fechar o app desconecta os aparelhos. Desativar a conexão pelo PC ou perder o Wi-Fi do celular não para a contagem; reconecte para consultar o estado real e encerrar a sessão. Este recurso não permite usar o contador com o PC desligado.
+O painel tem favoritos, imagens que respeitam as preferências do PC e o modo **Jogando agora**, com os controles grandes no início da tela. Ao encerrar, o resumo mostra o tempo salvo e o acumulado do jogo. Em **Atalho na tela inicial**, veja como deixar o endereço do controle à mão.
+
+**Lembrar este aparelho** é opcional e vale por até 30 dias. Use em um celular seu e em uma rede de confiança. Depois de ativar a conexão no computador, o navegador pode reconectar sem digitar outro código. O endereço usa uma porta estável; se o IP do PC mudar, abra o novo endereço e pareie novamente. Em Configurações, **Aparelhos lembrados → Remover acesso** revoga somente o aparelho escolhido. Desativar ou fechar o app não apaga esses aparelhos, mas impede o controle enquanto a conexão estiver desligada. Tokens temporários ficam na memória; o arquivo de aparelhos contém somente hashes, fora das cópias de dados e dos backups.
+
+O controle usa HTTP apenas na rede local. Use uma rede de confiança e não encaminhe portas do roteador. Fechar o app desconecta os aparelhos. Desativar a conexão pelo PC ou perder o Wi-Fi do celular não para a contagem; reconecte para consultar o estado real e encerrar a sessão. Para jogar sem o computador ligado, use o contador independente abaixo.
 
 **Se não abrir:** confira o endereço atual nas Configurações, selecione a interface correta e confirme que o firewall permite o HorasJogadas em redes privadas. Redes de convidados ou com isolamento entre aparelhos podem bloquear a comunicação. Trocar de rede ou mover o PC para outra conexão exige desativar, atualizar as redes e ativar novamente. Não é necessário alterar os dados nem configurar o PS5.
+
+## Jogar com o PC desligado
+
+Em **Configurações → Jogar com o PC desligado → Preparar contador no celular**, escaneie o QR Code do contador independente. Ou abra [o contador do celular](https://joaoppolli.github.io/HorasJogadas/celular/) diretamente. Abra uma vez com internet e espere **Pronto para usar offline**. No Android, use Instalar ou Adicionar à tela inicial; no iPhone, abra no Safari e use Compartilhar → Adicionar à Tela de Início.
+
+Escolha um nome de jogo e inicie. O contador continua ao bloquear a tela, permite pausas e recupera a sessão ao recarregar. Os dados ficam no navegador do celular, independentemente do PC. Duas abas não podem editar a sessão ao mesmo tempo. Se detectar uma mudança grande no relógio, o app pede para conferir o tempo antes de salvar.
+
+Em **Personalizar e preparar**, escolha o tema e idioma, importe uma biblioteca e, se o navegador permitir, peça proteção do armazenamento local. A biblioteca pode ser exportada nas Configurações do PC ou em **Exportar biblioteca** no controle local. Importá-la não apaga jogos nem sessões anteriores do celular.
+
+Depois de encerrar, marque as sessões desejadas e toque em **Exportar selecionadas**. Envie o arquivo JSON para o PC pelo meio que preferir. No app do computador, abra **Configurações → Jogar com o PC desligado → Importar sessões do celular**, confira as datas, durações e jogos de destino e importe somente o que desejar. A prévia não altera registros; cancelar preserva tudo. A importação cria um backup verificado e não duplica sessões que já entraram antes, mesmo que você as tenha editado no PC.
+
+Exportar mantém a cópia no celular. Guarde o arquivo antes de limpar os dados do navegador ou trocar de aparelho. O modo independente não usa conta, nuvem nem envia suas sessões pela internet. A transferência é revisada por arquivo; o controle local e o contador offline não fundem sessões automaticamente.
 
 ## Rolar páginas com o botão central
 

@@ -34,6 +34,9 @@
           <form id="pair-form">
             <label for="pair-code" data-text="pair_code">Código de conexão</label>
             <input id="pair-code" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
+            <label class="check-label"><input id="remember-device" type="checkbox"><span data-text="remember_device">Lembrar este celular</span></label>
+            <div id="device-name-field" hidden><label for="device-name" data-text="device_name">Nome do aparelho</label><input id="device-name" maxlength="80" autocomplete="off" data-placeholder="device_placeholder" placeholder="Meu celular"></div>
+            <p class="remember-help" data-text="remember_help">Opcional, por 30 dias neste navegador. Revogue o acesso nas Configurações do PC.</p>
             <button id="pair-button" class="primary" type="submit" data-text="connect">Conectar</button>
           </form>
           <p id="pair-message" class="form-message" role="status"></p>
@@ -47,18 +50,22 @@
           <button id="add-button" class="primary add-button" type="button"><span aria-hidden="true">+</span><span data-text="add_game">Adicionar jogo</span></button>
         </div>
 
+        <div id="mode-toolbar" class="mode-toolbar" hidden><span class="mode-caption" data-text="sofa_mode">Seu jogo, sem distrações.</span><div class="mode-actions"><select id="focus-picker" aria-label="Escolher sessão" hidden></select><button id="focus-toggle" class="quiet" type="button"></button></div></div>
         <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><button id="retry-button" type="button" class="quiet" data-text="retry" hidden>Tentar novamente</button></div>
+        <div id="search-toolbar" class="search-toolbar"><label class="search-box"><span id="search-icon" aria-hidden="true"></span><input id="search" type="search" autocomplete="off" data-placeholder="search" placeholder="Buscar na biblioteca…"><span class="sr-only" data-text="search">Buscar na biblioteca…</span></label></div>
         <section id="active-section" class="game-section" hidden aria-labelledby="active-heading">
           <div class="section-heading"><h2 id="active-heading" data-text="in_session">Suas sessões</h2><span id="active-count" class="section-count"></span></div>
           <div id="active-games" class="game-grid"></div>
         </section>
 
-        <section class="game-section" aria-labelledby="games-heading">
-          <div class="library-toolbar"><div class="section-heading"><h2 id="games-heading" data-text="all_games">Todos os jogos</h2><span id="game-count" class="section-count"></span></div><label class="search-box"><span id="search-icon" aria-hidden="true"></span><input id="search" type="search" autocomplete="off" data-placeholder="search" placeholder="Buscar na biblioteca…"><span class="sr-only" data-text="search">Buscar na biblioteca…</span></label></div>
+        <section id="favorite-section" class="game-section" hidden aria-labelledby="favorite-heading"><div class="section-heading"><h2 id="favorite-heading" data-text="favorites">Seus favoritos</h2><span id="favorite-count" class="section-count"></span></div><div id="favorite-games" class="game-grid"></div></section>
+        <section id="library-section" class="game-section" aria-labelledby="games-heading">
+          <div class="library-toolbar"><div class="section-heading"><h2 id="games-heading" data-text="all_games">Todos os jogos</h2><span id="game-count" class="section-count"></span></div></div>
           <div id="library-games" class="game-grid"></div>
           <div id="empty" class="empty" hidden><span aria-hidden="true">✦</span><h3 id="empty-title"></h3><p id="empty-description"></p></div>
         </section>
-        <footer class="footer"><span class="footer-note" data-text="saved_on_pc">As sessões são salvas no seu computador.</span><button id="disconnect" class="text-button" type="button" data-text="disconnect">Desconectar este celular</button></footer>
+        <section class="companion-card"><div><span class="eyebrow" data-text="more_freedom">MAIS LIBERDADE</span><h2 data-text="companion_title">Vai jogar com o PC desligado?</h2><p data-text="companion_help">Use o contador offline no celular e transfira suas sessões para o PC quando quiser.</p></div><div class="companion-actions"><a id="companion-link" class="link-button" href="https://joaoppolli.github.io/HorasJogadas/celular/" target="_blank" rel="noopener noreferrer" data-text="open_companion">Abrir contador offline ↗</a><button id="export-library" class="quiet" type="button" data-text="export_library">Levar minha biblioteca</button></div><p id="export-message" class="form-message" role="status"></p></section>
+        <footer class="footer"><span class="footer-note" data-text="saved_on_pc">As sessões são salvas no seu computador.</span><div class="footer-actions"><button id="remember-button" class="text-button" type="button" data-text="remember_device">Lembrar este celular</button><button id="shortcut-button" class="text-button" type="button" data-text="shortcut">Atalho no celular</button><button id="disconnect" class="text-button" type="button" data-text="disconnect">Desconectar este celular</button></div></footer>
       </section>
     </main>
     <footer id="pair-footer" class="pair-footer"><span data-text="local_connection">Conexão local · Seus registros continuam com você</span></footer>
@@ -86,6 +93,9 @@
       <div class="dialog-actions"><button class="dialog-cancel" type="button" data-text="cancel">Cancelar</button><button id="finish-confirm" type="button" class="primary" data-text="finish_save">Encerrar e salvar</button></div>
     </div>
   </dialog>
+  <dialog id="summary-dialog" aria-labelledby="summary-title"><div class="dialog-content summary-content"><div class="summary-mark" aria-hidden="true">✓</div><span id="summary-eyebrow" class="eyebrow" data-text="session_saved">SESSÃO SALVA</span><h2 id="summary-title"></h2><div id="summary-time" class="summary-time"></div><p id="summary-duration-label" data-text="summary_duration">de uma boa partida.</p><div class="summary-total"><span data-text="total_game">Seu tempo neste jogo</span><strong id="summary-total"></strong></div><p id="summary-help" data-text="summary_help">Tudo guardado no histórico do seu PC.</p><button id="summary-close" type="button" class="primary" data-text="done">Pronto</button></div></dialog>
+  <dialog id="remember-dialog" aria-labelledby="remember-title"><form id="remember-form" class="dialog-content"><span class="eyebrow" data-text="easy_return">VOLTAR FICOU MAIS FÁCIL</span><h2 id="remember-title" data-text="remember_device">Lembrar este celular</h2><p data-text="remember_help">Opcional, por 30 dias neste navegador. Revogue o acesso nas Configurações do PC.</p><label for="remember-name" data-text="device_name">Nome do aparelho</label><input id="remember-name" maxlength="80" autocomplete="off" data-placeholder="device_placeholder" placeholder="Meu celular"><p id="remember-message" class="form-message" role="status"></p><div class="dialog-actions"><button class="dialog-cancel" type="button" data-text="cancel">Cancelar</button><button id="remember-confirm" class="primary" type="submit" data-text="remember_save">Lembrar aparelho</button></div></form></dialog>
+  <dialog id="shortcut-dialog" aria-labelledby="shortcut-title"><div class="dialog-content"><span class="eyebrow" data-text="always_close">SEMPRE POR PERTO</span><h2 id="shortcut-title" data-text="shortcut">Atalho no celular</h2><p data-text="shortcut_help">Para este controle local, salve esta página nos favoritos do navegador. Mantenha a mesma rede e ative a conexão no PC para voltar.</p><div class="shortcut-note"><strong data-text="install_companion">Quer um app na tela inicial?</strong><p data-text="install_help">Abra o contador offline. No Android, use Instalar app no menu do navegador. No iPhone, use Compartilhar → Adicionar à Tela de Início.</p></div><a class="link-button companion-link" href="https://joaoppolli.github.io/HorasJogadas/celular/" target="_blank" rel="noopener noreferrer" data-text="open_companion">Abrir contador offline ↗</a><div class="dialog-actions"><button class="dialog-cancel" type="button" data-text="done">Pronto</button></div></div></dialog>
   <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>

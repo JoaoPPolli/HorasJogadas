@@ -210,3 +210,32 @@ TEXTS['en'].update({
     'phone_local_help': 'Use a trusted network. The control can start, pause, finish and add games. Closing the app disconnects devices. If your phone cannot connect, check the network and allow HorasJogadas through the firewall on private networks.',
     'phone_failed': 'Could not open a connection on this network. Refresh networks and try again.',
 })
+
+TEXTS['pt'].update({
+    'phone_remembered': 'Aparelhos lembrados', 'phone_revoke': 'Remover acesso',
+    'phone_device_failed': 'Não foi possível salvar a alteração dos acessos. Confira as permissões da pasta de dados e tente novamente.',
+    'phone_offline_title': 'Jogar com o PC desligado',
+    'phone_offline_intro': 'Prepare o contador no celular uma vez. Depois, registre suas partidas sem depender do computador e transfira as sessões quando voltar.',
+    'phone_companion': 'Preparar contador no celular', 'phone_import': 'Importar sessões do celular',
+    'phone_export_library': 'Exportar biblioteca para o celular',
+    'phone_offline_help': 'As sessões offline ficam no navegador do telefone. Exporte o arquivo de sessões e importe aqui: você confere os jogos e horários antes de salvar. Reimportar o mesmo arquivo não duplica os registros. Guarde uma cópia antes de limpar os dados do navegador.',
+    'phone_companion_scan': 'Escaneie no celular. Abra uma vez com internet e adicione à tela inicial para usar depois, mesmo com o PC desligado.',
+    'phone_copy_link': 'Copiar link', 'phone_open_site': 'Abrir no navegador', 'phone_close': 'Fechar',
+    'phone_install_help': 'Android: menu do navegador → Instalar / Adicionar à tela inicial. iPhone: Safari → Compartilhar → Adicionar à Tela de Início.',
+    'phone_export_failed': 'Não foi possível salvar o arquivo da biblioteca.',
+    'phone_library_exported': 'Biblioteca exportada. Abra o contador offline no celular e escolha Importar biblioteca.',
+})
+TEXTS['en'].update({
+    'phone_remembered': 'Remembered devices', 'phone_revoke': 'Remove access',
+    'phone_device_failed': 'Could not save the access change. Check data folder permissions and try again.',
+    'phone_offline_title': 'Play with your PC off',
+    'phone_offline_intro': 'Set up the phone timer once. Then track sessions without your computer and transfer them when you return.',
+    'phone_companion': 'Set up phone timer', 'phone_import': 'Import phone sessions',
+    'phone_export_library': 'Export library for phone',
+    'phone_offline_help': 'Offline sessions stay in your phone browser. Export the session file and import it here: review the games and times before saving. Importing the same file again does not duplicate records. Keep a copy before clearing browser data.',
+    'phone_companion_scan': 'Scan on your phone. Open once online and add it to your home screen to use later, even with your PC off.',
+    'phone_copy_link': 'Copy link', 'phone_open_site': 'Open in browser', 'phone_close': 'Close',
+    'phone_install_help': 'Android: browser menu → Install / Add to Home screen. iPhone: Safari → Share → Add to Home Screen.',
+    'phone_export_failed': 'Could not save the library file.',
+    'phone_library_exported': 'Library exported. Open the offline timer on your phone and choose Import library.',
+})

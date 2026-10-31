@@ -19,12 +19,16 @@ const screenshots = option("--screenshots", "");
 const result = {ok: false};
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const check = (condition, message) => { if (!condition) throw new Error(message); };
+async function showLibrary(page) {
+  if (!await page.locator("#library-section").isVisible()) await page.locator("#focus-toggle").click();
+  await page.locator("#library-section").waitFor({state: "visible"});
+}
 function control(value) { const name = controlFile + ".tmp"; fs.writeFileSync(name, JSON.stringify({...value, nonce: Math.random()})); fs.renameSync(name, controlFile); }
 function connection() { return JSON.parse(fs.readFileSync(connectionFile)); }
 
 (async () => {
   let browser, fixture;
-  const errors = [], violations = [];
+  const errors = [], violations = [], artworkRequests = [];
   let fixtureErrors = "";
   try {
     fixture = spawn(option("--python", process.env.PYTHON || "python"), [path.join(__dirname, "phone_browser_fixture.py"), "--output", connectionFile, "--control", controlFile], {cwd: root, env: {...process.env, QT_QPA_PLATFORM: "offscreen"}, stdio: ["ignore", "ignore", "pipe"]});
@@ -51,6 +55,7 @@ function connection() { return JSON.parse(fs.readFileSync(connectionFile)); }
     const context = await browser.newContext({viewport: {width: 390, height: 844}, isMobile: true});
     const page = await context.newPage();
     page.on("pageerror", error => errors.push(error.message));
+    page.on("request", request => { if (request.url().includes("/api/art/")) artworkRequests.push({url: request.url(), authorization: request.headers().authorization}); });
     page.on("dialog", async dialog => { errors.push("Unexpected JavaScript dialog"); await dialog.dismiss(); });
     await page.exposeFunction("reportCSP", value => violations.push(value));
     await page.addInitScript(() => document.addEventListener("securitypolicyviolation", event => window.reportCSP(event.violatedDirective)));
@@ -61,6 +66,8 @@ function connection() { return JSON.parse(fs.readFileSync(connectionFile)); }
     await page.locator("#pair-button").click();
     await page.waitForFunction(() => document.querySelector("#pair-message").textContent.includes("Código não reconhecido"));
     result.wrong_code_message = true;
+    await page.locator("#remember-device").check();
+    await page.locator("#device-name").fill("Sala — celular de teste");
     await page.locator("#pair-code").fill(initial.code);
     await page.locator("#pair-button").click();
     await page.locator("#control-view").waitFor({state: "visible"});
@@ -69,12 +76,69 @@ function connection() { return JSON.parse(fs.readFileSync(connectionFile)); }
     await page.reload();
     await page.locator("#control-view").waitFor({state: "visible"});
     result.reload_session = true;
+    check(Boolean(await page.evaluate(() => localStorage.getItem("horasjogadas-remembered"))), "Remembered-device choice was not persisted");
+    await page.evaluate(() => sessionStorage.removeItem("horasjogadas-remote"));
+    await page.reload();
+    await page.locator("#control-view").waitFor({state: "visible"});
+    result.remembered_resume = true;
+    control({restart: true});
+    await wait(350);
+    await page.evaluate(() => sessionStorage.removeItem("horasjogadas-remote"));
+    await page.reload();
+    await page.locator("#control-view").waitFor({state: "visible"});
+    result.remembered_server_restart = true;
+
+    await page.locator("#shortcut-button").click();
+    await page.locator("#shortcut-dialog").waitFor({state: "visible"});
+    const offlineLink = await page.locator("#shortcut-dialog a[href*='/celular/']").getAttribute("href");
+    check(offlineLink.startsWith("https://"), "Offline companion link must use HTTPS");
+    await page.locator("#shortcut-dialog .dialog-cancel").click();
+    result.shortcut_guidance = true;
 
     const game = page.locator(".game-card").filter({has: page.getByRole("heading", {name: "Hollow Knight", exact: true})});
+    await game.locator(".favorite-button").click();
+    await page.waitForFunction(() => document.querySelector("#favorite-games .favorite-button[aria-pressed='true']"));
+    check(await page.locator("#favorite-section").isVisible(), "Favorite section did not appear");
+    await page.reload();
+    await page.locator("#favorite-section").waitFor({state: "visible"});
+    result.favorites_persisted = true;
     await game.locator(".start-button").click();
     await page.waitForFunction(() => document.querySelector("#active-games .game-card.running"));
+    await page.waitForFunction(() => document.querySelector("#active-games .game-card.focus-game"));
+    check(!await page.locator("#library-section").isVisible(), "Playing-now mode should focus on active sessions");
+    result.playing_now_focus = true;
+    control({covers_enabled: true, icons_enabled: true});
+    await page.waitForFunction(() => {
+      const card = document.querySelector("#active-games .game-card");
+      const cover = card && card.querySelector("img.card-cover"), avatar = card && card.querySelector(".avatar img");
+      return cover && avatar && cover.complete && cover.naturalWidth > 0 && avatar.complete && avatar.naturalWidth > 0;
+    });
+    check(artworkRequests.length >= 2, "Artwork was not loaded from the authenticated server");
+    check(artworkRequests.every(request => /^Bearer /.test(request.authorization || "") && !/[?&](?:token|authorization)=/i.test(request.url)), "Artwork credentials were leaked into URLs or omitted");
+    const loadedCount = artworkRequests.length;
+    await wait(2200);
+    check(artworkRequests.length === loadedCount, "Polling unnecessarily downloaded artwork again");
+    result.authenticated_artwork = true;
+    for (const width of [320, 390, 1040]) {
+      for (const height of width <= 390 ? [740, 844] : [844]) {
+        await page.setViewportSize({width, height});
+        await page.evaluate(() => scrollTo(0, 0));
+        check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Playing-now horizontal overflow at " + width);
+        const bounds = await game.getByRole("button", {name: "Pausar · Hollow Knight", exact: true}).boundingBox();
+        check(bounds && bounds.y + bounds.height <= height, "Playing-now pause control is below the first screen at " + width + "x" + height);
+      }
+    }
+    await page.setViewportSize({width: 390, height: 844});
+    result.focus_controls_in_first_screen = true;
+    if (screenshots) await page.screenshot({path: path.join(screenshots, "HorasJogadas-phone-focus.png")});
+    control({covers_enabled: false, icons_enabled: false});
+    await page.waitForFunction(() => {
+      const card = document.querySelector("#active-games .game-card");
+      return card && !Array.from(card.querySelectorAll(".cover-frame, .avatar img")).some(el => !el.hidden && el.getClientRects().length);
+    });
+    result.artwork_preferences = true;
     await wait(1150);
-    await game.locator(".icon-button").first().click();
+    await game.getByRole("button", {name: "Pausar · Hollow Knight", exact: true}).click();
     await page.waitForFunction(() => document.querySelector("#active-games .game-card.paused"));
     await game.locator(".start-button").click();
     await page.waitForFunction(() => document.querySelector("#active-games .game-card.running"));
@@ -97,6 +161,13 @@ function connection() { return JSON.parse(fs.readFileSync(connectionFile)); }
     await page.locator("#finish-dialog").waitFor({state: "hidden"});
     await page.waitForFunction(() => !document.querySelector("#active-games .game-card.running"));
     result.finish = true;
+    await page.locator("#summary-dialog").waitFor({state: "visible"});
+    check((await page.locator("#summary-dialog").textContent()).includes("Hollow Knight"), "Saved-session summary is missing game name");
+    if (screenshots) await page.screenshot({path: path.join(screenshots, "HorasJogadas-phone-summary.png")});
+    await page.locator("#summary-close").click();
+    result.saved_summary = true;
+    await showLibrary(page);
+    if (screenshots) await page.screenshot({path: path.join(screenshots, "HorasJogadas-phone-favorites.png")});
 
     await page.locator("#add-button").click();
     const hostileName = "PS5 <img src=x onerror=alert(1)>";
@@ -145,14 +216,61 @@ function connection() { return JSON.parse(fs.readFileSync(connectionFile)); }
     result.themes_and_responsive = true;
     check(await page.locator("#library-title").textContent() === "Library", "English translation missing");
     result.english = true;
+    const [libraryDownload] = await Promise.all([page.waitForEvent("download"), page.locator("#export-library").click()]);
+    const libraryFile = await libraryDownload.path();
+    const library = JSON.parse(fs.readFileSync(libraryFile, "utf8"));
+    check(library.format === "HorasJogadas-Library" && library.version === 1 && Array.isArray(library.games), "Library export format is invalid");
+    check(library.games.some(item => item.name === "Hollow Knight" && typeof item.id === "string"), "Library export omitted games or IDs");
+    check(!Object.keys(library).some(key => /token|secret|credential/i.test(key)), "Library export contains credentials");
+    result.library_transfer = true;
 
+    const oldRemember = await page.evaluate(() => localStorage.getItem("horasjogadas-remembered"));
+    check(/^[A-Za-z0-9_-]{40,}$/.test(oldRemember || ""), "Remembered credential has unexpected storage shape");
     const oldToken = await page.evaluate(() => sessionStorage.getItem("horasjogadas-remote"));
     await page.locator("#disconnect").click();
     await page.locator("#pair-view").waitFor({state: "visible"});
     check(!await page.evaluate(() => sessionStorage.getItem("horasjogadas-remote")), "Local session remained after disconnect");
     const revoked = await context.request.get(initial.url + "/api/state", {headers: {Authorization: "Bearer " + oldToken}});
     check(revoked.status() === 401, "Disconnected session was not revoked on PC");
+    check(!await page.evaluate(() => localStorage.getItem("horasjogadas-remembered")), "Remembered credential remained after disconnect");
+    const rememberedRevoked = await context.request.post(initial.url + "/api/resume", {headers: {Origin: initial.url, "Content-Type": "application/json"}, data: {remember_token: oldRemember}});
+    check(rememberedRevoked.status() === 401, "Disconnect did not revoke remembered device credential");
     result.disconnect_revoked = true;
+
+    // A delayed auto-resume must not undo a deliberate disconnect.
+    const raceContext = await browser.newContext({viewport: {width: 390, height: 844}, isMobile: true});
+    const racePage = await raceContext.newPage();
+    racePage.on("pageerror", error => errors.push(error.message));
+    await racePage.goto(initial.url);
+    await racePage.locator("#remember-device").check();
+    await racePage.locator("#device-name").fill("Teste de desconexão");
+    await racePage.locator("#pair-code").fill(connection().code);
+    await racePage.locator("#pair-button").click();
+    await racePage.locator("#control-view").waitFor({state: "visible"});
+    let releaseResume, resumeSeen;
+    const resumeStarted = new Promise(resolve => { resumeSeen = resolve; });
+    const holdResume = new Promise(resolve => { releaseResume = resolve; });
+    await racePage.route("**/api/resume", async route => {
+      const pending = await route.fetch();
+      resumeSeen(pending.status());
+      await holdResume;
+      await route.fulfill({response: pending});
+    });
+    try {
+      control({restart: true});
+      const resumeStatus = await Promise.race([resumeStarted, wait(7000).then(() => { throw new Error("Remembered auto-resume did not begin after server restart"); })]);
+      check(resumeStatus === 200, "Delayed resume fixture did not produce an authorized response");
+      await racePage.locator("#disconnect").click();
+      await racePage.locator("#pair-view").waitFor({state: "visible"});
+      releaseResume();
+      await wait(2300);
+      check(await racePage.locator("#pair-view").isVisible() && !await racePage.locator("#control-view").isVisible(), "A late auto-resume response reauthenticated after explicit disconnect");
+      check(!await racePage.evaluate(() => sessionStorage.getItem("horasjogadas-remote") || localStorage.getItem("horasjogadas-remembered")), "A late auto-resume restored credentials after disconnect");
+      result.disconnect_cancels_pending_resume = true;
+    } finally {
+      releaseResume();
+      await raceContext.close();
+    }
     const qrContext = await browser.newContext({viewport: {width: 390, height: 844}, isMobile: true});
     const qrPage = await qrContext.newPage();
     qrPage.on("pageerror", error => errors.push(error.message));
@@ -160,6 +278,8 @@ function connection() { return JSON.parse(fs.readFileSync(connectionFile)); }
     await qrPage.locator("#control-view").waitFor({state: "visible"});
     check(!new URL(qrPage.url()).hash, "Pairing fragment remained in address bar");
     result.qr_pair_and_fragment_scrub = true;
+    check(!await qrPage.evaluate(() => localStorage.getItem("horasjogadas-remembered")), "QR pairing unexpectedly remembered the phone without opt-in");
+    result.remember_opt_in = true;
     check(errors.length === 0, "Browser errors: " + errors.join(", "));
     check(violations.length === 0, "CSP violations: " + violations.join(", "));
     result.csp = true;

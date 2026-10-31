@@ -29,7 +29,8 @@ def main():
     parser.add_argument('--port', type=int, default=0)
     args = parser.parse_args()
     os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
-    from PySide6.QtCore import QTimer
+    from PySide6.QtCore import QTimer, QBuffer, QIODevice
+    from PySide6.QtGui import QImage, QColor, QPainter
     from PySide6.QtWidgets import QApplication
     from app_qt import seed_demo
     from horas_jogadas import i18n
@@ -38,6 +39,7 @@ def main():
     from horas_jogadas_qt.desktop import configure_application
     from horas_jogadas_qt.theme import apply_theme
     from horas_jogadas_qt.window import Window
+    from horas_jogadas_qt.covers import CoverStore, normalize_image
 
     app = QApplication([])
     configure_application(app)
@@ -45,9 +47,21 @@ def main():
         folder = Path(temporary)
         seed_demo(folder)
         preferences.save(folder, theme='original', check_updates=False)
+        # Imagens inteiramente sintéticas: nenhuma arte de jogo acompanha o teste.
+        sample = QImage(460, 215, QImage.Format_RGB32)
+        sample.fill(QColor('#383052'))
+        painter = QPainter(sample)
+        painter.fillRect(0, 145, 460, 70, QColor('#705ee8'))
+        painter.fillRect(285, 0, 175, 145, QColor('#49596e'))
+        painter.end()
+        data = QBuffer(); data.open(QIODevice.WriteOnly); sample.save(data, 'PNG')
+        controller = Controller(folder)
+        game = next(item for item in controller.repo.jogos if item.nome == 'Hollow Knight')
+        CoverStore(folder).save_many([(game.id, normalize_image(bytes(data.data())), {'source': 'browser-test'})])
+        CoverStore(folder, 'icon').save_many([(game.id, normalize_image(bytes(data.data()), 'icon'), {'source': 'browser-test'})])
         i18n.definir_idioma('pt')
         apply_theme(app, 'original')
-        window = Window(Controller(folder), mode='review')
+        window = Window(controller, mode='review')
         window.show()
         window.navigate('settings')
         server = window.phone_control.server
@@ -72,8 +86,15 @@ def main():
                 last = raw
                 if 'theme' in data:
                     window.save_settings(data['theme'], data.get('language', 'pt'))
+                if 'covers_enabled' in data or 'icons_enabled' in data:
+                    preferences.save(folder, **{key: data[key] for key in ('covers_enabled', 'icons_enabled') if key in data})
+                    window.refresh()
                 if data.get('renew'):
                     server.regenerate_pairing()
+                if data.get('restart'):
+                    port = server.server.serverPort()
+                    server.stop()
+                    server.start('127.0.0.1', port)
                 if data.get('invalidate'):
                     window.phone_control.invalidate()
                 if data.get('stop'):

@@ -27,7 +27,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.4.0.
+2. Instale ou extraia a versão 3.5.0.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -54,11 +54,19 @@ As partidas feitas na **cópia para revisão** continuam separadas: elas não s�
 
 Em **Configurações → Controle pelo celular**, selecione a rede do PC e clique em **Ativar controle pelo celular**. Escaneie o QR Code com a câmera do telefone. Como alternativa, abra o endereço mostrado e digite o código de seis dígitos; QR Code e código expiram em cinco minutos. Não precisa instalar um app no celular.
 
-O painel segue o tema e o idioma do computador. Permite buscar e adicionar jogos, iniciar, pausar, retomar e encerrar sessões. Os comandos usam os mesmos cronômetros e o histórico do PC; bloquear o telefone não interrompe a contagem. Uma sessão só entra no histórico quando você a encerra.
+O painel segue o tema e o idioma do computador. O modo **Jogando agora** destaca o contador com botões grandes; favoritos deixam os jogos preferidos por perto. Capas e ícones já importados aparecem quando as respectivas opções estão ativadas no PC. Permite buscar e adicionar jogos, iniciar, pausar, retomar e encerrar sessões, mostrando um resumo ao salvar. Os comandos usam os mesmos cronômetros e o histórico do PC; bloquear o telefone não interrompe a contagem.
 
 O PC precisa permanecer **ligado, acordado e com o app aberto**, na mesma rede do celular. Use uma rede de confiança: o controle usa HTTP local, sem servidor na nuvem nem abertura de portas no roteador. Se houver várias interfaces de rede, escolha a do Wi-Fi ou cabo que conecta o PC ao celular. Confira o firewall em redes privadas se a página não abrir.
 
-A conexão começa **desativada** a cada abertura do app. Desativá-la não para os cronômetros; **Novo código e desconectar aparelhos** revoga os acessos atuais. Fechar o aplicativo também encerra a conexão. O pareamento não vai para arquivos, backups ou logs. [Guia e solução de problemas](docs/GUIA_DE_USO.md#controle-pelo-celular).
+A conexão começa **desativada** a cada abertura do app. A opção **Lembrar este aparelho**, por até 30 dias, facilita a reconexão depois de ativar o controle no PC. O endereço usa uma porta estável; se o IP da rede mudar, escaneie novamente. Nas Configurações, remova acessos individualmente; **Novo código e desconectar aparelhos** revoga todos, inclusive os lembrados. Desativar a conexão não para os cronômetros. As credenciais temporárias ficam na memória; dos aparelhos lembrados, o PC guarda apenas hashes, fora dos backups e cópias de revisão. [Guia e solução de problemas](docs/GUIA_DE_USO.md#controle-pelo-celular).
+
+### Com o PC desligado
+
+Abra o [contador do celular](https://joaoppolli.github.io/HorasJogadas/celular/) uma vez com internet e adicione à tela inicial. Ele funciona offline, guarda a sessão ao bloquear ou recarregar o navegador e permite pausar, retomar, marcar favoritos e escolher a aparência. Este contador é independente do controle do PC.
+
+Depois de jogar, **exporte as sessões** no celular e transfira o arquivo para o computador. Em **Configurações → Jogar com o PC desligado → Importar sessões do celular**, confira os horários e escolha os jogos de destino. A importação cria backup, preserva as sessões existentes e ignora registros já importados. Exportar não apaga a cópia do celular.
+
+Você também pode exportar a biblioteca no PC ou no controle local e importá-la no contador offline para escolher seus jogos. Não é preciso conta nem nuvem. **Exporte uma cópia antes de limpar dados do navegador**, pois os registros offline ficam naquele aparelho.
 
 ## Capas opcionais
 

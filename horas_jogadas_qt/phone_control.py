@@ -4,10 +4,10 @@ import ipaddress
 import json
 import secrets
 
-from PySide6.QtCore import QObject, QTimer, Qt, QRectF
-from PySide6.QtGui import QColor, QPainter, QPixmap
+from PySide6.QtCore import QObject, QTimer, Qt, QRectF, QUrl
+from PySide6.QtGui import QColor, QPainter, QPixmap, QDesktopServices
 from PySide6.QtNetwork import QAbstractSocket, QNetworkInterface
-from PySide6.QtWidgets import QApplication, QFrame, QVBoxLayout, QHBoxLayout, QComboBox, QLineEdit
+from PySide6.QtWidgets import QApplication, QFrame, QVBoxLayout, QHBoxLayout, QComboBox, QLineEdit, QDialog
 
 from horas_jogadas import i18n
 from horas_jogadas.i18n import t_status
@@ -16,6 +16,11 @@ from .release import VERSION
 from .theme import PALETTES
 from .texts import tr
 from .widgets import label, button, row
+from . import preferences
+from .trusted_devices import TrustStore
+
+COMPANION_URL = 'https://joaoppolli.github.io/HorasJogadas/celular/'
+PHONE_PORT = 48967
 
 
 def local_addresses():
@@ -60,7 +65,9 @@ class PhoneControl(QObject):
         self.window = window
         self.serial = 0
         self.nonce = secrets.token_hex(16)
-        self.server = RemoteServer(self.snapshot, self.command, self)
+        self.trust_store = TrustStore(window.c.folder)
+        self.server = RemoteServer(self.snapshot, self.command, self,
+                                   trust_store=self.trust_store, media=self.media, library=self.library)
 
     def invalidate(self):
         self.serial += 1
@@ -77,17 +84,50 @@ class PhoneControl(QObject):
         palette = dict(zip(('bg', 'side', 'card', 'border', 'text', 'muted', 'accent', 'on_accent'),
                            PALETTES.get(theme, PALETTES['dark'])))
         totals = w.c.repo.totais_por_jogo_id()
+        prefs = preferences.read(w.c.folder)
+        favorites = prefs.get('phone_favorites', [])
+        favorites = set(value for value in favorites if isinstance(value, str)) if isinstance(favorites, list) else set()
+        covers, icons = bool(prefs.get('covers_enabled', False)), bool(prefs.get('icons_enabled', True))
+        from .covers import CoverStore
+        stores = {'cover': CoverStore(w.c.folder), 'icon': CoverStore(w.c.folder, 'icon')}
         games = []
         for game in w.c.repo.jogos:
             timer = w.c.timers[game.id]
             seconds = timer.seconds()
+            art = {}
+            for kind, enabled in (('cover', covers), ('icon', icons)):
+                path = stores[kind].path(game.id) if enabled else None
+                art[kind] = f'/api/art/{kind}/{game.id}?v={path.stem}' if path else None
             games.append(dict(id=game.id, name=game.nome, status=game.status, status_label=t_status(game.status),
                               total_seconds=totals.get(game.id, 0) + seconds, seconds=seconds,
                               running=timer.rodando, paused=timer.pausado, pending=timer.pending,
-                              revision=self.revision(game, timer)))
+                              revision=self.revision(game, timer), favorite=game.id in favorites, art=art))
         return dict(theme=theme, language=i18n.idioma_atual(), palette=palette, version=VERSION,
                     games=games, active_count=sum(g['running'] for g in games),
-                    pending_recovery=w.pending_recovery)
+                    pending_recovery=w.pending_recovery, covers_enabled=covers, icons_enabled=icons,
+                    companion_url=COMPANION_URL)
+
+    def media(self, game_id, kind):
+        from .backup import safe_path
+        from .covers import CoverStore
+        w = self.window
+        prefs = preferences.read(w.c.folder)
+        enabled = prefs.get('covers_enabled', False) if kind == 'cover' else prefs.get('icons_enabled', True)
+        if kind not in ('cover', 'icon') or not enabled or game_id not in w.c.timers:
+            raise RemoteError(404, 'not_found')
+        path = CoverStore(w.c.folder, kind).path(game_id)
+        if path is None or not safe_path(w.c.folder, path):
+            raise RemoteError(404, 'not_found')
+        with path.open('rb') as stream:
+            data = stream.read(10 * 1024 * 1024 + 1)
+        signature = b'\x89PNG\r\n\x1a\n' if kind == 'icon' else b'\xff\xd8\xff'
+        if len(data) > 10 * 1024 * 1024 or not data.startswith(signature) or hashlib.sha256(data).hexdigest() != path.stem:
+            raise RemoteError(404, 'not_found')
+        return data, 'image/png' if kind == 'icon' else 'image/jpeg'
+
+    def library(self):
+        from .phone_import import export_library
+        return json.loads(export_library(self.window.c, self.window.theme_name(), i18n.idioma_atual()))
 
     def command(self, body):
         w = self.window
@@ -95,10 +135,10 @@ class PhoneControl(QObject):
             raise RemoteError(409, 'recovery')
         if QApplication.activeModalWidget() is not None:
             raise RemoteError(409, 'busy')
-        if not isinstance(body, dict) or set(body) - {'request_id', 'action', 'game_id', 'revision', 'name'}:
+        if not isinstance(body, dict) or set(body) - {'request_id', 'action', 'game_id', 'revision', 'name', 'enabled'}:
             raise RemoteError(400, 'invalid')
         action = body.get('action')
-        if action not in ('start', 'pause', 'finish', 'add'):
+        if action not in ('start', 'pause', 'finish', 'add', 'favorite'):
             raise RemoteError(400, 'invalid')
         if action == 'add':
             name = body.get('name')
@@ -114,7 +154,20 @@ class PhoneControl(QObject):
                 raise RemoteError(409, 'conflict')
             if action == 'pause' and not timer.rodando or action == 'finish' and not timer.pending:
                 raise RemoteError(409, 'conflict')
-            callback = (lambda: w.c.finish(key)) if action == 'finish' else getattr(timer, action)
+            if action == 'favorite':
+                if not isinstance(body.get('enabled'), bool):
+                    raise RemoteError(400, 'invalid')
+                def callback():
+                    favorites = preferences.read(w.c.folder).get('phone_favorites', [])
+                    favorites = {value for value in favorites if isinstance(value, str) and value in w.c.timers} if isinstance(favorites, list) else set()
+                    if body['enabled']:
+                        favorites.add(key)
+                    else:
+                        favorites.discard(key)
+                    preferences.save(w.c.folder, phone_favorites=sorted(favorites))
+            else:
+                callback = (lambda: w.c.finish(key)) if action == 'finish' else getattr(timer, action)
+        before_sessions = {s.sessao_id for s in w.c.repo.sessoes} if action == 'finish' else set()
         try:
             with w.c.transaction():
                 callback()
@@ -138,7 +191,12 @@ class PhoneControl(QObject):
             # falha e levar o celular a enviar uma segunda adição de jogo.
             import logging
             logging.getLogger('horas_jogadas').exception('Falha ao atualizar a interface após comando do celular')
-        return {'ok': True, 'state': self.snapshot()}
+        result = {'ok': True, 'state': self.snapshot()}
+        if action == 'finish':
+            saved = next((s for s in reversed(w.c.repo.sessoes) if s.sessao_id not in before_sessions), None)
+            result['summary'] = dict(game=game.nome, seconds=saved.segundos if saved else 0,
+                                     total_seconds=w.c.repo.totais_por_jogo_id().get(key, 0))
+        return result
 
 
 class PhoneControlCard(QFrame):
@@ -180,6 +238,9 @@ class PhoneControlCard(QFrame):
         self.renew_button = button(tr('phone_renew'), self.renew)
         self.stop_button = button(tr('phone_disable'), self.server.stop, 'danger')
         self.actions = row(self.renew_button, self.stop_button, None); box.addWidget(self.actions)
+        self.devices = QFrame(); self.devices_box = QVBoxLayout(self.devices)
+        self.devices_box.setContentsMargins(0, 0, 0, 0); self.devices_box.setSpacing(8)
+        box.addWidget(self.devices); self.last_devices = None
         box.addWidget(label(tr('phone_local_help'), 'muted', True))
         self.error = label('', 'muted', True); box.addWidget(self.error)
         self.server.changed.connect(self.update_status)
@@ -199,13 +260,25 @@ class PhoneControlCard(QFrame):
     def enable(self):
         self.error.clear()
         try:
-            self.server.start(self.network.currentData())
+            self.server.start(self.network.currentData(), PHONE_PORT)
         except (OSError, ValueError, RuntimeError):
             self.error.setText(tr('phone_failed'))
         self.update_status()
 
     def renew(self):
-        self.server.regenerate_pairing()
+        try:
+            self.server.regenerate_pairing()
+            self.error.clear()
+        except (OSError, ValueError):
+            self.error.setText(tr('phone_device_failed'))
+        self.update_status()
+
+    def revoke_device(self, device_id):
+        try:
+            self.server.revoke_device(device_id)
+            self.error.clear()
+        except (OSError, ValueError):
+            self.error.setText(tr('phone_device_failed'))
         self.update_status()
 
     def copy_address(self):
@@ -219,6 +292,21 @@ class PhoneControlCard(QFrame):
         self.start_button.setEnabled(self.network.count() > 0)
         self.help.setText(tr('phone_connected_help') if enabled else tr('phone_disabled_help') if self.network.count() else tr('phone_no_network'))
         self.details.setVisible(enabled); self.actions.setVisible(enabled); self.clients.setVisible(enabled)
+        devices = self.server.remembered_devices
+        signature = [(d.get('id'), d.get('label'), d.get('expires_at')) for d in devices]
+        if signature != self.last_devices:
+            while self.devices_box.count():
+                child = self.devices_box.takeAt(0).widget()
+                if child:
+                    child.deleteLater()
+            if devices:
+                self.devices_box.addWidget(label(tr('phone_remembered'), 'gameName'))
+                for device in devices:
+                    revoke = button(tr('phone_revoke'), lambda checked=False, key=device['id']: self.revoke_device(key))
+                    revoke.setObjectName('phoneRevokeDevice')
+                    self.devices_box.addWidget(row(label(device['label'], '', True), None, revoke))
+            self.last_devices = signature
+        self.devices.setVisible(bool(devices))
         if enabled:
             self.url.setText(self.server.url)
             seconds = self.server.pairing_seconds
@@ -229,3 +317,34 @@ class PhoneControlCard(QFrame):
             if qr != self.last_qr:
                 self.qr.setPixmap(qr_pixmap(qr) if qr else QPixmap())
                 self.last_qr = qr
+
+
+class PhoneOfflineCard(QFrame):
+    def __init__(self, window):
+        super().__init__()
+        self.setObjectName('phoneControlCard')
+        box = QVBoxLayout(self); box.setContentsMargins(22, 20, 22, 20); box.setSpacing(14)
+        box.addWidget(label(tr('phone_offline_title'), 'gameName'))
+        box.addWidget(label(tr('phone_offline_intro'), 'muted', True))
+        companion = button(tr('phone_companion'), self.open_companion, 'primary')
+        companion.setObjectName('phoneCompanion'); box.addWidget(companion)
+        import_button = button(tr('phone_import'), window.phone_import_sessions)
+        import_button.setObjectName('phoneImport')
+        export_button = button(tr('phone_export_library'), window.phone_export_library)
+        export_button.setObjectName('phoneExportLibrary')
+        box.addWidget(row(import_button, export_button))
+        box.addWidget(label(tr('phone_offline_help'), 'muted', True))
+
+    def open_companion(self):
+        dialog = QDialog(self); dialog.setWindowTitle(tr('phone_offline_title'))
+        dialog.setMinimumWidth(360)
+        box = QVBoxLayout(dialog); box.setContentsMargins(24, 24, 24, 24); box.setSpacing(14)
+        box.addWidget(label(tr('phone_companion_scan'), '', True))
+        qr = label(''); qr.setPixmap(qr_pixmap(COMPANION_URL, 220)); qr.setAlignment(Qt.AlignCenter)
+        box.addWidget(qr)
+        address = QLineEdit(COMPANION_URL); address.setReadOnly(True); box.addWidget(address)
+        box.addWidget(button(tr('phone_copy_link'), lambda: QApplication.clipboard().setText(COMPANION_URL)))
+        box.addWidget(button(tr('phone_open_site'), lambda: QDesktopServices.openUrl(QUrl(COMPANION_URL))))
+        box.addWidget(label(tr('phone_install_help'), 'muted', True))
+        box.addWidget(button(tr('phone_close'), dialog.accept))
+        dialog.exec(); dialog.deleteLater()

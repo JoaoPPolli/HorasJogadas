@@ -14,6 +14,9 @@ class SiteTests(unittest.TestCase):
             for name in ('HorasJogadas-Windows-Setup.exe','HorasJogadas-Windows-Portable.zip','HorasJogadas-Linux-x86_64.tar.gz','SHA256SUMS.txt'):
                 self.assertIn('https://github.com/JoaoPPolli/HorasJogadas/releases/latest/download/'+name,html)
             self.assertTrue((output/'assets'/'library.png').exists())
+            self.assertIn('celular/',html)
+            for name in ('index.html','app.js','app.css','sw.js','manifest.webmanifest','icon-192.png','icon-512.png'):
+                self.assertTrue((output/'celular'/name).is_file(),name)
             history=(output/'changelog'/'index.html').read_text(encoding='utf-8')
             import re
             root=Path(__file__).resolve().parent.parent
