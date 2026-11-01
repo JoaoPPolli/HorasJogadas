@@ -2,6 +2,13 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.5.1
+
+- Corrigida a perda do aparelho lembrado ao reabrir o endereço original de um QR Code expirado: a autorização salva é usada antes de tentar novo pareamento.
+- Sessões temporárias expiradas renovam a conexão sem apagar a autorização duradoura; falhas transitórias ao consultar o estado também preservam o acesso salvo.
+- Comandos interrompidos por autenticação não são repetidos automaticamente. A desconexão explícita e a revogação continuam removendo os acessos.
+- Testes com fechamento e reabertura completa do navegador verificam QR expirado, autorização persistente, recuperação de sessão e revogação.
+
 ## 3.5.0
 
 - Controle pelo celular com modo Jogando agora, botões grandes, favoritos e resumo ao encerrar a sessão.

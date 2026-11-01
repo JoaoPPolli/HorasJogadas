@@ -44,17 +44,19 @@
   };
   Object.assign(copy.pt, {
     remember_device: "Lembrar este celular", device_name: "Nome do aparelho", device_placeholder: "Meu celular", remember_help: "Opcional, por 30 dias neste navegador. Revogue o acesso nas Configurações do PC.", remember_save: "Lembrar aparelho", remembered: "Aparelho lembrado", remember_failed: "O navegador não permitiu salvar o acesso. Você pode continuar usando o código temporário.", easy_return: "VOLTAR FICOU MAIS FÁCIL", remembering: "Reconectando ao seu PC…",
+    reconnect_review: "A conexão precisou ser renovada. Confira o contador e toque novamente para enviar a ação; ela não foi repetida automaticamente.",
     playing_now: "Jogando agora", focus_intro: "Aproveite a partida. Seu tempo está sendo contado.", sofa_mode: "Seu jogo, sem distrações.", show_library: "Ver biblioteca", focus_mode: "Jogando agora", choose_session: "Escolher sessão", favorites: "Seus favoritos", favorite: "Favoritar", unfavorite: "Remover dos favoritos", favorited: "Favoritos atualizados.",
     session_ended: "SESSÃO ENCERRADA", summary_empty: "Nenhum tempo acumulado. Nada foi adicionado ao histórico.", summary_zero: "Pronto para a próxima partida.", session_saved: "SESSÃO SALVA", summary_duration: "de uma boa partida.", total_game: "Seu tempo neste jogo", summary_help: "Tudo guardado no histórico do seu PC.", done: "Pronto", more_freedom: "MAIS LIBERDADE", companion_title: "Vai jogar com o PC desligado?", companion_help: "Use o contador offline no celular e transfira suas sessões para o PC quando quiser.", open_companion: "Abrir contador offline ↗", export_library: "Levar minha biblioteca", export_done: "Biblioteca baixada. No contador offline, escolha Importar biblioteca e selecione esse arquivo.",
     shortcut: "Atalho no celular", always_close: "SEMPRE POR PERTO", shortcut_help: "Para este controle local, salve esta página nos favoritos do navegador. Mantenha a mesma rede e ative a conexão no PC para voltar.", install_companion: "Quer um app na tela inicial?", install_help: "Abra o contador offline. No Android, use Instalar app no menu do navegador. No iPhone, use Compartilhar → Adicionar à Tela de Início."
   });
   Object.assign(copy.en, {
     remember_device: "Remember this phone", device_name: "Device name", device_placeholder: "My phone", remember_help: "Optional, for 30 days in this browser. Revoke access in your PC settings.", remember_save: "Remember device", remembered: "Device remembered", remember_failed: "Your browser could not save access. You can continue using the temporary code.", easy_return: "AN EASIER WAY BACK", remembering: "Reconnecting to your PC…",
+    reconnect_review: "The connection needed renewal. Check the timer and tap again to send the action; it was not retried automatically.",
     playing_now: "Playing now", focus_intro: "Enjoy your game. Your time is being tracked.", sofa_mode: "Your game, without distractions.", show_library: "Show library", focus_mode: "Playing now", choose_session: "Choose session", favorites: "Your favorites", favorite: "Favorite", unfavorite: "Remove favorite", favorited: "Favorites updated.",
     session_ended: "SESSION ENDED", summary_empty: "No time accumulated. Nothing was added to history.", summary_zero: "Ready for your next game.", session_saved: "SESSION SAVED", summary_duration: "of a good game.", total_game: "Your time in this game", summary_help: "All saved in your PC history.", done: "Done", more_freedom: "MORE FREEDOM", companion_title: "Playing with your PC off?", companion_help: "Use the offline timer on your phone and transfer sessions to your PC when you want.", open_companion: "Open offline timer ↗", export_library: "Take my library", export_done: "Library downloaded. In the offline timer, choose Import library and select this file.",
     shortcut: "Phone shortcut", always_close: "ALWAYS CLOSE BY", shortcut_help: "For this local control, bookmark this page in your browser. Stay on the same network and enable the PC connection to return.", install_companion: "Want an app on your home screen?", install_help: "Open the offline timer. On Android, use Install app in the browser menu. On iPhone, use Share → Add to Home Screen."
   });
-  const model = {language: "pt", token: "", state: null, received: 0, connected: false, pairing: false, mutating: false, disconnecting: false, polling: false, epoch: 0, finishGame: null, notice: "", focus: true, focusGame: "", resuming: false, remembered: "", authEpoch: 0};
+  const model = {language: "pt", token: "", state: null, received: 0, connected: false, pairing: false, mutating: false, disconnecting: false, polling: false, epoch: 0, finishGame: null, notice: "", focus: true, focusGame: "", resuming: false, remembered: "", authEpoch: 0, initializing: true};
   const cards = new Map();
   const t = key => (copy[model.language] || copy.pt)[key] || copy.pt[key] || key;
   const storage = {
@@ -77,8 +79,9 @@
   }, {rootMargin: "250px 0px"}) : null;
   const secret = new URLSearchParams(location.hash.slice(1)).get("pair");
   if (location.hash || location.search) history.replaceState(null, "", location.pathname);
-  model.token = secret ? "" : storage.read();
-  if (secret) { storage.write(""); rememberedStorage.write(""); model.remembered = ""; }
+  // Um favorito ou histórico do leitor de QR pode guardar o fragmento original.
+  // O código de cinco minutos não deve apagar a autorização de trinta dias.
+  model.token = storage.read();
 
   function icon(name) {
     const paths = {play: "m7 4 11 8-11 8Z", pause: "M8 5v14M16 5v14", stop: "M6 6h12v12H6Z", search: "m21 21-5.2-5.2M18 10.5a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"};
@@ -194,7 +197,7 @@
     renderGames();
   }
   async function syncState() {
-    if (!model.token || model.polling || model.mutating || model.disconnecting) return;
+    if (!model.token || model.polling || model.resuming || model.mutating || model.disconnecting) return;
     model.polling = true;
     const epoch = model.epoch;
     try {
@@ -202,7 +205,12 @@
       if (epoch === model.epoch) acceptState(result);
     } catch (error) {
       if (epoch !== model.epoch) return;
-      if (error.code === "unauthorized") { if (model.remembered) await resumeRemembered(); else disconnect("unauthorized"); }
+      if (error.code === "unauthorized") {
+        model.token = ""; storage.write("");
+        if (model.remembered) return await resumeRemembered();
+        disconnect("unauthorized");
+        return {rejected: true, authEpoch: model.authEpoch};
+      }
       else markOffline();
     } finally { model.polling = false; }
   }
@@ -215,13 +223,15 @@
     return true;
   }
   async function resumeRemembered() {
-    if (!model.remembered || model.resuming) return;
+    if (!model.remembered || model.resuming || model.disconnecting) return;
     const authEpoch = model.authEpoch, credential = model.remembered;
+    let authorized = false;
     model.resuming = true; model.connected = false; model.epoch++; updateControls(); connection("connecting");
     try {
       const result = await api("/api/resume", {remember_token: credential}, false);
       if (!result.token || typeof result.token !== "string") throw apiError("unavailable");
       if (authEpoch !== model.authEpoch || credential !== model.remembered || model.disconnecting) return;
+      authorized = true;
       if (model.token !== result.token) clearArt();
       model.token = result.token; storage.write(result.token);
       const stateEpoch = model.epoch;
@@ -229,8 +239,13 @@
       if (authEpoch === model.authEpoch && stateEpoch === model.epoch && !model.disconnecting && !document.hidden) acceptState(state);
     } catch (error) {
       if (authEpoch !== model.authEpoch || credential !== model.remembered || model.disconnecting) return;
-      if (error.code === "unauthorized") disconnect("unauthorized");
-      else { markOffline(); $("pair-message").textContent = t("unavailable"); }
+      if (error.code === "unauthorized" && !authorized) {
+        disconnect("unauthorized");
+        return {rejected: true, authEpoch: model.authEpoch};
+      }
+      // Uma falha no estado após o resume não revoga o aparelho lembrado.
+      if (error.code === "unauthorized") { model.token = ""; storage.write(""); }
+      markOffline(); $("pair-message").textContent = t("unavailable");
     } finally { model.resuming = false; }
   }
   function clearArt() {
@@ -433,10 +448,10 @@
     const body = {request_id: requestId(), action, ...extra};
     if (game) { body.game_id = game.id; body.revision = game.revision; }
     if (name !== undefined) body.name = name;
-    let success = false;
+    let success = false, recoverAuth = false;
     try {
       const result = await api("/api/command", body);
-      if (["stale", "not_found", "invalid", "storage", "busy", "rate_limited"].includes(model.notice)) setNotice("");
+      if (["stale", "not_found", "invalid", "storage", "busy", "rate_limited", "reconnect_review"].includes(model.notice)) setNotice("");
       if (result.state && commandEpoch === model.epoch) acceptState(result.state);
       success = true;
       $("announcement").textContent = t({start: "started", pause: "pause_done", finish: "saved", add: "added", favorite: "favorited"}[action]);
@@ -453,19 +468,24 @@
       }
       if (action === "add") { $("add-dialog").close(); $("game-name").value = ""; $("search").value = ""; renderGames(); }
     } catch (error) {
-      if (error.code === "unauthorized") disconnect("unauthorized");
+      if (error.code === "unauthorized") { recoverAuth = true; markOffline(); }
       else if (error.code === "unavailable") markOffline();
       else {
         const key = {conflict: "stale", not_found: "not_found", busy: "busy", recovery: "recovery", storage: "storage"}[error.code] || "invalid";
         setNotice(key);
         if (error.code === "conflict" || error.code === "not_found") { model.connected = false; connection("connecting"); }
       }
-      if (action === "add") $("add-message").textContent = errorText(error.code);
-      if (action === "finish") $("finish-message").textContent = errorText(error.code);
+      if (action === "add") $("add-message").textContent = recoverAuth ? t("reconnect_review") : errorText(error.code);
+      if (action === "finish") $("finish-message").textContent = recoverAuth ? t("reconnect_review") : errorText(error.code);
       if (action === "finish" && error.code === "conflict") $("finish-dialog").close();
     } finally {
       model.mutating = false; model.epoch++; updateControls();
-      if (model.token) await syncState();
+      if (recoverAuth) {
+        model.token = ""; storage.write("");
+        if (model.remembered) await resumeRemembered();
+        else disconnect("unauthorized");
+        if (model.connected) setNotice("reconnect_review");
+      } else if (model.token) await syncState();
     }
     return success;
   }
@@ -520,18 +540,26 @@
   for (const dialog of [$("add-dialog"), $("finish-dialog")]) dialog.addEventListener("cancel", event => { if (model.mutating) event.preventDefault(); });
   document.addEventListener("visibilitychange", () => {
     model.connected = false; model.epoch++; updateControls();
-    if (!document.hidden && model.token) { connection("connecting"); syncState(); }
+    if (!document.hidden && !model.initializing) {
+      connection("connecting");
+      if (model.token) syncState(); else if (model.remembered) resumeRemembered();
+    }
   });
-  window.addEventListener("online", () => { if (model.token) syncState(); else if (model.remembered) resumeRemembered(); });
+  window.addEventListener("online", () => { if (!model.initializing) { if (model.token) syncState(); else if (model.remembered) resumeRemembered(); } });
   window.addEventListener("offline", markOffline);
-  setInterval(() => { if (!document.hidden && !model.pairing) { if (model.token) syncState(); else if (model.remembered && !$("pair-code").value) resumeRemembered(); } }, 2000);
+  setInterval(() => { if (!document.hidden && !model.initializing && !model.pairing && !model.resuming) { if (model.token) syncState(); else if (model.remembered && !$("pair-code").value) resumeRemembered(); } }, 2000);
   setInterval(() => { if (!document.hidden && model.connected) cards.forEach(updateClock); }, 250);
 
   (async () => {
     applyInfo({language: "pt", theme: "dark"});
     try { applyInfo(await api("/api/info", undefined, false)); } catch (_) {}
-    if (secret) await pair({secret});
-    else if (model.token) await syncState();
-    else if (model.remembered) await resumeRemembered();
+    try {
+      const authEpoch = model.authEpoch;
+      let result;
+      if (model.token) result = await syncState();
+      else if (model.remembered) result = await resumeRemembered();
+      if (secret && !model.token && !model.remembered && !model.disconnecting
+          && (result && result.rejected ? result.authEpoch === model.authEpoch : authEpoch === model.authEpoch)) await pair({secret});
+    } finally { model.initializing = false; }
   })();
 })();

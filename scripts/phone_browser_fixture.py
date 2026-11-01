@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -67,15 +68,17 @@ def main():
         server = window.phone_control.server
         server.start('127.0.0.1', args.port)
 
+        control_nonce = None
+
         def connection():
             write_private(args.output, {'url': server.url, 'pairing_url': server.pairing_url,
-                                        'code': server.pairing_code})
+                                        'code': server.pairing_code, 'control_nonce': control_nonce})
 
         connection()
         last = None
 
         def process_control():
-            nonlocal last
+            nonlocal last, control_nonce
             try:
                 if not args.control.exists():
                     return
@@ -84,6 +87,7 @@ def main():
                     return
                 data = json.loads(raw)
                 last = raw
+                control_nonce = data.get('nonce')
                 if 'theme' in data:
                     window.save_settings(data['theme'], data.get('language', 'pt'))
                 if 'covers_enabled' in data or 'icons_enabled' in data:
@@ -97,6 +101,11 @@ def main():
                     server.start('127.0.0.1', port)
                 if data.get('invalidate'):
                     window.phone_control.invalidate()
+                if data.get('expire_pairing'):
+                    server._pairing_deadline = time.monotonic() - 1
+                if data.get('expire_sessions'):
+                    for session in server._sessions.values():
+                        session['expires'] = 0
                 if data.get('stop'):
                     server.stop()
                 if 'size' in data:
