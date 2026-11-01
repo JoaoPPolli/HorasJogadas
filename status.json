@@ -1,12 +1,12 @@
 {
   "phase": "release",
-  "version": "3.5.0",
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/41250913629",
-  "commit": "da72a83edd83f982f9dd7cf1fa0c11791f0d255d",
+  "version": "3.5.1",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/41263192847",
+  "commit": "f9838122725e1530a41d543604b125fb3c4cd6a2",
   "build": "success",
   "publish": "success",
   "pages": "separate-workflow",
-  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.5.0",
+  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.5.1",
   "site_url": "https://joaoppolli.github.io/HorasJogadas/",
   "diagnostics": {
     "windows": {
@@ -15,7 +15,7 @@
       "exit_code": 0
     },
     "linux-arch-update": {
-      "version": "3.5.0",
+      "version": "3.5.1",
       "ok": true,
       "frozen_environment": true,
       "stage_test": true,
@@ -29,10 +29,10 @@
     "tests-tests-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.479s\n\nOK\n"
+      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.374s\n\nOK\n"
     },
     "linux-update": {
-      "version": "3.5.0",
+      "version": "3.5.1",
       "ok": true,
       "frozen_environment": true,
       "stage_test": true,
@@ -46,7 +46,7 @@
     "tests-tests_qt-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": ".....................................................This plugin does not support propagateSizeHints()\n..................This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 194 tests in 51.262s\n\nOK\n"
+      "log_tail": ".....................................................This plugin does not support propagateSizeHints()\n..................This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 194 tests in 42.020s\n\nOK\n"
     },
     "companion-browser": {
       "ok": true,
@@ -183,6 +183,10 @@
           {
             "conclusion": "success",
             "name": "Real phone browser and desktop integration"
+          },
+          {
+            "conclusion": "success",
+            "name": "Remembered phone browser restart and authorization recovery"
           },
           {
             "conclusion": "success",
@@ -347,7 +351,7 @@
             "name": "Run actions/checkout@v4"
           },
           {
-            "conclusion": null,
+            "conclusion": "success",
             "name": "Run actions/download-artifact@v4"
           },
           {
@@ -374,7 +378,7 @@
       }
     ],
     "artwork-catalogs": {
-      "commit": "da72a83edd83f982f9dd7cf1fa0c11791f0d255d",
+      "commit": "f9838122725e1530a41d543604b125fb3c4cd6a2",
       "checks": [
         {
           "kind": "cover",
@@ -617,6 +621,18 @@
       "csp": true,
       "stop_revoked": true
     },
+    "phone-reconnect": {
+      "ok": true,
+      "remember_opt_in": true,
+      "browser_restart_expired_qr": true,
+      "expired_session_recovered": true,
+      "command_unauthorized_recovers_without_retry": true,
+      "temporary_resume_failure_retains_authorization": true,
+      "transient_state_unauthorized_retains_authorization": true,
+      "browser_restart_plain_address": true,
+      "explicit_disconnect_revokes": true,
+      "fresh_qr_fallback_after_rejected_credential": true
+    },
     "linux": {
       "platform": "linux",
       "ok": true,
@@ -625,12 +641,12 @@
     "tests-tests-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 0.942s\n\nOK\n"
+      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 1.459s\n\nOK\n"
     },
     "tests-tests_qt-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "..........................................................................s........................................................................................................s..s.....ss....\n----------------------------------------------------------------------\nRan 194 tests in 70.724s\n\nOK (skipped=5)\n"
+      "log_tail": "..........................................................................s........................................................................................................s..s.....ss....\n----------------------------------------------------------------------\nRan 194 tests in 69.455s\n\nOK (skipped=5)\n"
     },
     "installer-windows": {
       "ok": true,
@@ -638,7 +654,7 @@
       "checksum": true,
       "installed": true,
       "bundle": {
-        "version": "3.5.0",
+        "version": "3.5.1",
         "ok": true,
         "application_icon": true,
         "covers": true,
