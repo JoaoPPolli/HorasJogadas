@@ -100,7 +100,11 @@ class PhoneManagement(QObject):
         self._expire()
         if page == 'settings':
             prefs = preferences.read(self.w.c.folder)
+            from . import startup
             return dict(theme=self.w.theme_name(), language=i18n.idioma_atual(),
+                        startup_available=getattr(self.w, 'mode', 'review') == 'release',
+                        launch_at_login=startup.enabled() if getattr(self.w, 'mode', 'review') == 'release' else False,
+                        phone_auto_start=bool(prefs.get('phone_auto_start', False)),
                         check_updates=bool(prefs.get('check_updates', True)),
                         covers_enabled=bool(prefs.get('covers_enabled', False)),
                         icons_enabled=bool(prefs.get('icons_enabled', True)), revision=self._revision())
@@ -345,7 +349,15 @@ class PhoneManagement(QObject):
                 if key in body:
                     if type(body[key]) is not bool: raise RemoteError(400, 'invalid')
                     changes[key] = body[key]
-            preferences.save(self.w.c.folder, **changes)
+            if 'launch_at_login' in body or 'phone_auto_start' in body:
+                if getattr(self.w, 'mode', 'review') != 'release':raise RemoteError(403, 'unavailable')
+                from . import startup
+                for key in ('launch_at_login', 'phone_auto_start'):
+                    if key in body and type(body[key]) is not bool:raise RemoteError(400, 'invalid')
+                preferences.save(self.w.c.folder, **changes)
+                startup.save_options(self.w.c.folder, body.get('launch_at_login', startup.enabled()),
+                                     body.get('phone_auto_start', preferences.read(self.w.c.folder).get('phone_auto_start', False)))
+            else:preferences.save(self.w.c.folder, **changes)
             return dict(saved=True)
         if action in ('art_local', 'art_remove'):
             kind = self._kind(body)

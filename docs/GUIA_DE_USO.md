@@ -123,3 +123,9 @@ Clicar na capa ou usar o menu do cartão abre a troca de imagem. Remover uma cap
 Abra **Configurações → Gerenciar ícones** ou clique no quadrado de iniciais do cartão. Também existe **Escolher ou trocar ícone** no menu de cada jogo. Busque os jogos marcados, confira as sugestões da Steam e GOG, veja a prévia quadrada e importe os escolhidos. São ícones próprios do jogo; a busca não recorta as capas para simular ícones. Se a fonte não tiver um ícone, tente a outra fonte ou escolha uma imagem local, inclusive PNG transparente.
 
 Capas e ícones são independentes: os ícones funcionam no visual compacto. Desative **Exibir ícones dos jogos** e salve para voltar às iniciais sem apagar as imagens. Remover um ícone não afeta capa, jogo, histórico nem cronômetro. As imagens ficam em `icons/` na pasta de dados, e os backups completos incluem seus arquivos e índice. As capas existentes continuam em `covers/`.
+
+## Inicialização automática
+
+Em **Configurações → Inicialização**, escolha **Abrir HorasJogadas ao entrar no computador** e/ou **Ativar controle pelo celular ao abrir o app** e clique em **Salvar**. As opções começam desativadas e valem para a edição oficial. O início com o sistema vale para o usuário atual no Windows e Linux, sem administrador; desmarque e salve para remover. Mantenha a pasta do programa no mesmo lugar.
+
+O controle usa a última rede escolhida quando disponível, ou outra rede local ativa. Se a rede ainda estiver iniciando, tenta novamente por até um minuto. Celulares lembrados podem reconectar; aparelhos novos precisam parear. O PC precisa estar ligado e acordado. As mesmas opções estão nas Configurações do painel conectado.

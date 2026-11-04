@@ -41,6 +41,40 @@ class PhoneDesktopTests(unittest.TestCase):
             body.setdefault('revision', self.control.revision(self.c.repo.jogo_por_id(key), self.c.timers[key]))
         return self.control.command(body)
 
+    def test_startup_preferences_from_connected_settings(self):
+        from horas_jogadas_qt import preferences
+        self.w.mode = 'release'
+        with patch('horas_jogadas_qt.startup.enabled', return_value=False), patch('horas_jogadas_qt.startup.set_enabled') as register:
+            self.assertTrue(self.control.view('settings', {})['startup_available'])
+            self.command('settings_save', launch_at_login=True, phone_auto_start=True)
+            register.assert_called_once_with(True)
+            self.assertTrue(preferences.read(self.folder)['phone_auto_start'])
+        self.w.mode = 'review'
+        with self.assertRaises(RemoteError):self.command('settings_save', launch_at_login=True)
+
+    def test_phone_auto_start_requires_opt_in_and_uses_available_network(self):
+        from horas_jogadas_qt import preferences
+        self.w.mode = 'release'
+        with patch('horas_jogadas_qt.phone_control.local_addresses', return_value=[('192.168.1.22', 'WiFi')]), patch.object(self.control.server, 'start') as start:
+            self.control.auto_start()
+            start.assert_not_called()
+            preferences.save(self.folder, phone_auto_start=True, phone_host='192.168.1.99')
+            self.control.auto_start()
+            start.assert_called_once_with('192.168.1.22', 48967)
+            start.reset_mock()
+            preferences.save(self.folder, phone_host='192.168.1.22')
+            self.w.mode = 'review'; self.control.auto_start()
+            start.assert_not_called()
+
+    def test_phone_auto_start_retries_unavailable_network_then_stops(self):
+        from horas_jogadas_qt import preferences
+        self.w.mode = 'release'; preferences.save(self.folder, phone_auto_start=True)
+        with patch('horas_jogadas_qt.phone_control.local_addresses', return_value=[]), patch('horas_jogadas_qt.phone_control.QTimer.singleShot') as later, patch.object(self.w, 'notify') as notify:
+            self.control.auto_start()
+            self.assertEqual(later.call_args.args[0], 3000)
+            later.reset_mock(); self.control.auto_start(19)
+            later.assert_not_called(); notify.assert_called_once()
+
     def test_seeded_profile_and_records_views_are_json_serializable(self):
         before = self.control.workspace_revision()
         json.dumps(self.control.snapshot())

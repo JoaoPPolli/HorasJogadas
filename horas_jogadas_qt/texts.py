@@ -184,7 +184,7 @@ TEXTS['pt'].update({
     'phone_expired': 'Pareamento expirado. Gere um novo código para conectar.',
     'phone_clients': 'Aparelhos pareados nesta conexão: {n}',
     'phone_renew': 'Novo código e desconectar aparelhos',
-    'phone_disabled_help': 'Ative quando quiser jogar. A conexão começa desativada a cada abertura do app.',
+    'phone_disabled_help': 'Ative quando quiser jogar. Você pode ativá-la automaticamente nas opções de Inicialização.',
     'phone_connected_help': 'Mesma rede Wi-Fi · PC ligado e acordado. Desativar a conexão não para os cronômetros.',
     'phone_no_network': 'Nenhuma rede local IPv4 encontrada. Conecte o PC ao Wi-Fi ou cabo e atualize as redes.',
     'phone_local_help': 'Use uma rede de confiança. O controle permite iniciar, pausar, encerrar e adicionar jogos. Fechar o app desconecta os aparelhos. Se o celular não acessar, confira se estão na mesma rede e se o firewall permite o HorasJogadas em redes privadas.',
@@ -204,7 +204,7 @@ TEXTS['en'].update({
     'phone_expired': 'Pairing expired. Generate a new code to connect.',
     'phone_clients': 'Devices paired in this connection: {n}',
     'phone_renew': 'New code and disconnect devices',
-    'phone_disabled_help': 'Enable it when you want to play. The connection starts disabled each time the app opens.',
+    'phone_disabled_help': 'Enable it when you want to play. You can enable it automatically in Startup settings.',
     'phone_connected_help': 'Same Wi-Fi network · PC on and awake. Disabling the connection does not stop timers.',
     'phone_no_network': 'No local IPv4 network found. Connect the PC to Wi-Fi or Ethernet and refresh networks.',
     'phone_local_help': 'Use a trusted network. The control can start, pause, finish and add games. Closing the app disconnects devices. If your phone cannot connect, check the network and allow HorasJogadas through the firewall on private networks.',
@@ -239,3 +239,9 @@ TEXTS['en'].update({
     'phone_export_failed': 'Could not save the library file.',
     'phone_library_exported': 'Library exported. Open the offline timer on your phone and choose Import library.',
 })
+
+TEXTS['pt'].update({'startup_title':'Inicialização', 'startup_login':'Abrir HorasJogadas ao entrar no computador', 'startup_phone':'Ativar controle pelo celular ao abrir o app', 'startup_help':'Vale para este usuário do Windows/Linux. A conexão usa a última rede disponível e os aparelhos lembrados podem reconectar. O PC precisa permanecer ligado e acordado.', 'startup_review':'Estas opções podem ser alteradas na edição oficial do app.'})
+TEXTS['en'].update({'startup_title':'Startup', 'startup_login':'Open HorasJogadas when signing in', 'startup_phone':'Enable phone control when opening the app', 'startup_help':'Applies to this Windows/Linux user. Uses the last available network; remembered devices can reconnect. The PC must stay on and awake.', 'startup_review':'Change these options in the official app.'})
+
+TEXTS['pt']['startup_saved'] = 'Preferências de inicialização salvas.'
+TEXTS['en']['startup_saved'] = 'Startup preferences saved.'

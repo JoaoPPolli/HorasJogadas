@@ -154,6 +154,8 @@ class Window(QMainWindow):
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.tick)
         self.timer.start()
+        if self.mode == 'release':
+            QTimer.singleShot(1000, self.phone_control.auto_start)
         self.available_update=None
         if self.mode=='release' and getattr(sys,'frozen',False):
             QTimer.singleShot(1800,self.check_updates_automatically)
@@ -869,6 +871,28 @@ class Window(QMainWindow):
         scroll=QScrollArea(); scroll.setWidgetResizable(True)
         host=QWidget(); box=QVBoxLayout(host); box.setContentsMargins(0,0,12,0); box.setSpacing(20)
         from .phone_control import PhoneControlCard, PhoneOfflineCard
+        from . import startup
+        launch = QFrame(); launch.setObjectName('card')
+        launch_box = QVBoxLayout(launch); launch_box.setContentsMargins(22,20,22,20); launch_box.setSpacing(14)
+        launch_box.addWidget(label(tr('startup_title'), 'gameName'))
+        at_login = QCheckBox(tr('startup_login')); at_login.setObjectName('launchAtLogin')
+        try: at_login.setChecked(startup.enabled())
+        except OSError: pass
+        phone_auto = QCheckBox(tr('startup_phone')); phone_auto.setObjectName('phoneAutoStart')
+        phone_auto.setChecked(bool(preferences.read(self.c.folder).get('phone_auto_start', False)))
+        launch_box.addWidget(at_login); launch_box.addWidget(phone_auto)
+        launch_box.addWidget(label(tr('startup_help'), 'muted', True))
+        def save_startup():
+            try:
+                startup.save_options(self.c.folder, at_login.isChecked(), phone_auto.isChecked())
+                self.phone_control.invalidate(); self.notify(tr('startup_saved'))
+            except (OSError, ValueError) as error:
+                QMessageBox.critical(self, tr('error'), str(error))
+        launch_save = button(tr('save'), save_startup, 'primary'); launch_box.addWidget(launch_save)
+        if self.mode != 'release':
+            at_login.setEnabled(False); phone_auto.setEnabled(False); launch_save.setEnabled(False)
+            launch_box.addWidget(label(tr('startup_review'), 'muted', True))
+        box.addWidget(launch)
         box.addWidget(PhoneControlCard(self.phone_control))
         box.addWidget(PhoneOfflineCard(self))
         appearance=QFrame(); appearance.setObjectName('card'); form=QVBoxLayout(appearance)

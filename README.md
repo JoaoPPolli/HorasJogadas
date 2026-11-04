@@ -27,7 +27,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.6.0.
+2. Instale ou extraia a versão 3.6.1.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -111,3 +111,9 @@ O lançador antigo `app.py` e o domínio `horas_jogadas/` foram preservados para
 [Ambiente, testes e empacotamento](docs/DESENVOLVIMENTO.md) · [Modo de revisão](REVISAO_QT.md) · [Mudanças](CHANGELOG.md) · [Colaboração](COLABORACAO.md)
 
 As capturas deste repositório e do site usam dados fictícios. Para relatar um problema, informe versão, sistema e passos para reproduzir, removendo dados pessoais dos anexos.
+
+## Inicialização automática
+
+Em **Configurações → Inicialização**, escolha **Abrir HorasJogadas ao entrar no computador** e/ou **Ativar controle pelo celular ao abrir o app** e clique em **Salvar**. As opções começam desativadas e valem para a edição oficial. O início com o sistema vale para o usuário atual no Windows e Linux, sem administrador; desmarque e salve para remover. Mantenha a pasta do programa no mesmo lugar.
+
+O controle usa a última rede escolhida quando disponível, ou outra rede local ativa. Se a rede ainda estiver iniciando, tenta novamente por até um minuto. Celulares lembrados podem reconectar; aparelhos novos precisam parear. O PC precisa estar ligado e acordado. As mesmas opções estão nas Configurações do painel conectado.

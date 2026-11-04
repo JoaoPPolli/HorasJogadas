@@ -78,6 +78,21 @@ class PhoneControl(QObject):
                                    trust_store=self.trust_store, media=self.media, library=self.library,
                                    view=self.view, query=self.query, export=self.export, actions=self.actions)
 
+    def auto_start(self, attempt=0):
+        if self.window.mode != 'release' or self.server.running or not preferences.read(self.window.c.folder).get('phone_auto_start', False):
+            return
+        addresses = [address for address, _ in local_addresses()]
+        preferred = preferences.read(self.window.c.folder).get('phone_host')
+        address = preferred if preferred in addresses else addresses[0] if addresses else None
+        if address:
+            try:
+                self.server.start(address, PHONE_PORT)
+                return
+            except (OSError, ValueError, RuntimeError):pass
+        if attempt < 19:
+            QTimer.singleShot(3000, self, lambda: self.auto_start(attempt + 1))
+        else:self.window.notify(tr('phone_failed'))
+
     def invalidate(self):
         self.serial += 1
 
@@ -357,6 +372,7 @@ class PhoneControlCard(QFrame):
         self.error.clear()
         try:
             self.server.start(self.network.currentData(), PHONE_PORT)
+            preferences.save(self.control.window.c.folder, phone_host=self.network.currentData())
         except (OSError, ValueError, RuntimeError):
             self.error.setText(tr('phone_failed'))
         self.update_status()

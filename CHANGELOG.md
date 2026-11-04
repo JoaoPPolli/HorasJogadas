@@ -2,6 +2,13 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.6.1
+
+- Nova seção Inicialização nas Configurações: abrir o HorasJogadas ao entrar no Windows ou Linux, sem administrador.
+- Opção de ativar o controle pelo celular automaticamente ao abrir o aplicativo, usando a última rede disponível e a porta estável dos aparelhos lembrados.
+- A conexão tenta novamente por até um minuto se a rede ainda estiver iniciando. Ambas as opções começam desativadas; cópias de revisão não iniciam serviços nem alteram a inicialização do sistema.
+- Preferências também disponíveis nas Configurações do controle conectado. Desmarcar a inicialização remove somente o registro do HorasJogadas.
+
 ## 3.6.0
 
 - Controle conectado pelo celular ampliado com cinco páginas: Biblioteca, Histórico, Estatísticas, Zerados e Configurações, com navegação adaptada a telas pequenas e os quatro temas do app.
