@@ -1,12 +1,12 @@
 {
   "phase": "release",
-  "version": "3.5.1",
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/41263192847",
-  "commit": "f9838122725e1530a41d543604b125fb3c4cd6a2",
+  "version": "3.6.0",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/41928619202",
+  "commit": "575f95063805cc9521dfbba7bb3dbb5c975df55b",
   "build": "success",
   "publish": "success",
   "pages": "separate-workflow",
-  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.5.1",
+  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.6.0",
   "site_url": "https://joaoppolli.github.io/HorasJogadas/",
   "diagnostics": {
     "windows": {
@@ -14,8 +14,37 @@
       "ok": true,
       "exit_code": 0
     },
+    "phone-desktop-browser": {
+      "ok": true,
+      "five_pages_responsive": true,
+      "game_rename": true,
+      "stale_edit_preserves_draft_and_pc": true,
+      "game_status": true,
+      "library_status_filter": true,
+      "timer_adjust": true,
+      "timer_quick_minutes_preview_only": true,
+      "timer_negative_and_discard": true,
+      "library_sort_and_manual_moves": true,
+      "pause_fill_cancel_and_count": true,
+      "history_add": true,
+      "history_edit": true,
+      "history_delete_undo": true,
+      "history_csv_download": true,
+      "long_session_requires_confirmation": true,
+      "statistics_period_and_status": true,
+      "completion_add_fields": true,
+      "completion_edit": true,
+      "completion_replay": true,
+      "completion_delete_undo": true,
+      "completion_txt_download": true,
+      "completion_txt_review_and_import": true,
+      "game_delete_saves_pending_session": true,
+      "statistics_delete_group": true,
+      "history_clear_confirm_cancel_and_backup": true,
+      "safe_dom_and_csp": true
+    },
     "linux-arch-update": {
-      "version": "3.5.1",
+      "version": "3.6.0",
       "ok": true,
       "frozen_environment": true,
       "stage_test": true,
@@ -29,10 +58,10 @@
     "tests-tests-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.374s\n\nOK\n"
+      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 3.294s\n\nOK\n"
     },
     "linux-update": {
-      "version": "3.5.1",
+      "version": "3.6.0",
       "ok": true,
       "frozen_environment": true,
       "stage_test": true,
@@ -46,7 +75,7 @@
     "tests-tests_qt-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": ".....................................................This plugin does not support propagateSizeHints()\n..................This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 194 tests in 42.020s\n\nOK\n"
+      "log_tail": "arn_message, ResourceWarning)\n.......................This plugin does not support propagateSizeHints()\n..................This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 230 tests in 55.597s\n\nOK\n"
     },
     "companion-browser": {
       "ok": true,
@@ -158,64 +187,6 @@
       },
       {
         "conclusion": "success",
-        "name": "phone-browser",
-        "steps": [
-          {
-            "conclusion": "success",
-            "name": "Set up job"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-node@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Phone control dependencies"
-          },
-          {
-            "conclusion": "success",
-            "name": "Real phone browser and desktop integration"
-          },
-          {
-            "conclusion": "success",
-            "name": "Remembered phone browser restart and authorization recovery"
-          },
-          {
-            "conclusion": "success",
-            "name": "Installed companion and offline session integrity"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/setup-node@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Complete job"
-          }
-        ]
-      },
-      {
-        "conclusion": "success",
         "name": "build (ubuntu-22.04, linux)",
         "steps": [
           {
@@ -306,6 +277,72 @@
       },
       {
         "conclusion": "success",
+        "name": "phone-browser",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-node@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Phone control dependencies"
+          },
+          {
+            "conclusion": "success",
+            "name": "Real phone browser and desktop integration"
+          },
+          {
+            "conclusion": "success",
+            "name": "Connected phone desktop pages and records"
+          },
+          {
+            "conclusion": "success",
+            "name": "Connected phone settings, artwork and backups"
+          },
+          {
+            "conclusion": "success",
+            "name": "Remembered phone browser restart and authorization recovery"
+          },
+          {
+            "conclusion": "success",
+            "name": "Installed companion and offline session integrity"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-node@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
         "name": "publish",
         "steps": [
           {
@@ -378,7 +415,7 @@
       }
     ],
     "artwork-catalogs": {
-      "commit": "f9838122725e1530a41d543604b125fb3c4cd6a2",
+      "commit": "575f95063805cc9521dfbba7bb3dbb5c975df55b",
       "checks": [
         {
           "kind": "cover",
@@ -641,12 +678,32 @@
     "tests-tests-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 1.459s\n\nOK\n"
+      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 1.067s\n\nOK\n"
+    },
+    "phone-management-browser": {
+      "ok": true,
+      "settings_saved_on_pc": true,
+      "stale_settings_preserved": true,
+      "backup_create_and_download": true,
+      "backup_preview_cancel_safe": true,
+      "backup_upload_restore": true,
+      "backup_saved_on_pc_restore": true,
+      "legacy_backup_restore": true,
+      "phone_json_import_review": true,
+      "phone_json_reimport_duplicate": true,
+      "individual_remembered_device_revocation": true,
+      "art_local_and_remove": true,
+      "art_search_preview_import": true,
+      "updates_check_source_safe": true,
+      "packaged_update_button_lifecycle": true,
+      "responsive_and_translated": true,
+      "disable_control_preserves_remembered": true,
+      "no_browser_or_csp_errors": true
     },
     "tests-tests_qt-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "..........................................................................s........................................................................................................s..s.....ss....\n----------------------------------------------------------------------\nRan 194 tests in 69.455s\n\nOK (skipped=5)\n"
+      "log_tail": "-restore-9g2zyvnq'>\n  _warnings.warn(warn_message, ResourceWarning)\nC:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\tempfile.py:940: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\horas-phone-restore-h302jaoi'>\n  _warnings.warn(warn_message, ResourceWarning)\n......................................................s..s.....ss....\n----------------------------------------------------------------------\nRan 230 tests in 71.443s\n\nOK (skipped=5)\n"
     },
     "installer-windows": {
       "ok": true,
@@ -654,7 +711,7 @@
       "checksum": true,
       "installed": true,
       "bundle": {
-        "version": "3.5.1",
+        "version": "3.6.0",
         "ok": true,
         "application_icon": true,
         "covers": true,
@@ -667,12 +724,14 @@
         "phone_assets": true,
         "phone_qr": true,
         "phone_pairing": true,
+        "phone_desktop_pages": true,
         "phone_favorites": true,
         "phone_library_export": true,
         "phone_summary": true,
         "phone_commands": true,
         "phone_seconds_saved": 3,
         "phone_replay_safe": true,
+        "phone_desktop_history": true,
         "phone_revocation": true,
         "phone_offline_import": true,
         "phone_shutdown": true,
