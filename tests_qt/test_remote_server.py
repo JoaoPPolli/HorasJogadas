@@ -91,6 +91,69 @@ class RemoteServerTests(unittest.TestCase):
         self.assertEqual(status, 200, body)
         return json.loads(body)['token']
 
+    def test_full_pc_views_queries_and_exports_require_authorization(self):
+        self.server.view = lambda page, values: {'page': page, 'values': values}
+        self.server.query = lambda body: {'length': len(body.get('data', ''))}
+        self.server.export = lambda kind, values: (b'name,time\nsynthetic,42', 'text/csv', 'history.csv')
+        self.assertEqual(self.request(path='/api/view/history')[0], 401)
+        self.assertEqual(self.request(path='/api/export/history_csv')[0], 401)
+        token = self.pair()
+        status, _, body = self.request(path='/api/view/history?offset=0&search=test', token=token)
+        self.assertEqual(status, 200)
+        self.assertEqual(json.loads(body)['values'], {'offset': '0', 'search': 'test'})
+        self.assertEqual(self.request(path='/api/view/history?offset=1&offset=2', token=token)[0], 400)
+        status, headers, body = self.request(path='/api/export/history_csv', token=token)
+        self.assertEqual((status, body), (200, b'name,time\nsynthetic,42'))
+        self.assertEqual(headers['Content-Type'], 'text/csv')
+
+    def test_large_upload_is_authorized_before_waiting_for_request_body(self):
+        host = self.server.url.removeprefix('http://')
+        head = ('POST /api/query HTTP/1.1\r\nHost: ' + host + '\r\nOrigin: ' + self.server.url
+                + '\r\nContent-Type: application/json\r\nContent-Length: 500000\r\n\r\n')
+        # Não envia o corpo: o servidor precisa recusar já pelos cabeçalhos.
+        self.assertEqual(self.raw(head.encode())[0], 401)
+        token = self.pair()
+        self.server.query = lambda body: {'length': len(body['data'])}
+        status, _, body = self.request('POST', '/api/query', {'data': 'x' * 50000}, token)
+        self.assertEqual(status, 200); self.assertEqual(json.loads(body)['length'], 50000)
+
+    def test_full_pc_commands_keep_idempotency_and_the_action_allowlist(self):
+        token = self.pair()
+        self.server.actions |= {'history_save'}
+        body = {'request_id': 'history-save-unique-1', 'action': 'history_save', 'seconds': 42}
+        self.assertEqual(self.request('POST', '/api/command', body, token)[0], 200)
+        self.assertEqual(self.request('POST', '/api/command', body, token)[0], 200)
+        self.assertEqual(len(self.calls), 1)
+        bad = dict(body, request_id='unsupported-unique-2', action='execute_shell')
+        self.assertEqual(self.request('POST', '/api/command', bad, token)[0], 400)
+
+    def test_full_workspace_request_budget_only_increases_for_valid_sessions(self):
+        token = self.pair()
+        now = time.monotonic()
+        self.server._requests = [(now, '127.0.0.1')] * 90
+        self.server._unauth_requests = list(self.server._requests)
+        self.assertEqual(self.request(path='/app.js')[0], 200)
+        self.assertEqual(self.request(path='/api/info')[0], 429)
+        self.assertEqual(self.request(path='/api/info', token='invalid')[0], 429)
+        self.assertEqual(self.request(path='/api/state', token=token)[0], 200)
+        self.server._requests = [(now, '127.0.0.1')] * 360
+        self.assertEqual(self.request(path='/api/state', token=token)[0], 429)
+
+    def test_authenticated_activity_preserves_anonymous_assets_and_reconnection_budget(self):
+        token = self.pair()
+        now = time.monotonic()
+        # Simula consultas normais das cinco telas antes de fechar o navegador.
+        self.server._requests = [(now, '127.0.0.1')] * 100
+        for path in ('/', '/app.js', '/desktop.js', '/management.js', '/api/info'):
+            self.assertEqual(self.request(path=path)[0], 200)
+        # Uma credencial rejeitada deve chegar ao verificador, sem falso 429.
+        self.assertEqual(self.request('POST', '/api/resume', {'remember_token': 'invalid'})[0], 401)
+        self.assertEqual(self.request(path='/api/state', token=token)[0], 200)
+        self.assertEqual(self.request('POST', '/api/pair', {'code': self.server.pairing_code})[0], 200)
+        # O limite global continua protegendo o processo para qualquer cliente.
+        self.server._requests = [(now, '127.0.0.1')] * 1200
+        self.assertEqual(self.request(path='/api/info')[0], 429)
+
     def test_disabled_lifecycle_bound_address_and_in_memory_revocation(self):
         self.assertTrue(self.server.running)
         self.assertRegex(self.server.pairing_code, r'^\d{6}$')
@@ -252,6 +315,7 @@ class RemoteServerTests(unittest.TestCase):
         self.assertTrue(pump_until(lambda: not self.server._connections))
         socket.deleteLater()
         self.server._requests = [(time.monotonic(), '127.0.0.1')] * 90
+        self.server._unauth_requests = list(self.server._requests)
         self.assertEqual(self.request()[0], 429)
 
     def test_json_duplicate_keys_nonfinite_numbers_and_nonobjects_are_rejected(self):

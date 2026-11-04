@@ -136,6 +136,10 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Real phone browser and desktop integration
         run: node scripts/verify_phone_browser.cjs --python python --result build-diagnostics/phone-browser.json
+      - name: Connected phone desktop pages and records
+        run: node scripts/verify_phone_desktop_browser.cjs --python python --result build-diagnostics/phone-desktop-browser.json
+      - name: Connected phone settings, artwork and backups
+        run: node scripts/verify_phone_management_browser.cjs --python python --result build-diagnostics/phone-management-browser.json
       - name: Remembered phone browser restart and authorization recovery
         run: node scripts/verify_phone_reconnect.cjs --python python --result build-diagnostics/phone-reconnect.json
       - name: Installed companion and offline session integrity

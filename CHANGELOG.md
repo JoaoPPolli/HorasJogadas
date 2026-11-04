@@ -2,6 +2,18 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.6.0
+
+- Controle conectado pelo celular ampliado com cinco páginas: Biblioteca, Histórico, Estatísticas, Zerados e Configurações, com navegação adaptada a telas pequenas e os quatro temas do app.
+- Biblioteca com filtros, ordenação, favoritos, renomeação, status, reorganização manual e exclusão; ajustes positivos e negativos de tempo, atalhos de minutos e inclusão do tempo de pausa.
+- Histórico com adição, edição, exclusão, desfazer e exportação CSV; estatísticas por período, jogos por atividade recente, gráfico dos mais jogados e exportação de resumo.
+- Zerados com campanhas, DLCs, experiências, novas jogadas, datas, observações e platina adicional; importação TXT com conferência e exportação por ano.
+- Configurações do PC pelo celular: aparência, idioma, capas e ícones, busca e importação de imagens em lote, imagens locais e gerenciamento dos aparelhos lembrados.
+- Backups completos criados no PC, download para o celular e restauração com conferência; importação revisada de sessões do contador independente, sem duplicar registros já importados.
+- Consulta, download e instalação de atualizações do aplicativo do PC pelo painel conectado, com confirmação, validação do pacote e backup; acesso à pasta de dados, cópia para revisão e recuperação de sessões pendentes.
+- Alterações conferem o estado do PC antes de salvar; formulários antigos não substituem edições recentes. Operações de restauração e exclusões abrangentes criam cópia preventiva.
+- Registros e formatos existentes preservados, assim como a reconexão de aparelhos lembrados. O contador offline continua separado e não recebe alterações nesta versão.
+
 ## 3.5.1
 
 - Corrigida a perda do aparelho lembrado ao reabrir o endereço original de um QR Code expirado: a autorização salva é usada antes de tentar novo pareamento.

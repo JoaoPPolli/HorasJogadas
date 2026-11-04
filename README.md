@@ -27,7 +27,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.5.1.
+2. Instale ou extraia a versão 3.6.0.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -54,7 +54,9 @@ As partidas feitas na **cópia para revisão** continuam separadas: elas não s�
 
 Em **Configurações → Controle pelo celular**, selecione a rede do PC e clique em **Ativar controle pelo celular**. Escaneie o QR Code com a câmera do telefone. Como alternativa, abra o endereço mostrado e digite o código de seis dígitos; QR Code e código expiram em cinco minutos. Não precisa instalar um app no celular.
 
-O painel segue o tema e o idioma do computador. O modo **Jogando agora** destaca o contador com botões grandes; favoritos deixam os jogos preferidos por perto. Capas e ícones já importados aparecem quando as respectivas opções estão ativadas no PC. Permite buscar e adicionar jogos, iniciar, pausar, retomar e encerrar sessões, mostrando um resumo ao salvar. Os comandos usam os mesmos cronômetros e o histórico do PC; bloquear o telefone não interrompe a contagem.
+O painel reúne **Biblioteca, Histórico, Estatísticas, Zerados e Configurações**, com navegação adaptada ao celular e os temas e idiomas do app. Organize jogos, ajuste tempos, edite sessões, registre conclusões, consulte estatísticas, exporte CSV e importe ou exporte TXT. Em Configurações, altere as preferências do PC, gerencie capas, ícones e aparelhos lembrados, crie e baixe backups completos e confira os dados antes de restaurar. Também é possível verificar, baixar e confirmar a instalação de atualizações do aplicativo do PC.
+
+O modo **Jogando agora** destaca o contador com botões grandes; favoritos deixam os jogos preferidos por perto. Os comandos usam os mesmos cronômetros e registros do computador; bloquear o telefone não interrompe a contagem. Formulários conferem se houve uma edição no PC antes de salvar. Depois de atualizar o aplicativo, recarregue a página do controle no celular.
 
 O PC precisa permanecer **ligado, acordado e com o app aberto**, na mesma rede do celular. Use uma rede de confiança: o controle usa HTTP local, sem servidor na nuvem nem abertura de portas no roteador. Se houver várias interfaces de rede, escolha a do Wi-Fi ou cabo que conecta o PC ao celular. Confira o firewall em redes privadas se a página não abrir.
 

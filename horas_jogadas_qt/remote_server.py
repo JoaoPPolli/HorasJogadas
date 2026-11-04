@@ -13,6 +13,7 @@ import secrets
 import time
 from collections import OrderedDict
 from pathlib import Path
+from urllib.parse import urlsplit, parse_qs
 
 from PySide6.QtCore import QObject, Signal, QTimer
 from PySide6.QtNetwork import QHostAddress, QTcpServer
@@ -22,7 +23,7 @@ PRIVATE_NETWORKS = tuple(ipaddress.ip_network(value) for value in
 ASSETS = Path(__file__).with_name('assets') / 'remote'
 MAX_CONNECTIONS = 24
 MAX_HEADER = 8192
-MAX_BODY = 4096
+MAX_BODY = 50 * 1024 * 1024
 SESSION_SECONDS = 12 * 3600
 MAX_COMMANDS = 1024
 
@@ -66,10 +67,13 @@ def reject_constant(text):
 class RemoteServer(QObject):
     changed = Signal()
 
-    def __init__(self, snapshot, command, parent=None, *, trust_store=None, media=None, library=None):
+    def __init__(self, snapshot, command, parent=None, *, trust_store=None, media=None, library=None,
+                 view=None, query=None, export=None, actions=None):
         super().__init__(parent)
         self.snapshot, self.command = snapshot, command
         self.trust_store, self.media, self.library = trust_store, media, library
+        self.view, self.query, self.export = view, query, export
+        self.actions = frozenset(actions or ('start', 'pause', 'finish', 'add', 'favorite'))
         self.server = QTcpServer(self)
         self.server.setMaxPendingConnections(MAX_CONNECTIONS)
         self.server.newConnection.connect(self._accept)
@@ -77,6 +81,7 @@ class RemoteServer(QObject):
         self._sessions = {}
         self._attempts = []
         self._requests = []
+        self._unauth_requests = []
         self._url = ''
         self._secret = ''
         self._code = ''
@@ -161,6 +166,7 @@ class RemoteServer(QObject):
         self._sessions.clear()
         self._attempts.clear()
         self._requests.clear()
+        self._unauth_requests.clear()
         self._url = self._secret = self._code = ''
         self._pairing_deadline = 0
         self.changed.emit()
@@ -190,6 +196,7 @@ class RemoteServer(QObject):
             self.changed.emit()
         self._attempts[:] = [(when, peer) for when, peer in self._attempts if time.monotonic() - when < 60]
         self._requests[:] = [(when, peer) for when, peer in self._requests if time.monotonic() - when < 10]
+        self._unauth_requests[:] = [(when, peer) for when, peer in self._unauth_requests if time.monotonic() - when < 10]
 
     def _accept(self):
         while self.server.hasPendingConnections():
@@ -199,7 +206,7 @@ class RemoteServer(QObject):
                 socket.deleteLater()
                 continue
             timer = QTimer(socket)
-            socket.setReadBufferSize(MAX_HEADER + MAX_BODY + 5)
+            socket.setReadBufferSize(MAX_HEADER + 65536)
             timer.setSingleShot(True)
             timer.timeout.connect(lambda current=socket: current.abort())
             timer.start(7000)
@@ -258,6 +265,16 @@ class RemoteServer(QObject):
                     raise RemoteError(403, 'invalid')
                 if headers.get('content-type', '').lower() != 'application/json' or 'content-length' not in headers:
                     raise RemoteError(400, 'invalid')
+            if length > 4096:
+                if method != 'POST' or path not in ('/api/query', '/api/command'):
+                    raise RemoteError(413, 'invalid')
+                self._session(headers)  # Autoriza antes de aceitar uploads grandes.
+                if not connection.get('large'):
+                    if sum(bool(item.get('large')) for item in self._connections.values()) >= 2:
+                        raise RemoteError(429, 'busy')
+                    connection['large'] = True
+                    connection['timer'].start(45000)
+                    socket.setReadBufferSize(MAX_HEADER + MAX_BODY + 4)
             if len(data) - boundary - 4 < length:
                 return
             if len(data) - boundary - 4 != length:
@@ -265,9 +282,20 @@ class RemoteServer(QObject):
             now = time.monotonic()
             peer = socket.peerAddress().toString()
             self._requests[:] = [(when, source) for when, source in self._requests if now - when < 10]
-            if len(self._requests) >= 240 or sum(source == peer for _, source in self._requests) >= 90:
+            self._unauth_requests[:] = [(when, source) for when, source in self._unauth_requests if now - when < 10]
+            session = self._sessions.get(headers.get('authorization', '').removeprefix('Bearer '))
+            authenticated = session is not None and session['expires'] > now
+            # As telas completas consultam metadados e registros além do relógio.
+            # Acesso sem pareamento mantém o limite menor; ambos são limitados.
+            # O painel autenticado não consome a cota anônima dos assets e
+            # do resume: fechar o navegador descarta seu Bearer temporário.
+            static_asset = method == 'GET' and path in ('/', '/app.js', '/app.css', '/desktop.js', '/desktop.css', '/management.js', '/management.css', '/icon.ico')
+            peer_requests = self._requests if authenticated or static_asset else self._unauth_requests
+            peer_budget = 360 if authenticated or static_asset else 90
+            if len(self._requests) >= 1200 or sum(source == peer for _, source in peer_requests) >= peer_budget:
                 raise RemoteError(429, 'rate_limited')
             self._requests.append((now, peer))
+            if not authenticated and not static_asset:self._unauth_requests.append((now, peer))
             body = data[boundary + 4:]
             payload = json.loads(body, object_pairs_hook=unique_object, parse_float=finite_number,
                                  parse_constant=reject_constant) if body else {}
@@ -299,12 +327,39 @@ class RemoteServer(QObject):
         return session
 
     def _route(self, socket, method, path, headers, payload):
+        if method == 'GET' and path.startswith(('/api/view/', '/api/export/')):
+            self._session(headers)
+            location = urlsplit(path)
+            if len(location.query) > 4096:
+                raise RemoteError(400, 'invalid')
+            values = parse_qs(location.query, keep_blank_values=True, max_num_fields=20)
+            if any(len(value) != 1 for value in values.values()):
+                raise RemoteError(400, 'invalid')
+            values = {key: value[0] for key, value in values.items()}
+            category, name = location.path.removeprefix('/api/').split('/', 1)
+            if not re.fullmatch(r'[a-z_]{1,40}', name):
+                raise RemoteError(404, 'not_found')
+            if category == 'view' and self.view is not None:
+                return 200, self.view(name, values), None
+            if category == 'export' and self.export is not None:
+                data, mime, filename = self.export(name, values)
+                return 200, data, mime
+            raise RemoteError(404, 'not_found')
+        if method == 'POST' and path == '/api/query':
+            self._session(headers)
+            if self.query is None:
+                raise RemoteError(404, 'not_found')
+            return 200, self.query(payload), None
         if method == 'GET' and path == '/icon.ico':
             return 200, Path(__file__).resolve().parent.parent.joinpath('icon.ico').read_bytes(), 'image/vnd.microsoft.icon'
-        if method == 'GET' and path in ('/', '/app.css', '/app.js'):
+        if method == 'GET' and path in ('/', '/app.css', '/app.js', '/desktop.js', '/desktop.css', '/management.js', '/management.css'):
             filename, mime = {'/': ('index.html', 'text/html; charset=utf-8'),
                               '/app.css': ('app.css', 'text/css; charset=utf-8'),
-                              '/app.js': ('app.js', 'text/javascript; charset=utf-8')}[path]
+                              '/app.js': ('app.js', 'text/javascript; charset=utf-8'),
+                              '/desktop.js': ('desktop.js', 'text/javascript; charset=utf-8'),
+                              '/desktop.css': ('desktop.css', 'text/css; charset=utf-8'),
+                              '/management.js': ('management.js', 'text/javascript; charset=utf-8'),
+                              '/management.css': ('management.css', 'text/css; charset=utf-8')}[path]
             try:
                 return 200, (ASSETS / filename).read_bytes(), mime
             except OSError as error:
@@ -432,7 +487,7 @@ class RemoteServer(QObject):
         if (not isinstance(request_id, str) or not 16 <= len(request_id) <= 100
                 or any(not (c.isascii() and (c.isalnum() or c in '-_')) for c in request_id)):
             raise RemoteError(400, 'invalid')
-        if payload.get('action') not in ('start', 'pause', 'finish', 'add', 'favorite'):
+        if payload.get('action') not in self.actions:
             raise RemoteError(400, 'invalid')
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':')).encode('utf-8')).hexdigest()
         commands = session['commands']
@@ -459,7 +514,7 @@ class RemoteServer(QObject):
         connection['responded'] = True
         # Também limita clientes que deixam de ler a resposta, para não manter
         # sockets/bibliotecas enfileiradas indefinidamente no processo do app.
-        connection['timer'].start(7000)
+        connection['timer'].start(60000 if connection.get('large') or len(body) > 65536 else 7000)
         content_type = content_type or 'application/json; charset=utf-8'
         reason = {200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden', 404: 'Not Found',
                   405: 'Method Not Allowed', 409: 'Conflict', 410: 'Gone', 413: 'Payload Too Large',

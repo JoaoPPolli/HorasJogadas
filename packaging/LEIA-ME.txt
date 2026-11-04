@@ -1,4 +1,4 @@
-HORASJOGADAS 3.5.1
+HORASJOGADAS 3.6.0
 
 WINDOWS
 Use o instalador ou extraia a pasta inteira do pacote portátil e abra HorasJogadas.exe.
@@ -41,7 +41,8 @@ Instale por cima ou extraia em outra pasta. Não apague a pasta dos dados.
 
 PRIVACIDADE
 Os registros ficam no seu computador. Não há conta, telemetria ou envio automático de dados.
-Apenas links de download/atualização abrem o navegador por iniciativa do usuário.
+Buscas de imagens e downloads de atualização usam internet conforme as opções do app.
+O controle pelo celular compartilha os registros somente na rede local enquanto ativo.
 
 CAPAS OPCIONAIS
 Configurações > Exibir capas na biblioteca > Salvar. Em Gerenciar capas, busque a
@@ -72,7 +73,11 @@ CONTROLE PELO CELULAR
 Configurações > Controle pelo celular > escolha a rede > Ativar.
 Escaneie o QR Code ou abra o endereço no celular e digite o código temporário.
 O PC deve estar ligado e acordado, com o app aberto, na mesma rede do celular.
-Inicie, pause, retome ou encerre sessões e adicione jogos pelo navegador.
+O painel tem Biblioteca, Histórico, Estatísticas, Zerados e Configurações.
+Organize jogos, ajuste tempos, registre e edite sessões e conclusões, consulte
+estatísticas e exporte CSV/TXT. Preferências também são aplicadas no app do PC.
+Gerencie capas e ícones, crie/baixe backups e confira os dados antes de restaurar.
+Atualizações são instaladas no PC; depois do reinício, reative o controle no PC.
 O histórico continua no PC. Bloquear o celular não interrompe a contagem.
 Use uma rede de confiança: a conexão é HTTP local, sem servidor externo.
 O recurso começa desativado a cada abertura; fechar o app desconecta aparelhos.

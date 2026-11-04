@@ -40,7 +40,7 @@ python -m pip install -r requirements-build.txt
 python scripts/build_release.py
 ```
 
-Ou use `build_exe.bat`. A saída fica em `dist/HorasJogadas` e `release/`. Preserve toda a pasta do executável. Para gerar o instalador, instale Inno Setup 6, defina `HORAS_VERSION=3.0.0` e compile `packaging/windows.iss`.
+Ou use `build_exe.bat`. A saída fica em `dist/HorasJogadas` e `release/`. Preserve toda a pasta do executável. Para gerar o instalador, instale Inno Setup 6, defina `HORAS_VERSION=3.6.0` e compile `packaging/windows.iss`.
 
 Cada pacote executa `--self-test <resultado.json>` com dados fictícios: abre as cinco telas, valida os assets, grava uma sessão e verifica que o domínio legado consegue relê-la. Esse teste não abre os registros pessoais.
 
@@ -56,12 +56,19 @@ Para validar a interface no navegador, com Node.js 22 e as dependências Qt inst
 npm install --no-save --package-lock=false playwright@1.56.1
 npx playwright install --with-deps chromium
 node scripts/verify_phone_browser.cjs --python python --result build-diagnostics/phone-browser.json
+node scripts/verify_phone_reconnect.cjs --python python --result build-diagnostics/phone-reconnect.json
+node scripts/verify_phone_desktop_browser.cjs --python python --result build-diagnostics/phone-desktop-browser.json
+node scripts/verify_phone_management_browser.cjs --python python --result build-diagnostics/phone-management-browser.json
 node scripts/verify_companion_browser.cjs --python python --result build-diagnostics/companion-browser.json
 ```
 
 O script cria um processo Qt com dados sintéticos e uma porta aleatória em `127.0.0.1`, testa comandos, desconexão, nomes com HTML, perda de rede, quatro temas, português/inglês e larguras de 320, 390 e 1040 pixels. `--screenshots <pasta>` salva capturas fictícias. O job `phone-browser` precisa passar antes da publicação. O servidor de produção não usa esse fixture nem permite controlar testes por arquivos.
 
-O segundo script serve `site/celular` em uma origem local confiável e verifica o service worker, recarga offline, pausas, relógio, armazenamento e concorrência entre abas. O arquivo JSON exportado pelo navegador é importado e reimportado em um Controller temporário por `verify_phone_import.py`, verificando duplicatas e preservação de sessões. O contador independente usa HTTPS no GitHub Pages; ele transfere dados por arquivo revisado e não tenta acessar o servidor HTTP da LAN a partir da página HTTPS.
+O teste `verify_companion_browser.cjs` serve `site/celular` em uma origem local confiável e verifica o service worker, recarga offline, pausas, relógio, armazenamento e concorrência entre abas. O arquivo JSON exportado pelo navegador é importado e reimportado em um Controller temporário por `verify_phone_import.py`, verificando duplicatas e preservação de sessões. O contador independente usa HTTPS no GitHub Pages; ele transfere dados por arquivo revisado e não tenta acessar o servidor HTTP da LAN a partir da página HTTPS.
+
+O controle conectado divide as operações em `phone_records.py` (histórico, estatísticas e zerados), `phone_management.py` (preferências, imagens, backups e importações) e `phone_desktop.py` (jogos, cronômetros, recuperação e ações no PC). `phone_control.py` valida revisões e coordena as transações do domínio. Uma alteração no computador invalida formulários antigos; pedidos repetidos têm recibo sem repetir a escrita. A busca de imagens e o atualizador usam tarefas em segundo plano; uploads maiores exigem uma sessão autenticada antes de receber o corpo.
+
+Os testes `verify_phone_desktop_browser.cjs` e `verify_phone_management_browser.cjs` exercitam as cinco páginas, formulários, conflitos, importações, exportações, backups e preferências contra um processo Qt com dados fictícios. Downloads de imagens e consultas de versões usam respostas sintéticas nesse fixture. A instalação real continua coberta pelo ciclo nativo de atualização dos pacotes; testes do painel não instalam uma atualização na máquina de desenvolvimento. A matriz de recursos e adaptações está em [Controle conectado: paridade](CONTROLE_CELULAR_PARIDADE.md).
 
 Aparelhos lembrados ficam em `.phone-devices.json`, com hashes e escrita atômica. Esse arquivo não acompanha backups, cópias de revisão ou commits. Os favoritos ficam nas preferências Qt e acompanham os backups normais. O cache do service worker contém apenas os arquivos públicos da interface; incremente sua versão ao alterar esses arquivos. Não use `skipWaiting` para substituir uma página durante uma sessão ativa.
 

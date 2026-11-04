@@ -3,6 +3,7 @@ import json
 import secrets
 import socket
 import time
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlsplit
 
 from horas_jogadas.storage import Repositorio
@@ -77,7 +78,7 @@ def run_phone_self_test(window, app):
                 raise RuntimeError('Corpo HTTP incompleto no autoteste do celular')
             return status, json.loads(response) if response_headers['content-type'].startswith('application/json') else response
 
-        for path in ('/', '/app.css', '/app.js', '/icon.ico'):
+        for path in ('/', '/app.css', '/app.js', '/desktop.js', '/desktop.css', '/management.js', '/management.css', '/icon.ico'):
             status, content = request(path)
             if status != 200 or not isinstance(content, bytes) or not content:
                 raise RuntimeError('Página do controle pelo celular ausente do pacote: ' + path)
@@ -96,12 +97,21 @@ def run_phone_self_test(window, app):
         if status != 200 or state['games'] != control.snapshot()['games']:
             raise RuntimeError('Estado remoto diverge do aplicativo')
         result['phone_pairing'] = True
+        for page in ('history', 'stats', 'completed', 'settings', 'backups', 'devices', 'updates'):
+            status, view = request('/api/view/' + page, token=token)
+            if status != 200 or not isinstance(view, dict):
+                raise RuntimeError('Tela conectada do PC indisponível: ' + page)
+        for kind in ('history_csv', 'summary_csv', 'completions_txt'):
+            status, exported = request('/api/export/' + kind, token=token)
+            if status != 200 or not isinstance(exported, bytes):
+                raise RuntimeError('Exportação conectada indisponível: ' + kind)
+        result['phone_desktop_pages'] = True
 
         def command(body):
             body = dict(body, request_id=secrets.token_hex(16))
             status, response = request('/api/command', body, token)
             if status != 200 or not response.get('ok'):
-                raise RuntimeError('Comando local do celular falhou: ' + str(response.get('error', status)))
+                raise RuntimeError('Comando local do celular falhou (' + body['action'] + '): ' + str(response.get('error', status)))
             return body, response
 
         name = 'Console — autoteste ' + secrets.token_hex(4)
@@ -140,12 +150,23 @@ def run_phone_self_test(window, app):
         if status != 200 or not replayed.get('ok') or len([s for s in window.c.repo.sessoes if s.jogo_id == game.id]) != 1:
             raise RuntimeError('Repetir a resposta do celular duplicou a sessão')
         result.update(phone_commands=True, phone_seconds_saved=3, phone_replay_safe=True)
+        status, state = request('/api/state', token=token)
+        _, history_saved = command(dict(action='history_save', workspace_revision=state['workspace_revision'],
+                                        game_id=game.id, seconds=4,
+                                        end=datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        status, state = request('/api/state', token=token)
+        command(dict(action='history_delete', workspace_revision=state['workspace_revision'],
+                     session_id=history_saved['saved_id'], confirmed=True))
+        status, state = request('/api/state', token=token)
+        command(dict(action='history_undo', workspace_revision=state['workspace_revision']))
+        if not any(s.sessao_id == history_saved['saved_id'] and s.segundos == 4 for s in window.c.repo.sessoes):
+            raise RuntimeError('Histórico conectado não preservou a sessão ao desfazer')
+        result['phone_desktop_history'] = True
         server.regenerate_pairing()
         status, _ = request('/api/state', token=token)
         if status != 401:
             raise RuntimeError('Novo código não revogou o acesso anterior do celular')
         result['phone_revocation'] = True
-        from datetime import datetime, timedelta, timezone
         from .phone_import import parse_mobile, import_mobile, ReviewDialog
         from uuid import uuid4
         end = datetime.now(timezone.utc) - timedelta(minutes=1)

@@ -8,7 +8,11 @@
   <title>HorasJogadas · Controle pelo celular</title>
   <link rel="icon" href="/icon.ico">
   <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/desktop.css">
   <script src="/app.js" defer></script>
+  <script src="/desktop.js" defer></script>
+  <link rel="stylesheet" href="/management.css">
+  <script src="/management.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -45,6 +49,7 @@
       </section>
 
       <section id="control-view" hidden aria-labelledby="library-title">
+        <div id="desktop-library">
         <div class="page-heading">
           <div><span class="eyebrow" data-text="your_space">SEU TEMPO DE JOGO</span><h1 id="library-title" data-text="library">Biblioteca</h1><p data-text="library_intro">Seu próximo jogo. Uma sessão de cada vez.</p></div>
           <button id="add-button" class="primary add-button" type="button"><span aria-hidden="true">+</span><span data-text="add_game">Adicionar jogo</span></button>
@@ -65,6 +70,13 @@
           <div id="empty" class="empty" hidden><span aria-hidden="true">✦</span><h3 id="empty-title"></h3><p id="empty-description"></p></div>
         </section>
         <section class="companion-card"><div><span class="eyebrow" data-text="more_freedom">MAIS LIBERDADE</span><h2 data-text="companion_title">Vai jogar com o PC desligado?</h2><p data-text="companion_help">Use o contador offline no celular e transfira suas sessões para o PC quando quiser.</p></div><div class="companion-actions"><a id="companion-link" class="link-button" href="https://joaoppolli.github.io/HorasJogadas/celular/" target="_blank" rel="noopener noreferrer" data-text="open_companion">Abrir contador offline ↗</a><button id="export-library" class="quiet" type="button" data-text="export_library">Levar minha biblioteca</button></div><p id="export-message" class="form-message" role="status"></p></section>
+        </div>
+        <section id="desktop-history" class="desktop-page" hidden></section>
+        <section id="desktop-stats" class="desktop-page" hidden></section>
+        <section id="desktop-completed" class="desktop-page" hidden></section>
+        <section id="desktop-settings" class="desktop-page" hidden></section>
+        <div id="desktop-notice" role="status" class="notice" hidden></div>
+        <nav id="desktop-nav" aria-label="Navegação principal"></nav>
         <footer class="footer"><span class="footer-note" data-text="saved_on_pc">As sessões são salvas no seu computador.</span><div class="footer-actions"><button id="remember-button" class="text-button" type="button" data-text="remember_device">Lembrar este celular</button><button id="shortcut-button" class="text-button" type="button" data-text="shortcut">Atalho no celular</button><button id="disconnect" class="text-button" type="button" data-text="disconnect">Desconectar este celular</button></div></footer>
       </section>
     </main>

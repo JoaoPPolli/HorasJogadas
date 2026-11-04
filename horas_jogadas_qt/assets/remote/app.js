@@ -58,6 +58,8 @@
   });
   const model = {language: "pt", token: "", state: null, received: 0, connected: false, pairing: false, mutating: false, disconnecting: false, polling: false, epoch: 0, finishGame: null, notice: "", focus: true, focusGame: "", resuming: false, remembered: "", authEpoch: 0, initializing: true};
   const cards = new Map();
+  const subscribers = new Set();
+  function publishState() { for (const callback of subscribers) callback(model.state, model.connected); document.dispatchEvent(new CustomEvent("horas:state", {bubbles: true})); }
   const t = key => (copy[model.language] || copy.pt)[key] || copy.pt[key] || key;
   const storage = {
     read() { try { return sessionStorage.getItem("horasjogadas-remote") || ""; } catch (_) { return ""; } },
@@ -136,7 +138,10 @@
   function apiError(code) { const error = new Error(code); error.code = code; return error; }
   async function api(path, body, authenticated = true) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8000);
+    const fileOperation = body && (typeof body.data === "string" && body.data.length > 65536
+      || ["backup_create", "backup_restore", "backup_restore_local", "legacy_restore", "phone_import", "pc_create_review"].includes(body.action)
+      || ["backup_restore_preview", "phone_import_preview", "completion_import"].includes(body.query));
+    const timer = setTimeout(() => controller.abort(), fileOperation ? 120000 : 8000);
     const headers = {Accept: "application/json"};
     if (authenticated && model.token) headers.Authorization = "Bearer " + model.token;
     if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -158,7 +163,7 @@
     for (const dialog of document.querySelectorAll("dialog")) if (dialog.open) dialog.close();
     $("control-view").hidden = true; $("pair-view").hidden = false; $("pair-footer").hidden = false;
     $("pair-message").textContent = message ? t(message) : ""; $("pair-code").value = "";
-    connection("waiting");
+    connection("waiting"); publishState();
   }
 
   async function pair(body) {
@@ -184,7 +189,7 @@
   function markOffline() {
     model.connected = false; connection("disconnected");
     if (model.state) setNotice("offline");
-    updateControls();
+    updateControls(); publishState();
   }
   function acceptState(state) {
     if (!Array.isArray(state.games)) throw apiError("unavailable");
@@ -194,7 +199,7 @@
     connection("connected");
     if (state.pending_recovery) setNotice("recovery");
     else if (model.notice === "offline" || model.notice === "recovery") setNotice("");
-    renderGames();
+    renderGames(); publishState();
   }
   async function syncState() {
     if (!model.token || model.polling || model.resuming || model.mutating || model.disconnecting) return;
@@ -330,7 +335,9 @@
     card.name = node("h3", "game-name"); card.status = node("span", "game-status"); identity.append(card.name, card.status);
     card.favorite = node("button", "favorite-button"); card.favorite.type = "button"; card.favorite.textContent = "☆";
     card.favorite.addEventListener("click", () => command("favorite", card.game, undefined, {enabled: !card.game.favorite}));
-    head.append(card.avatar, identity, card.favorite);
+    card.more = node("button", "game-menu-button"); card.more.type = "button"; card.more.textContent = "⋯";
+    card.more.addEventListener("click", () => { if (window.HorasDesktop) window.HorasDesktop.gameMenu(card.game); });
+    head.append(card.avatar, identity, card.favorite, card.more);
     card.session = node("div", "session-label"); card.elapsed = node("div", "elapsed"); card.elapsed.setAttribute("aria-live", "off");
     card.activity = node("div", "activity"); card.activity.append(node("i")); card.activityText = node("span"); card.activity.append(card.activityText);
     card.total = node("p", "total");
@@ -350,6 +357,7 @@
     card.favorite.classList.toggle("is-favorite", Boolean(game.favorite));
     card.favorite.setAttribute("aria-label", t(game.favorite ? "unfavorite" : "favorite") + " · " + game.name);
     card.favorite.setAttribute("aria-pressed", String(Boolean(game.favorite)));
+    card.more.setAttribute("aria-label", (model.language === "en" ? "Game actions" : "Ações do jogo") + " · " + game.name);
     updateArt(card, game);
     card.status.textContent = String(game.status_label || game.status || "").toUpperCase(); card.status.dataset.status = game.status;
     card.session.textContent = t("session"); card.activityText.textContent = t(game.running ? "playing" : game.pending ? "paused" : "ready");
@@ -370,7 +378,7 @@
     const blocked = !model.connected || model.mutating || model.disconnecting || Boolean(model.state && model.state.pending_recovery);
     card.start.disabled = blocked || card.game.running;
     card.pause.disabled = blocked || !card.game.running;
-    card.finish.disabled = blocked || !card.game.pending; card.favorite.disabled = blocked;
+    card.finish.disabled = blocked || !card.game.pending; card.favorite.disabled = blocked; card.more.disabled = blocked;
   }
   function updateControls() {
     cards.forEach(updateCardControls);
@@ -380,11 +388,12 @@
     $("export-library").disabled = blocked; $("remember-confirm").disabled = blocked;
     $("remember-button").disabled = Boolean(model.remembered) || blocked;
     document.querySelectorAll(".dialog-cancel").forEach(button => { button.disabled = model.mutating; });
+    document.dispatchEvent(new CustomEvent("horas:connection", {bubbles: true}));
   }
   function renderGames() {
     if (!model.state) return;
-    const games = model.state.games;
-    trimArt(games);
+    const games = window.HorasDesktop ? window.HorasDesktop.filterGames(model.state.games) : model.state.games;
+    trimArt(model.state.games);
     const ids = new Set(games.map(game => game.id));
     for (const [id, card] of cards) if (!ids.has(id)) { if (artObserver) artObserver.unobserve(card.element); card.element.remove(); cards.delete(id); }
     const query = normalize($("search").value.trim());
@@ -398,7 +407,7 @@
     }
     if (!active.some(card => card.game.id === model.focusGame)) model.focusGame = active.length ? active[0].game.id : "";
     const focused = model.focus && active.length > 0 && !query;
-    $("control-view").classList.toggle("focus-mode", focused); document.body.classList.toggle("is-focused", focused);
+    $("control-view").classList.toggle("focus-mode", focused); document.body.classList.toggle("is-focused", focused && (!window.HorasDesktop || window.HorasDesktop.getPage() === "library"));
     $("mode-toolbar").hidden = !active.length;
     $("focus-toggle").textContent = t(focused ? "show_library" : "focus_mode");
     $("focus-toggle").setAttribute("aria-pressed", String(focused));
@@ -549,6 +558,41 @@
   window.addEventListener("offline", markOffline);
   setInterval(() => { if (!document.hidden && !model.initializing && !model.pairing && !model.resuming) { if (model.token) syncState(); else if (model.remembered && !$("pair-code").value) resumeRemembered(); } }, 2000);
   setInterval(() => { if (!document.hidden && model.connected) cards.forEach(updateClock); }, 250);
+
+  async function commandRaw(body) {
+    if (!model.connected || model.mutating || model.disconnecting) throw apiError("unavailable");
+    model.mutating = true; model.epoch++; updateControls();
+    const epoch = model.epoch;
+    let recoverAuth = false;
+    try {
+      const result = await api("/api/command", {request_id: requestId(), workspace_revision: model.state && model.state.workspace_revision, ...body});
+      if (result.state && epoch === model.epoch) acceptState(result.state);
+      return result;
+    } catch (error) {
+      if (error.code === "unauthorized") { recoverAuth = true; markOffline(); }
+      else if (error.code === "unavailable") markOffline();
+      throw error;
+    } finally {
+      model.mutating = false; model.epoch++; updateControls();
+      if (recoverAuth) {
+        model.token = ""; storage.write("");
+        if (model.remembered) await resumeRemembered(); else disconnect("unauthorized");
+        if (model.connected) setNotice("reconnect_review");
+      } else if (model.token) await syncState();
+    }
+  }
+  async function download(path, filename) {
+    if (!model.token) throw apiError("unauthorized");
+    const response = await fetch(path, {headers: {Authorization: "Bearer " + model.token}, cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer"});
+    if (!response.ok) throw apiError("unavailable");
+    const url = URL.createObjectURL(await response.blob());
+    const link = node("a"); link.href = url; link.download = filename; link.hidden = true;
+    document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  window.HorasPhone = {api, commandRaw, getState: () => model.state, connected: () => model.connected, ready: () => model.connected && !model.mutating && !model.disconnecting,
+    language: () => model.language, errorText, clock, duration, refresh: syncState, renderGames, download,
+    subscribe(callback) { subscribers.add(callback); if (model.state) callback(model.state, model.connected); return () => subscribers.delete(callback); }};
 
   (async () => {
     applyInfo({language: "pt", theme: "dark"});

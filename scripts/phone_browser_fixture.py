@@ -56,6 +56,7 @@ def main():
         painter.fillRect(285, 0, 175, 145, QColor('#49596e'))
         painter.end()
         data = QBuffer(); data.open(QIODevice.WriteOnly); sample.save(data, 'PNG')
+        fixture_png = bytes(data.data())
         controller = Controller(folder)
         game = next(item for item in controller.repo.jogos if item.nome == 'Hollow Knight')
         CoverStore(folder).save_many([(game.id, normalize_image(bytes(data.data())), {'source': 'browser-test'})])
@@ -101,6 +102,18 @@ def main():
                     server.start('127.0.0.1', port)
                 if data.get('invalidate'):
                     window.phone_control.invalidate()
+                if data.get('stub_artwork'):
+                    from horas_jogadas_qt import artwork_sources
+                    from horas_jogadas_qt.covers import Candidate
+                    artwork_sources.search_artwork = lambda title, **kwargs: artwork_sources.SearchResults([
+                        Candidate(42, title, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/42/header.jpg', 1.0)])
+                    artwork_sources.download_artwork = lambda candidate, cancel, **kwargs: normalize_image(fixture_png, kwargs.get('kind', 'cover'))
+                if data.get('stub_update'):
+                    from horas_jogadas_qt import updates
+                    updates.check_release = lambda: updates.Release('99.0.0', 'Atualização sintética de teste',
+                        'https://github.com/JoaoPPolli/HorasJogadas/releases/download/v99.0.0/HorasJogadas-Linux-x86_64.tar.gz',
+                        1, 'https://github.com/JoaoPPolli/HorasJogadas/releases/download/v99.0.0/SHA256SUMS.txt',
+                        'HorasJogadas-Linux-x86_64.tar.gz')
                 if data.get('expire_pairing'):
                     server._pairing_deadline = time.monotonic() - 1
                 if data.get('expire_sessions'):

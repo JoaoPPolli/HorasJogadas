@@ -1,9 +1,19 @@
-# HorasJogadas 3.5.1 — reconexão do celular lembrado
+# HorasJogadas 3.6.0 — seu app completo no controle pelo celular
 
-Corrigida a perda da autorização ao fechar o navegador do celular e reabrir o endereço original de um QR Code já expirado. O painel agora usa a autorização salva antes de tentar outro pareamento.
+O controle conectado agora reúne **Biblioteca, Histórico, Estatísticas, Zerados e Configurações**, com navegação para o celular e as cores do seu app. Tudo usa os mesmos registros e cronômetros do computador.
 
-A expiração da sessão temporária também renova a conexão sem apagar o aparelho lembrado. Falhas transitórias preservam o acesso salvo, e os comandos do contador não são repetidos automaticamente. Desconectar o celular ou remover seu acesso no PC continua revogando a autorização.
+- Organize jogos, altere status, ajuste o tempo e conte pausas.
+- Adicione e edite sessões, desfaça exclusões e exporte o histórico em CSV.
+- Consulte estatísticas por período e seus jogos por atividade recente.
+- Registre campanhas, DLCs, novas jogadas, observações e platina; confira e importe TXT ou exporte o ano.
+- Altere tema, idioma e preferências; busque e importe capas e ícones, inclusive imagens do celular.
+- Crie e baixe backups completos, confira restaurações e gerencie aparelhos lembrados.
+- Verifique, baixe e confirme a instalação de atualizações no PC pelo painel.
 
-Atualize o app no PC e recarregue a página do celular. Se a versão anterior já apagou a autorização do navegador, conecte novamente e marque **Lembrar este celular** uma vez. Registros, favoritos e cronômetros permanecem preservados.
+Para usar, atualize o app no PC e **recarregue a página do controle no celular**. Ative a conexão em **Configurações → Controle pelo celular**. O PC precisa continuar ligado, acordado e com o app aberto, na mesma rede. Após instalar uma atualização e reiniciar o app, ative a conexão novamente no PC.
 
-Atualize em **Configurações → Verificar atualizações** ou use os arquivos abaixo. Windows: instalador ou ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Confira `SHA256SUMS.txt`.
+Seus registros continuam na mesma pasta; a atualização cria backup antes da primeira leitura. Restaurações são conferidas antes de substituir dados, e alterações feitas no PC são verificadas antes de salvar um formulário do celular. A correção de reconexão dos aparelhos lembrados permanece incluída.
+
+Este update amplia o **controle conectado ao PC**. O contador independente que funciona offline continua separado.
+
+Atualize em **Configurações → Verificar atualizações** ou baixe os arquivos abaixo. Windows: instalador ou ZIP portátil. Linux x86_64: `HorasJogadas-Linux-x86_64.tar.gz`. Confira `SHA256SUMS.txt`.

@@ -1140,11 +1140,13 @@ class Window(QMainWindow):
             event.ignore(); return
         if self.closing_allowed or self.pending_recovery:
             self.phone_control.server.stop()
+            self.phone_control.desktop.cleanup()
             event.accept()
         elif self.resolve_pending():
             try:
                 self.c.repo.limpar_andamento()
                 self.phone_control.server.stop()
+                self.phone_control.desktop.cleanup()
                 event.accept()
             except OSError as error:
                 QMessageBox.critical(self,tr('error'),str(error)); event.ignore()

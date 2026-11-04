@@ -3,6 +3,7 @@ import hashlib
 import ipaddress
 import json
 import secrets
+from dataclasses import asdict
 
 from PySide6.QtCore import QObject, QTimer, Qt, QRectF, QUrl
 from PySide6.QtGui import QColor, QPainter, QPixmap, QDesktopServices
@@ -66,8 +67,16 @@ class PhoneControl(QObject):
         self.serial = 0
         self.nonce = secrets.token_hex(16)
         self.trust_store = TrustStore(window.c.folder)
+        from .phone_records import PhoneRecords
+        from .phone_management import PhoneManagement
+        from .phone_desktop import PhoneDesktop
+        self.records = PhoneRecords(self)
+        self.management = PhoneManagement(self)
+        self.desktop = PhoneDesktop(self)
+        self.actions = frozenset(('start', 'pause', 'finish', 'add', 'favorite')) | self.records.actions | self.management.TRANSACTIONAL_ACTIONS | self.management.SPECIAL_ACTIONS | self.desktop.actions
         self.server = RemoteServer(self.snapshot, self.command, self,
-                                   trust_store=self.trust_store, media=self.media, library=self.library)
+                                   trust_store=self.trust_store, media=self.media, library=self.library,
+                                   view=self.view, query=self.query, export=self.export, actions=self.actions)
 
     def invalidate(self):
         self.serial += 1
@@ -78,12 +87,90 @@ class PhoneControl(QObject):
                   sorted((str(day), seconds) for day, seconds in timer.dias.items()))
         return hashlib.sha256(json.dumps(fields, ensure_ascii=False).encode()).hexdigest()
 
+    def workspace_revision(self):
+        c = self.window.c
+        fields = [self.nonce, self.serial, c.config, preferences.read(c.folder),
+                  [g.to_dict() for g in c.repo.jogos], [s.to_dict() for s in c.repo.sessoes],
+                  [asdict(r) for r in c.zerados.registros],
+                  [self.revision(g, c.timers[g.id]) for g in c.repo.jogos]]
+        return hashlib.sha256(json.dumps(fields, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+    def view(self, page, values):
+        if page in ('history', 'stats', 'completed'):
+            return self.records.view(page, values)
+        if page == 'updates' or page == 'job' and values.get('id') == 'update':
+            return self.desktop.view(page, values)
+        return self.management.view(page, values)
+
+    def query(self, body):
+        if not isinstance(body, dict):raise RemoteError(400, 'invalid')
+        if body.get('query') == 'completion_import':
+            return self.records.preview_import(body.get('text'), body.get('year'))
+        if body.get('query') == 'update_check':
+            self.ensure_ready()
+            return self.desktop.query(body)
+        return self.management.query(body)
+
+    def export(self, kind, values):
+        if kind == 'full_backup' and not values.get('id'):
+            self.ensure_ready()
+        if kind in ('history_csv', 'summary_csv', 'completions_txt'):
+            return self.records.export(kind, values)
+        return self.management.export(kind, values)
+
+    def ensure_ready(self, action=''):
+        if self.window.pending_recovery and action != 'pending_recover':
+            raise RemoteError(409, 'recovery')
+        if QApplication.activeModalWidget() is not None:
+            raise RemoteError(409, 'busy')
+
+    def refresh_desktop(self):
+        w = self.window
+        w.totals = w.c.repo.totais_por_jogo_id()
+        try:
+            w.refresh()
+            w.update_activity()
+        except Exception:
+            import logging
+            logging.getLogger('horas_jogadas').exception('Falha ao redesenhar após comando do celular')
+
+    def desktop_command(self, body):
+        action = body.get('action')
+        self.ensure_ready(action)
+        if body.get('workspace_revision') != self.workspace_revision():
+            raise RemoteError(409, 'conflict')
+        if action in self.desktop.actions:
+            result = self.desktop.execute(body)
+        elif action in self.records.actions:
+            if self.records.needs_backup(action):
+                from .backup import create_full, read_full
+                read_full(create_full(self.window.c.folder))
+            with self.window.c.transaction():
+                result = self.records.execute(body)
+            self.records.after_commit(body, result)
+        elif action in self.management.TRANSACTIONAL_ACTIONS:
+            with self.window.c.transaction():
+                result = self.management.execute(body)
+            if action == 'settings_save':self.management.apply_ui()
+        elif action in self.management.SPECIAL_ACTIONS:
+            result = self.management.execute(body)
+            if action in ('backup_restore', 'backup_restore_local', 'legacy_restore'):
+                self.management.apply_ui()
+        else:
+            raise RemoteError(400, 'invalid')
+        if action not in ('art_import', 'job_cancel', 'update_download', 'update_cancel', 'pc_open_data', 'pc_create_review', 'backup_create'):
+            self.invalidate()
+        self.refresh_desktop()
+        return dict(result or {}, ok=True, state=self.snapshot())
+
     def snapshot(self):
         w = self.window
         theme = w.theme_name()
         palette = dict(zip(('bg', 'side', 'card', 'border', 'text', 'muted', 'accent', 'on_accent'),
                            PALETTES.get(theme, PALETTES['dark'])))
         totals = w.c.repo.totais_por_jogo_id()
+        from horas_jogadas.stats import ultima_sessao_por_jogo_id
+        latest = ultima_sessao_por_jogo_id(w.c.repo.sessoes)
         prefs = preferences.read(w.c.folder)
         favorites = prefs.get('phone_favorites', [])
         favorites = set(value for value in favorites if isinstance(value, str)) if isinstance(favorites, list) else set()
@@ -101,11 +188,14 @@ class PhoneControl(QObject):
             games.append(dict(id=game.id, name=game.nome, status=game.status, status_label=t_status(game.status),
                               total_seconds=totals.get(game.id, 0) + seconds, seconds=seconds,
                               running=timer.rodando, paused=timer.pausado, pending=timer.pending,
-                              revision=self.revision(game, timer), favorite=game.id in favorites, art=art))
+                              revision=self.revision(game, timer), favorite=game.id in favorites, art=art,
+                              pause_seconds=max(0, int(timer.clock.time()-timer.pausa)) if timer.pausado else 0))
+            games[-1]['last_played'] = latest[game.id].isoformat() if game.id in latest else None
         return dict(theme=theme, language=i18n.idioma_atual(), palette=palette, version=VERSION,
                     games=games, active_count=sum(g['running'] for g in games),
                     pending_recovery=w.pending_recovery, covers_enabled=covers, icons_enabled=icons,
-                    companion_url=COMPANION_URL)
+                    companion_url=COMPANION_URL, workspace_revision=self.workspace_revision(),
+                    library_order=w.c.config.get('ordenacao', 'manual'))
 
     def media(self, game_id, kind):
         from .backup import safe_path
@@ -131,11 +221,17 @@ class PhoneControl(QObject):
 
     def command(self, body):
         w = self.window
+        if isinstance(body, dict) and body.get('action') not in ('start', 'pause', 'finish', 'add', 'favorite'):
+            try:
+                return self.desktop_command(body)
+            except RemoteError:raise
+            except (ValueError, TypeError, KeyError):raise RemoteError(400, 'invalid') from None
+            except Exception:raise RemoteError(500, 'storage') from None
         if w.pending_recovery:
             raise RemoteError(409, 'recovery')
         if QApplication.activeModalWidget() is not None:
             raise RemoteError(409, 'busy')
-        if not isinstance(body, dict) or set(body) - {'request_id', 'action', 'game_id', 'revision', 'name', 'enabled'}:
+        if not isinstance(body, dict) or set(body) - {'request_id', 'action', 'game_id', 'revision', 'name', 'enabled', 'workspace_revision'}:
             raise RemoteError(400, 'invalid')
         action = body.get('action')
         if action not in ('start', 'pause', 'finish', 'add', 'favorite'):

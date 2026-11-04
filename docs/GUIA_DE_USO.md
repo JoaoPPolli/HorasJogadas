@@ -1,4 +1,4 @@
-# Guia de uso — HorasJogadas 3.0
+# Guia de uso — HorasJogadas 3.6
 
 ## Instalar e atualizar
 
@@ -31,7 +31,21 @@ Use para contar partidas no PS5 ou em outro console enquanto estiver longe do te
 3. Escaneie o QR Code com a câmera do celular. Ou copie o endereço exibido, abra no navegador do telefone e digite o código temporário de seis dígitos.
 4. Escolha o jogo, inicie a sessão e jogue. Use Pausar e Retomar quando necessário. **Encerrar e salvar** grava o tempo no histórico do PC.
 
-A página usa o tema e o idioma escolhidos no app. Também permite adicionar jogos. Bloquear a tela do celular não pausa o cronômetro: ele roda no PC. Ao retornar ao navegador, a página sincroniza antes de aceitar comandos; comandos com um estado antigo são recusados, sem substituir uma alteração feita no computador. Toques repetidos no mesmo pedido não duplicam sessões.
+A página usa o tema e o idioma escolhidos no app. Bloquear a tela do celular não pausa o cronômetro: ele roda no PC. Ao retornar ao navegador, a página sincroniza antes de aceitar comandos; comandos com um estado antigo são recusados, sem substituir uma alteração feita no computador. Toques repetidos no mesmo pedido não duplicam sessões.
+
+O painel conectado tem cinco páginas na navegação inferior:
+
+- **Biblioteca:** busque e filtre jogos, escolha a ordenação e use o menu de cada cartão para renomear, trocar status, ajustar tempo, contar a pausa, reorganizar ou excluir. Os atalhos de minutos preenchem o ajuste; confira e salve. Ao excluir um jogo com sessão aberta, escolha antes salvar ou descartar o tempo.
+- **Histórico:** adicione ou edite sessões, filtre a lista, exclua e desfaça a exclusão mais recente. Use **Exportar CSV** para baixar o arquivo no celular. Apagar todo o histórico pede confirmação e cria backup.
+- **Estatísticas:** escolha o período do gráfico, consulte os mais jogados e a lista pela atividade recente, filtre por status e exporte o resumo CSV. Excluir o histórico de um jogo também exige confirmação e backup.
+- **Zerados:** selecione o ano e registre campanhas, DLCs, experiências, novas jogadas, data, observações e tempo adicional de platina. A lista continua independente do histórico. Importe TXT com conferência dos registros ou exporte o ano para o celular.
+- **Configurações:** altere tema, idioma, exibição de capas e ícones e verificação automática de versões. Busque imagens em lote ou envie uma imagem do celular, confira a prévia e importe. Crie backups no PC, baixe uma cópia no telefone e confira um backup antes de restaurar; escolha o destino das sessões abertas quando solicitado. Arquivos de sessões do contador independente também podem ser importados com revisão.
+
+Em Configurações, os aparelhos lembrados podem ter o acesso removido individualmente. **No computador** abre a pasta de dados no PC ou prepara uma cópia isolada do perfil atual para revisão, sem transferir a pasta para o celular. A recuperação de sessões pendentes permite salvar ou descartar o tempo antes de continuar.
+
+**Atualizar pelo controle:** em **Configurações → Sempre em dia**, verifique a versão, baixe e confirme **Instalar e reiniciar**. A instalação acontece no computador usando o atualizador do pacote oficial, com validação e backup. O app do PC fecha e reinicia; depois, ative o controle novamente no PC. A execução pelo código-fonte permite consultar versões, mas a instalação integrada depende do pacote oficial.
+
+As preferências alteradas pelo telefone também mudam no PC. Se os dados mudarem enquanto um formulário estiver aberto, confira a versão atual antes de tentar salvar novamente. Uma janela de edição aberta no computador pode precisar ser concluída para liberar a operação. Após atualizar o aplicativo, **recarregue a página do controle no celular**.
 
 QR Code e código expiram em cinco minutos. Gere um novo código se necessário; isso desconecta todos os aparelhos pareados, inclusive os lembrados. **Desconectar este celular** revoga somente o acesso daquele navegador. O servidor começa desativado em cada abertura do app.
 
@@ -83,7 +97,7 @@ Em **Configurações**, escolha **Escuro minimalista**, **Original** (cinza e ro
 
 Windows: `%APPDATA%\HorasJogadas`. Linux: `~/HorasJogadas`. Não mova nem apague essa pasta durante uma atualização.
 
-Na primeira abertura da versão 3.0, os arquivos existentes são copiados e conferidos por SHA-256 antes do carregamento. O backup fica em uma pasta vizinha `HorasJogadas-Backups-de-Versao/<versão-data>/`: `data/` guarda os arquivos e `manifest.json` guarda as somas. Falhas interrompem a abertura antes de carregar os registros.
+Na primeira abertura de cada nova versão oficial, os arquivos existentes são copiados e conferidos por SHA-256 antes do carregamento. O backup fica em uma pasta vizinha `HorasJogadas-Backups-de-Versao/<versão-data>/`: `data/` guarda os arquivos e `manifest.json` guarda as somas. Falhas interrompem a abertura antes de carregar os registros.
 
 Em Configurações, crie backups completos, valide-os e restaure quando necessário. Restaurar substitui o estado atual; o app cria uma cópia preventiva. Para uma cópia manual, feche o app e copie **toda a pasta de dados**, incluindo `zerados.json` e arquivos de sessão pendente.
 
