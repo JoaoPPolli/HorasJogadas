@@ -11,7 +11,7 @@ from horas_jogadas import i18n
 
 PORT = 48968
 ASSETS = Path(__file__).with_name('assets') / 'obs'
-DEFAULTS = dict(enabled=False, game='auto', scope='session', style='arcade', color='#e8cba7', show_name=False)
+DEFAULTS = dict(enabled=False, game='auto', scope='session', style='minimal', color='#ffffff', show_name=False)
 
 
 def read_options(folder):

@@ -21,7 +21,7 @@
       document.getElementById("name").textContent=data.name||"";
       const english=data.language==="en";document.documentElement.lang=english?"en":"pt-BR";
       ["hours","minutes","seconds"].forEach((id,i)=>document.getElementById(id+"-label").textContent=(english?["HOURS","MINUTES","SECONDS"]:["HORAS","MINUTOS","SEGUNDOS"])[i]);
-      widget.className=["arcade","minimal","digital"].includes(data.style)?data.style:"arcade";
+      widget.className=["arcade","minimal","digital"].includes(data.style)?data.style:"minimal";
       if(/^#[a-f0-9]{6}$/i.test(data.color))document.documentElement.style.setProperty("--ink",data.color);
       widget.style.setProperty("--scale",String(Math.max(1,hours.length/2.7)));
       widget.hidden=false;

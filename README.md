@@ -124,6 +124,6 @@ Em **Configurações → Widget para OBS**, marque **Ativar widget do OBS neste 
 
 Clique em **Copiar link para o OBS**. No OBS Studio, adicione **Fontes → + → Navegador**, cole o link e configure **600 × 180** pixels, ou **600 × 240** com o nome do jogo. Preserve o CSS padrão do OBS para o fundo transparente. A opção **Abrir prévia** mostra o resultado no navegador. Ajuste o tamanho da fonte na cena do OBS.
 
-Os estilos Arcade, Minimalista e Digital aceitam cor no formato `#RRGGBB`. As alterações aparecem sem recadastrar a fonte. O timer pausa e retoma junto com o app, sem reiniciar horas ao completar um dia. Se o app fechar ou a conexão falhar, o widget fica oculto em poucos segundos e volta ao reconectar.
+O padrão é branco e Minimalista. Arcade e Digital são alternativas; todos aceitam cor no formato `#RRGGBB`. As alterações aparecem sem recadastrar a fonte. O timer pausa e retoma junto com o app, sem reiniciar horas ao completar um dia. Se o app fechar ou a conexão falhar, o widget fica oculto em poucos segundos e volta ao reconectar.
 
 O app e o OBS devem estar **no mesmo computador**, Windows ou Linux. A conexão é local e somente de leitura, sem controle de gravação ou transmissão. Não depende do controle pelo celular. O link continua válido ao reabrir o app; quando habilitado, o widget inicia junto com a edição oficial. A cópia de revisão só ativa o widget manualmente. A chave local não é exportada nos backups.

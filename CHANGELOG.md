@@ -6,7 +6,7 @@ Mudanças conhecidas por versão. A publicação do código e a distribuição d
 
 - Integração com OBS em Configurações: widget com fundo transparente para adicionar como Fonte de navegador, sem plugins ou conta.
 - Exibe a sessão atual ou o tempo total do jogo; pode seguir o último cronômetro iniciado/retomado ou mostrar um jogo fixo.
-- Estilos Arcade, Minimalista e Digital, cor personalizada e nome do jogo opcional. Horas não reiniciam ao completar 24h.
+- Visual branco e minimalista por padrão; estilos Arcade e Digital como alternativas, cor personalizada e nome do jogo opcional. Horas não reiniciam ao completar 24h.
 - O widget acompanha pausas e ajustes do app, oculta o tempo quando perde conexão e reconecta usando o mesmo link.
 - Servidor somente de leitura no próprio PC, independente do controle pelo celular; não expõe biblioteca ou histórico nem aceita comandos.
 - Desativado por padrão; quando habilitado, volta a funcionar ao abrir a edição oficial. A chave local não acompanha backups ou cópias de revisão.
