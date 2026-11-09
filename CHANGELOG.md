@@ -2,6 +2,10 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.7.1
+
+- O widget fica oculto imediatamente quando preferências restauradas desativam a integração OBS. Mantidos o padrão branco minimalista e os estilos alternativos.
+
 ## 3.7.0
 
 - Integração com OBS em Configurações: widget com fundo transparente para adicionar como Fonte de navegador, sem plugins ou conta.

@@ -1,4 +1,4 @@
-# HorasJogadas 3.7.0 — seu timer no OBS
+# HorasJogadas 3.7.1 — seu timer no OBS
 
 Novo **Widget para OBS**, com fundo transparente, visual branco e minimalista por padrão.
 
