@@ -82,3 +82,9 @@ python -m http.server 8000 --directory build/site
 ```
 
 O site usa assets locais e links estáveis `releases/latest/download/`. As capturas devem conter apenas dados fictícios. Não versionar `build/`, `dist/`, `release/`, diagnósticos nem dados pessoais.
+
+## Widget OBS
+
+`obs.py` reutiliza o transporte HTTP limitado do controle conectado em um servidor separado, preso ao loopback. As rotas expõem apenas HTML/CSS/JS e o estado do timer selecionado, sem operações de escrita. A chave em `.obs-key` permanece local e não acompanha backups ou cópias de revisão. `obs_card.py` configura o widget na interface Qt; os arquivos em `assets/obs` são incluídos pelo empacotamento.
+
+Valide as regras do cronômetro e as rotas com `python -m unittest tests_qt.test_obs`. `node scripts/verify_obs_browser.cjs --python python` verifica transparência, padrão branco, estilos, pausa, reconexão e independência do controle pelo celular no Chromium. O autoteste nativo também confere os assets e o endpoint autorizado dentro do pacote.
