@@ -70,3 +70,6 @@ site-verification.json
 # Cache pessoal de capas e recuperação Linux
 covers/
 .qt-linux-recovery.json
+
+# Chave local do widget OBS
+.obs-key

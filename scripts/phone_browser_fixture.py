@@ -73,7 +73,7 @@ def main():
 
         def connection():
             write_private(args.output, {'url': server.url, 'pairing_url': server.pairing_url,
-                                        'code': server.pairing_code, 'control_nonce': control_nonce})
+                                        'code': server.pairing_code, 'control_nonce': control_nonce, 'obs_url': window.obs_control.url})
 
         connection()
         last = None
@@ -94,6 +94,13 @@ def main():
                 if 'covers_enabled' in data or 'icons_enabled' in data:
                     preferences.save(folder, **{key: data[key] for key in ('covers_enabled', 'icons_enabled') if key in data})
                     window.refresh()
+                if 'obs' in data:
+                    window.obs_control.save(data['obs'])
+                if 'obs_seconds' in data:
+                    timer = window.c.timers[game.id]; timer.reset(); timer.adjust(data['obs_seconds'])
+                if data.get('obs_action'):
+                    if data['obs_action'] == 'stop_phone':server.stop()
+                    else:getattr(window.c.timers[game.id], data['obs_action'])()
                 if data.get('renew'):
                     server.regenerate_pairing()
                 if data.get('restart'):

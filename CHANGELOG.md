@@ -2,6 +2,15 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.7.0
+
+- Integração com OBS em Configurações: widget com fundo transparente para adicionar como Fonte de navegador, sem plugins ou conta.
+- Exibe a sessão atual ou o tempo total do jogo; pode seguir o último cronômetro iniciado/retomado ou mostrar um jogo fixo.
+- Estilos Arcade, Minimalista e Digital, cor personalizada e nome do jogo opcional. Horas não reiniciam ao completar 24h.
+- O widget acompanha pausas e ajustes do app, oculta o tempo quando perde conexão e reconecta usando o mesmo link.
+- Servidor somente de leitura no próprio PC, independente do controle pelo celular; não expõe biblioteca ou histórico nem aceita comandos.
+- Desativado por padrão; quando habilitado, volta a funcionar ao abrir a edição oficial. A chave local não acompanha backups ou cópias de revisão.
+
 ## 3.6.1
 
 - Nova seção Inicialização nas Configurações: abrir o HorasJogadas ao entrar no Windows ou Linux, sem administrador.

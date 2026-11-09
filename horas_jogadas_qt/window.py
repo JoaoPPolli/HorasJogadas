@@ -138,6 +138,8 @@ class Window(QMainWindow):
         self.pending_recovery = bool(self.c.repo.carregar_andamento())
         from .phone_control import PhoneControl
         self.phone_control = PhoneControl(self)
+        from .obs import ObsControl
+        self.obs_control = ObsControl(self)
         self.closing_allowed = False
         self.last_heartbeat, self.last_backup = time.monotonic(), time.monotonic()
         self.setWindowTitle('HorasJogadas '+VERSION if self.mode=='release' else 'HorasJogadas · '+self.ui_text('review'))
@@ -156,6 +158,8 @@ class Window(QMainWindow):
         self.timer.start()
         if self.mode == 'release':
             QTimer.singleShot(1000, self.phone_control.auto_start)
+        if self.mode == 'release':
+            QTimer.singleShot(1000, self.obs_control.auto_start)
         self.available_update=None
         if self.mode=='release' and getattr(sys,'frozen',False):
             QTimer.singleShot(1800,self.check_updates_automatically)
@@ -895,6 +899,8 @@ class Window(QMainWindow):
         box.addWidget(launch)
         box.addWidget(PhoneControlCard(self.phone_control))
         box.addWidget(PhoneOfflineCard(self))
+        from .obs_card import ObsCard
+        box.addWidget(ObsCard(self.obs_control))
         appearance=QFrame(); appearance.setObjectName('card'); form=QVBoxLayout(appearance)
         form.setContentsMargins(22,20,22,20); form.setSpacing(14)
         form.addWidget(label(tr('theme'),'gameName'))
@@ -1163,12 +1169,14 @@ class Window(QMainWindow):
             QTimer.singleShot(100,self.close)
             event.ignore(); return
         if self.closing_allowed or self.pending_recovery:
+            self.obs_control.server.stop()
             self.phone_control.server.stop()
             self.phone_control.desktop.cleanup()
             event.accept()
         elif self.resolve_pending():
             try:
                 self.c.repo.limpar_andamento()
+                self.obs_control.server.stop()
                 self.phone_control.server.stop()
                 self.phone_control.desktop.cleanup()
                 event.accept()

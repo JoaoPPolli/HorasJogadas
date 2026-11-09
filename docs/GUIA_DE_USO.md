@@ -129,3 +129,13 @@ Capas e ícones são independentes: os ícones funcionam no visual compacto. Des
 Em **Configurações → Inicialização**, escolha **Abrir HorasJogadas ao entrar no computador** e/ou **Ativar controle pelo celular ao abrir o app** e clique em **Salvar**. As opções começam desativadas e valem para a edição oficial. O início com o sistema vale para o usuário atual no Windows e Linux, sem administrador; desmarque e salve para remover. Mantenha a pasta do programa no mesmo lugar.
 
 O controle usa a última rede escolhida quando disponível, ou outra rede local ativa. Se a rede ainda estiver iniciando, tenta novamente por até um minuto. Celulares lembrados podem reconectar; aparelhos novos precisam parear. O PC precisa estar ligado e acordado. As mesmas opções estão nas Configurações do painel conectado.
+
+## Widget para OBS
+
+Em **Configurações → Widget para OBS**, marque **Ativar widget do OBS neste computador**, escolha o jogo, o tempo exibido e a aparência, e clique em **Salvar**. **Seguir o cronômetro em execução** acompanha o último jogo iniciado ou retomado; você também pode fixar um jogo. Escolha entre sessão atual e tempo total (histórico mais a sessão aberta).
+
+Clique em **Copiar link para o OBS**. No OBS Studio, adicione **Fontes → + → Navegador**, cole o link e configure **600 × 180** pixels, ou **600 × 240** com o nome do jogo. Preserve o CSS padrão do OBS para o fundo transparente. A opção **Abrir prévia** mostra o resultado no navegador. Ajuste o tamanho da fonte na cena do OBS.
+
+Os estilos Arcade, Minimalista e Digital aceitam cor no formato `#RRGGBB`. As alterações aparecem sem recadastrar a fonte. O timer pausa e retoma junto com o app, sem reiniciar horas ao completar um dia. Se o app fechar ou a conexão falhar, o widget fica oculto em poucos segundos e volta ao reconectar.
+
+O app e o OBS devem estar **no mesmo computador**, Windows ou Linux. A conexão é local e somente de leitura, sem controle de gravação ou transmissão. Não depende do controle pelo celular. O link continua válido ao reabrir o app; quando habilitado, o widget inicia junto com a edição oficial. A cópia de revisão só ativa o widget manualmente. A chave local não é exportada nos backups.

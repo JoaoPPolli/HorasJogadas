@@ -1,12 +1,14 @@
-# HorasJogadas 3.6.1 — pronto para jogar ao ligar o PC
+# HorasJogadas 3.7.0 — seu timer no OBS
 
-Duas novas opções em **Configurações → Inicialização**:
+Novo **Widget para OBS**, com fundo transparente e visual inspirado em contadores de transmissão.
 
-- **Abrir HorasJogadas ao entrar no computador**, no Windows e Linux, sem administrador.
-- **Ativar controle pelo celular ao abrir o app**, para celulares lembrados reconectarem sem precisar ativar manualmente a conexão a cada abertura.
+- Mostre a sessão atual ou o tempo total do jogo.
+- Siga o último cronômetro iniciado/retomado ou fixe um jogo.
+- Escolha Arcade, Minimalista ou Digital, personalize a cor e mostre o nome do jogo se quiser.
+- Pausas, retomadas e ajustes acompanham o app. O link permanece válido após reabrir.
 
-Marque as opções desejadas e clique em **Salvar**. Ambas começam desativadas e também podem ser alteradas no painel conectado. A cópia para revisão não muda a inicialização do computador.
+Em **Configurações → Widget para OBS**, ative, personalize e salve. Copie o link e adicione no OBS como **Fonte de navegador**, com tamanho **600 × 180** (ou **600 × 240** com nome).
 
-A conexão reutiliza a última rede disponível e tenta novamente por até um minuto se a rede ainda estiver iniciando. O PC precisa permanecer ligado e acordado. Aparelhos novos continuam precisando parear.
+O app deve ficar aberto no mesmo PC do OBS. A conexão é local e somente de leitura, independente do controle pelo celular. O widget se oculta se perder conexão e volta quando o app estiver disponível.
 
-Seus registros e cronômetros permanecem preservados. Atualize em **Configurações → Verificar atualizações** ou baixe os pacotes abaixo. Depois de atualizar, recarregue o painel do celular.
+Seus registros permanecem preservados. Atualize pelo próprio app ou baixe os pacotes para Windows/Linux abaixo.

@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 
 MARKER = '.horasjogadas-preview.json'
-IGNORED = {'app.lock', 'mostrar.sinal', 'app.log', '.phone-devices.json', '.phone-devices.json.bak'}
+IGNORED = {'.obs-key','app.lock', 'mostrar.sinal', 'app.log', '.phone-devices.json', '.phone-devices.json.bak'}
 
 
 def inventory(root):
