@@ -1,95 +1,25 @@
 {
   "phase": "release",
   "version": "3.7.1",
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/42721576713",
-  "commit": "862b78db911153e2a95808da47381048c6895267",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/42722549774",
+  "commit": "b49f139f919e71bc4df3284185578e92b07c4f80",
   "build": "success",
-  "publish": "success",
+  "publish": "failure",
   "pages": "separate-workflow",
-  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.7.1",
+  "release_url": "",
   "site_url": "https://joaoppolli.github.io/HorasJogadas/",
   "diagnostics": {
     "tests-tests_qt-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "store-i9f2cov7'>\n  _warnings.warn(warn_message, ResourceWarning)\nC:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\tempfile.py:940: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\horas-phone-restore-kd1u_x5p'>\n  _warnings.warn(warn_message, ResourceWarning)\n.........................................................s..s.....ss....\n----------------------------------------------------------------------\nRan 241 tests in 85.658s\n\nOK (skipped=5)\n"
+      "log_tail": "store-5smmakp7'>\n  _warnings.warn(warn_message, ResourceWarning)\nC:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\tempfile.py:940: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\horas-phone-restore-40v99nre'>\n  _warnings.warn(warn_message, ResourceWarning)\n.........................................................s..s.....ss....\n----------------------------------------------------------------------\nRan 241 tests in 83.492s\n\nOK (skipped=5)\n"
     },
     "tests-tests-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.188s\n\nOK\n"
+      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.396s\n\nOK\n"
     },
     "jobs": [
-      {
-        "conclusion": "success",
-        "name": "phone-browser",
-        "steps": [
-          {
-            "conclusion": "success",
-            "name": "Set up job"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-node@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Phone control dependencies"
-          },
-          {
-            "conclusion": "success",
-            "name": "Real phone browser and desktop integration"
-          },
-          {
-            "conclusion": "success",
-            "name": "Connected phone desktop pages and records"
-          },
-          {
-            "conclusion": "success",
-            "name": "Connected phone settings, artwork and backups"
-          },
-          {
-            "conclusion": "success",
-            "name": "OBS transparent browser widget and real timers"
-          },
-          {
-            "conclusion": "success",
-            "name": "Remembered phone browser restart and authorization recovery"
-          },
-          {
-            "conclusion": "success",
-            "name": "Installed companion and offline session integrity"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/setup-node@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Complete job"
-          }
-        ]
-      },
       {
         "conclusion": "success",
         "name": "build (windows-latest, windows)",
@@ -165,6 +95,76 @@
           {
             "conclusion": "success",
             "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "name": "phone-browser",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-node@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Phone control dependencies"
+          },
+          {
+            "conclusion": "success",
+            "name": "Real phone browser and desktop integration"
+          },
+          {
+            "conclusion": "success",
+            "name": "Connected phone desktop pages and records"
+          },
+          {
+            "conclusion": "success",
+            "name": "Connected phone settings, artwork and backups"
+          },
+          {
+            "conclusion": "success",
+            "name": "OBS transparent browser widget and real timers"
+          },
+          {
+            "conclusion": "success",
+            "name": "Remembered phone browser restart and authorization recovery"
+          },
+          {
+            "conclusion": "success",
+            "name": "Installed companion and offline session integrity"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-node@v4"
           },
           {
             "conclusion": "success",
@@ -271,7 +271,7 @@
         ]
       },
       {
-        "conclusion": "success",
+        "conclusion": "failure",
         "name": "publish",
         "steps": [
           {
@@ -291,7 +291,7 @@
             "name": "Checksums"
           },
           {
-            "conclusion": "success",
+            "conclusion": "failure",
             "name": "Publish release"
           },
           {
@@ -380,7 +380,7 @@
       "stop_revoked": true
     },
     "artwork-catalogs": {
-      "commit": "862b78db911153e2a95808da47381048c6895267",
+      "commit": "b49f139f919e71bc4df3284185578e92b07c4f80",
       "checks": [
         {
           "kind": "cover",
@@ -740,7 +740,7 @@
     "tests-tests_qt-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "_message, ResourceWarning)\n..........................This plugin does not support propagateSizeHints()\n..................This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 241 tests in 62.301s\n\nOK\n"
+      "log_tail": "_message, ResourceWarning)\n..........................This plugin does not support propagateSizeHints()\n..................This plugin does not support propagateSizeHints()\n......This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n....................\n----------------------------------------------------------------------\nRan 241 tests in 40.412s\n\nOK\n"
     },
     "phone-management-browser": {
       "ok": true,
@@ -765,7 +765,7 @@
     "tests-tests-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 1.264s\n\nOK\n"
+      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 0.692s\n\nOK\n"
     }
   }
 }
