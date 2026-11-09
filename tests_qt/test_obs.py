@@ -71,7 +71,7 @@ class ObsTests(unittest.TestCase):
         self.assertNotIn('.obs-key',read_full(create_full(self.folder)))
         self.save(enabled=False);self.assertFalse(self.obs.server.running)
     def test_defaults_review_does_not_auto_start_and_invalid_color_keeps_data(self):
-        self.assertFalse(read_options(self.folder)['enabled']);self.obs.auto_start();self.assertFalse(self.obs.server.running)
+        self.assertFalse(read_options(self.folder)['enabled']);self.assertFalse(self.obs.snapshot()['visible']);self.obs.auto_start();self.assertFalse(self.obs.server.running)
         preferences.save(self.folder,obs=dict(DEFAULTS,enabled=True))
         self.obs.auto_start();self.assertFalse(self.obs.server.running)
         self.w.pending_recovery=True;self.assertFalse(self.obs.snapshot()['visible'])

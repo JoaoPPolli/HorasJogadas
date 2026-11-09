@@ -108,4 +108,4 @@ class ObsControl(QObject):
         if game and options['scope'] == 'total':seconds += c.repo.totais_por_jogo_id().get(key, 0)
         return dict(seconds=seconds, name=game.nome if game and options['show_name'] else '',
                     paused=bool(timer and timer.pausado), style=options['style'], color=options['color'],
-                    language=i18n.idioma_atual(), visible=not self.window.pending_recovery)
+                    language=i18n.idioma_atual(), visible=options['enabled'] and not self.window.pending_recovery)
