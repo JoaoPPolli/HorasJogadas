@@ -88,3 +88,9 @@ O site usa assets locais e links estáveis `releases/latest/download/`. As captu
 `obs.py` reutiliza o transporte HTTP limitado do controle conectado em um servidor separado, preso ao loopback. As rotas expõem apenas HTML/CSS/JS e o estado do timer selecionado, sem operações de escrita. A chave em `.obs-key` permanece local e não acompanha backups ou cópias de revisão. `obs_card.py` configura o widget na interface Qt; os arquivos em `assets/obs` são incluídos pelo empacotamento.
 
 Valide as regras do cronômetro e as rotas com `python -m unittest tests_qt.test_obs`. `node scripts/verify_obs_browser.cjs --python python` verifica transparência, padrão branco, estilos, pausa, reconexão e independência do controle pelo celular no Chromium. O autoteste nativo também confere os assets e o endpoint autorizado dentro do pacote.
+
+## Platina adicional
+
+O cálculo compartilhado em `horas_jogadas_qt/platinum.py` é somente de leitura: usa o total salvo do contador mais a sessão aberta, subtraindo a duração da conclusão. O formulário confirma a gravação. Referências ambíguas e múltiplas conclusões do mesmo contador exigem conferência manual; nunca tente deduzir a campanha por aproximação de nome.
+
+`Conclusao.platina_concluida` e `jogo_id` são serializados em metadados na raiz de `zerados.json`, mantendo os registros individuais legíveis por versões anteriores. Preserve esses campos ao desfazer exclusões, editar e restaurar backups. Uma nova jogada reinicia a marca de platina concluída. Valide com `python -m unittest tests_qt.test_platinum tests_qt.test_phone_records` e `node scripts/verify_phone_desktop_browser.cjs --python python`.
