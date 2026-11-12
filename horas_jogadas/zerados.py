@@ -61,6 +61,8 @@ class Conclusao:
     id: str = field(default_factory=novo_id)
     origem: str = 'manual'
     dlc: bool = False
+    platina_concluida: bool = False
+    jogo_id: Optional[str] = None
 
     def validar(self):
         if not isinstance(self.nome, str) or not self.nome.strip():
@@ -80,6 +82,8 @@ class Conclusao:
         for tempo in (self.segundos, self.platina_segundos):
             if tempo is not None and (type(tempo) is not int or tempo < 0):
                 raise ValueError(t('zer.erro_tempo'))
+        if type(self.platina_concluida) is not bool or (self.jogo_id is not None and (not isinstance(self.jogo_id,str) or not self.jogo_id)):
+            raise ValueError(t('zer.erro_arquivo'))
         if type(self.dlc) is not bool:
             raise ValueError(t('zer.erro_dlc'))
         if (self.tipo not in TIPOS or not isinstance(self.notas, str)
@@ -151,6 +155,15 @@ class RepositorioZerados:
             raise ValueError(t('zer.erro_arquivo'))
         if len(set(dlcs)) != len(dlcs) or not set(dlcs).issubset({r.id for r in registros}):
             raise ValueError(t('zer.erro_arquivo'))
+        platinas = dados.get('platinas_concluidas', [])
+        vinculos = dados.get('jogos_vinculados', {})
+        ids = {r.id for r in registros}
+        if (not isinstance(platinas,list) or not all(isinstance(i,str) for i in platinas)
+                or len(set(platinas)) != len(platinas) or not set(platinas).issubset(ids)
+                or not isinstance(vinculos,dict) or not set(vinculos).issubset(ids)
+                or not all(isinstance(v,str) and v for v in vinculos.values())):
+            raise ValueError(t('zer.erro_arquivo'))
+        registros = [replace(r,platina_concluida=r.id in platinas,jogo_id=vinculos.get(r.id)) for r in registros]
         ids_dlc = set(dlcs)
         registros = [replace(r, dlc=r.id in ids_dlc) for r in registros]
         return registros, automaticos
@@ -181,10 +194,13 @@ class RepositorioZerados:
         for registro in registros:
             item = asdict(registro)
             del item['dlc']
+            del item['platina_concluida']; del item['jogo_id']
             raw.append(item)
         escrever_json_atomico(self.caminho, {'versao': 1, 'registros': raw,
                                             'automaticos': automaticos,
-                                            'dlcs': [r.id for r in registros if r.dlc]})
+                                            'dlcs': [r.id for r in registros if r.dlc],
+                                            'platinas_concluidas': [r.id for r in registros if r.platina_concluida],
+                                            'jogos_vinculados': {r.id:r.jogo_id for r in registros if r.jogo_id}})
         self.registros, self.automaticos = list(registros), automaticos
 
     def guardar(self, registro: Conclusao):
@@ -216,7 +232,7 @@ class RepositorioZerados:
             return None
         hoje = agora or date.today()
         registro = Conclusao(nome, hoje.year, hoje.month, max(0, int(round(segundos))),
-                             dia=hoje.day, origem='cronometro')
+                             dia=hoje.day, origem='cronometro', jogo_id=jogo_id)
         recibos = self.automaticos + [jogo_id]
         if any(r.assinatura() == registro.assinatura() for r in self.registros):
             self._salvar(self.registros, recibos)

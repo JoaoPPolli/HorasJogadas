@@ -2,6 +2,14 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.8.0
+
+- Botão Usar tempo extra no formulário de Zerados: preenche a platina adicional com o total do contador menos a duração ao zerar, incluindo a sessão aberta, sem somar novamente a cada clique.
+- Contador do jogo selecionável; associações automáticas usam o nome exato ou um vínculo já salvo. Nomes ambíguos, várias conclusões do mesmo contador e totais menores que a duração original pedem conferência manual.
+- Opção Platina concluída bloqueia o recálculo para preservar o marco após novas partidas; correções manuais e desbloqueio continuam disponíveis.
+- Prévia só é gravada ao Salvar. Mesma função disponível no PC e no controle conectado pelo celular; duração original, cronômetros e sessões permanecem preservados.
+- Metadados de platina e vínculo salvos de forma compatível com arquivos anteriores e incluídos nos backups completos. Formulário do PC com rolagem para manter os botões acessíveis.
+
 ## 3.7.1
 
 - O widget fica oculto imediatamente quando preferências restauradas desativam a integração OBS. Mantidos o padrão branco minimalista e os estilos alternativos.

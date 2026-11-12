@@ -119,6 +119,9 @@ class PhoneControl(QObject):
 
     def query(self, body):
         if not isinstance(body, dict):raise RemoteError(400, 'invalid')
+        if body.get('query') == 'completion_extra':
+            self.ensure_ready()
+            return self.records.preview_extra(body)
         if body.get('query') == 'completion_import':
             return self.records.preview_import(body.get('text'), body.get('year'))
         if body.get('query') == 'update_check':

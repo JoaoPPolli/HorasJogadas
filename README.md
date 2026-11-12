@@ -27,7 +27,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.7.1.
+2. Instale ou extraia a versão 3.8.0.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -127,3 +127,11 @@ Clique em **Copiar link para o OBS**. No OBS Studio, adicione **Fontes → + →
 O padrão é branco e Minimalista. Arcade e Digital são alternativas; todos aceitam cor no formato `#RRGGBB`. As alterações aparecem sem recadastrar a fonte. O timer pausa e retoma junto com o app, sem reiniciar horas ao completar um dia. Se o app fechar ou a conexão falhar, o widget fica oculto em poucos segundos e volta ao reconectar.
 
 O app e o OBS devem estar **no mesmo computador**, Windows ou Linux. A conexão é local e somente de leitura, sem controle de gravação ou transmissão. Não depende do controle pelo celular. O link continua válido ao reabrir o app; quando habilitado, o widget inicia junto com a edição oficial. A cópia de revisão só ativa o widget manualmente. A chave local não é exportada nos backups.
+
+## Calcular a platina adicional
+
+Em **Zerados → Editar**, confira a **Duração** de quando zerou, escolha o **Contador do jogo** correspondente e clique em **Usar tempo extra**. Com 16h ao zerar e 20h35 no contador, a prévia preenche 4h35 em **Platina adicional**. O total inclui a sessão aberta. Clicar novamente substitui o valor pela diferença atual, sem duplicar horas. Clique em **Salvar** para confirmar ou **Cancelar** para descartar.
+
+Ao terminar os troféus, marque **Platina concluída** e salve. O botão de cálculo fica bloqueado, preservando o tempo da platina se você jogar mais depois. Você pode corrigir o valor manualmente ou desmarcar a opção para recalcular. A função também está no controle conectado pelo celular.
+
+Se houver várias conclusões do mesmo contador, informe o extra manualmente para não misturar campanhas. Confira o contador e a duração se o total for menor que o tempo ao zerar; o valor existente permanece preservado. Os metadados de vínculo e platina concluída acompanham os backups completos; a exportação TXT continua no formato de tempos já existente.

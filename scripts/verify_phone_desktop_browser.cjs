@@ -329,6 +329,32 @@ async function control(value) {
     check((await request("/api/view/backups")).full.length > 0, "Destructive actions did not preserve a full backup");
     result.history_clear_confirm_cancel_and_backup = true;
 
+    stage = "platinum_extra_preview_and_milestone";
+    const platinumGameName="Jogo para testar platina";
+    await command({action:"add",name:platinumGameName});
+    const platinumGame=(await state()).games.find(g=>g.name===platinumGameName);
+    await command({action:"timer_adjust",game_id:platinumGame.id,seconds:20*3600+35*60});
+    await navigate("completed"); await page.locator("#completed-add").click();
+    await fill(["name"],platinumGameName);await choose(["month"],"1");await fill(["duration"],"16:00:00");
+    await form().locator("[name='game_id']").selectOption(platinumGame.id);
+    await page.locator("#calculate-platinum").click();await page.waitForFunction(()=>document.querySelector("[name='platinum']").value==="04:35:00");
+    await page.locator("#calculate-platinum").click();await page.waitForFunction(()=>!document.querySelector("#calculate-platinum").disabled);
+    check(await form().locator("[name='platinum']").inputValue()==="04:35:00","Repeated calculation duplicated platinum time");
+    await page.locator("#desktop-cancel").click();
+    check(!(await request("/api/view/completed?year="+new Date().getFullYear())).records.some(r=>r.name===platinumGameName),"Cancelling platinum preview saved a record");
+    await page.locator("#completed-add").click();await fill(["name"],platinumGameName);await choose(["month"],"1");await fill(["duration"],"16:00:00");
+    await form().locator("[name='game_id']").selectOption(platinumGame.id);await page.locator("#calculate-platinum").click();await page.waitForFunction(()=>document.querySelector("[name='platinum']").value==="04:35:00");
+    await page.locator("#platinum-completed").check();check(await page.locator("#calculate-platinum").isDisabled(),"Completed platinum still permits calculation");await submit();
+    let platinumRecord=(await request("/api/view/completed?year="+new Date().getFullYear())).records.find(r=>r.name===platinumGameName);
+    check(platinumRecord.seconds===16*3600&&platinumRecord.platinum_seconds===4*3600+35*60&&platinumRecord.platinum_completed&&platinumRecord.game_id===platinumGame.id,"Platinum fields were not persisted");
+    await command({action:"timer_adjust",game_id:platinumGame.id,seconds:3*3600});
+    await page.locator(`[data-completion-id='${platinumRecord.id}'] [data-action='completion_edit']`).click();
+    check(await page.locator("#calculate-platinum").isDisabled(),"Reopened milestone was not locked");check(await form().locator("[name='platinum']").inputValue()==="04:35:00","Later playtime changed completed platinum");
+    await page.locator("#platinum-completed").uncheck();await page.locator("#calculate-platinum").click();await page.waitForFunction(()=>document.querySelector("[name='platinum']").value==="07:35:00");await page.locator("#desktop-cancel").click();
+    platinumRecord=(await request("/api/view/completed?year="+new Date().getFullYear())).records.find(r=>r.id===platinumRecord.id);
+    check(platinumRecord.platinum_completed&&platinumRecord.platinum_seconds===4*3600+35*60,"Cancelled recalculation changed the saved milestone");
+    result.platinum_extra_no_duplicates=true;result.platinum_completed_freezes_extra=true;result.platinum_preview_cancel_safe=true;
+
     stage = "security_and_preserved_controls";
     check(errors.length === 0, "Browser errors: " + errors.join(", "));
     check(violations.length === 0, "CSP violations: " + violations.join(", "));

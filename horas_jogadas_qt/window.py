@@ -758,22 +758,39 @@ class Window(QMainWindow):
     def edit_completion(self, record=None, save_callback=None):
         record=record or Conclusao('', self.year, min(date.today().month,12))
         d=Form(self,tr('edit') if record.nome else tr('new_record'))
-        name=QLineEdit(record.nome)
+        name=QLineEdit(record.nome); name.setObjectName('completionName')
         year=QSpinBox(); year.setRange(1900,9999); year.setValue(record.ano)
         month=QComboBox(); month.addItems(MESES_EN if i18n.idioma_atual()=='en' else MESES); month.setCurrentIndex(record.mes-1)
         day=QSpinBox(); day.setRange(0,31); day.setSpecialValueText('—'); day.setValue(record.dia or 0)
-        duration=QLineEdit(duracao_texto(record.segundos)); duration.setPlaceholderText(tr('unknown'))
-        extra=QLineEdit(duracao_texto(record.platina_segundos)); extra.setPlaceholderText(tr('unknown'))
+        duration=QLineEdit(duracao_texto(record.segundos)); duration.setPlaceholderText(tr('unknown')); duration.setObjectName('completionDuration')
+        extra=QLineEdit(duracao_texto(record.platina_segundos)); extra.setPlaceholderText(tr('unknown')); extra.setObjectName('completionPlatinum')
+        from .platinum import matched_game, calculate_extra, ExtraTimeError
+        game=QComboBox(); game.setObjectName('platinumGame'); game.addItem(tr('platinum_select'),None)
+        for item in self.c.repo.jogos:game.addItem(item.nome,item.id)
+        game.setCurrentIndex(max(0,game.findData(matched_game(self.c,record))))
+        done=QCheckBox(tr('platinum_done')); done.setObjectName('platinumDone'); done.setChecked(record.platina_concluida)
+        feedback=label('', 'muted', True)
+        def calculate():
+            try:
+                result=calculate_extra(self.c,record,game.currentData(),ler_duracao(duration.text()),done.isChecked())
+                extra.setText(duracao_texto(result['seconds'])); feedback.setText(tr('platinum_filled'))
+            except ExtraTimeError as error:feedback.setText(tr(str(error)))
+            except ValueError:feedback.setText(tr('platinum_need_duration'))
+        calculate_button=button(tr('platinum_calculate'),calculate); calculate_button.setObjectName('calculatePlatinum')
+        calculate_button.setEnabled(not done.isChecked()); done.toggled.connect(lambda checked:calculate_button.setEnabled(not checked))
         kind=QComboBox(); kind.addItem(tr('completion'),'zerado'); kind.addItem(tr('experience'),'experiencia'); kind.setCurrentIndex(1 if record.tipo=='experiencia' else 0)
-        dlc=QCheckBox(tr('dlc')); dlc.setChecked(record.dlc)
+        dlc=QCheckBox(tr('dlc')); dlc.setObjectName('completionDlc'); dlc.setChecked(record.dlc)
         notes=QPlainTextEdit(record.notas); notes.setMaximumHeight(100)
         for title,field in [('name',name),('year',year),('month',month),('day',day),('duration',duration),
-                            ('platinum',extra),('type',kind)]:
+                            ('platinum',row(extra,calculate_button)),('type',kind)]:
             d.form.addRow(tr(title),field)
+        d.form.addRow(tr('platinum_counter'),game); d.form.addRow('',done)
+        d.form.addRow('',label(tr('platinum_help'),'muted',True)); d.form.addRow('',feedback)
         d.form.addRow('',dlc); d.form.addRow(tr('notes'),notes)
         def save():
             new=replace(record,nome=name.text().strip(),ano=year.value(),mes=month.currentIndex()+1,dia=day.value() or None,
                 segundos=ler_duracao(duration.text()),platina_segundos=ler_duracao(extra.text()),
+                platina_concluida=done.isChecked(),jogo_id=game.currentData(),
                 tipo=kind.currentData(),dlc=dlc.isChecked(),notas=notes.toPlainText().strip()).validar()
             if save_callback:
                 save_callback(new)
@@ -782,6 +799,11 @@ class Window(QMainWindow):
                 self.c.zerados.guardar(new)
                 self.year=new.ano
             return self.perform(save_record)
+        d.box.removeItem(d.form)
+        body=QWidget(); body.setLayout(d.form)
+        scroll=QScrollArea(); scroll.setWidgetResizable(True); scroll.setFrameShape(QFrame.NoFrame); scroll.setWidget(body)
+        d.box.insertWidget(1,scroll,1); d.setMinimumWidth(560)
+        d.resize(650,min(780,self.screen().availableGeometry().height()-80))
         d.submit(save); d.exec()
 
     def new_play(self):
@@ -790,7 +812,7 @@ class Window(QMainWindow):
             from horas_jogadas.models import novo_id
             today=date.today()
             self.edit_completion(replace(record,id=novo_id(),ano=today.year,mes=today.month,dia=None,
-                                         segundos=None,platina_segundos=None,notas='',origem='manual'))
+                                         segundos=None,platina_segundos=None,platina_concluida=False,notas='',origem='manual'))
 
     def delete_completion(self):
         record=self.selected(self.completed,self.completion_rows)

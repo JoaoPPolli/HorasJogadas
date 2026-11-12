@@ -162,6 +162,11 @@ def run_phone_self_test(window, app):
         if not any(s.sessao_id == history_saved['saved_id'] and s.segundos == 4 for s in window.c.repo.sessoes):
             raise RuntimeError('Histórico conectado não preservou a sessão ao desfazer')
         result['phone_desktop_history'] = True
+        status, extra = request('/api/query', dict(query='completion_extra', name=name,
+                                                   game_id=game.id, seconds=3), token)
+        if status != 200 or extra.get('seconds') != 4:
+            raise RuntimeError('Cálculo da platina conectada diverge do histórico salvo')
+        result['phone_platinum_extra'] = True
         server.regenerate_pairing()
         status, _ = request('/api/state', token=token)
         if status != 401:

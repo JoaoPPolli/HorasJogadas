@@ -67,7 +67,8 @@ def _session(session):
 def _completion(record):
     return dict(id=record.id, name=record.nome, year=record.ano, month=record.mes,
                 day=record.dia, seconds=record.segundos, platinum_seconds=record.platina_segundos,
-                type=record.tipo, dlc=record.dlc, notes=record.notas, origin=record.origem)
+                type=record.tipo, dlc=record.dlc, notes=record.notas, origin=record.origem,
+                platinum_completed=record.platina_concluida, game_id=record.jogo_id)
 
 
 def _group(group):
@@ -160,6 +161,16 @@ class PhoneRecords:
         result['revision'] = self.control.workspace_revision()
         return result
 
+    def preview_extra(self, body):
+        from .platinum import calculate_extra, ExtraTimeError
+        record=self._find_completion(body['id']) if body.get('id') else Conclusao(_text(body.get('name')),date.today().year,date.today().month)
+        completed=body.get('platinum_completed',record.platina_concluida)
+        if type(completed) is not bool:raise RemoteError(400,'invalid')
+        seconds=_integer(body.get('seconds'),optional=True)
+        try:result=calculate_extra(self.c,record,body.get('game_id'),seconds,completed)
+        except ExtraTimeError as error:raise RemoteError(409,str(error)) from None
+        return dict(result,revision=self.control.workspace_revision())
+
     def preview_import(self, text, year):
         text = _text(text, 2 * 1024 * 1024)
         year = _integer(year, 1900, 9999)
@@ -189,9 +200,13 @@ class PhoneRecords:
         kind = values.get('type', record.tipo)
         if kind not in ('zerado', 'experiencia') or type(values.get('dlc', record.dlc)) is not bool:
             raise RemoteError(400, 'invalid')
+        completed=values.get('platinum_completed', record.platina_concluida)
+        game_id=values.get('game_id', record.jogo_id)
+        if type(completed) is not bool or game_id is not None and (not isinstance(game_id,str) or not game_id or len(game_id)>128):
+            raise RemoteError(400,'invalid')
         notes = _text(values.get('notes', record.notas), 10000, optional=True)
         return replace(record, nome=name, ano=year, mes=month, dia=day, segundos=seconds,
-                       platina_segundos=platinum, tipo=kind, dlc=values.get('dlc', record.dlc), notas=notes or '').validar()
+                       platina_segundos=platinum, platina_concluida=completed, jogo_id=game_id, tipo=kind, dlc=values.get('dlc', record.dlc), notas=notes or '').validar()
 
     def execute(self, body):
         if not isinstance(body, dict) or body.get('action') not in ACTIONS:
@@ -258,7 +273,7 @@ class PhoneRecords:
             original = self._find_completion(body.get('id'))
             today = date.today()
             template = replace(original, id=novo_id(), ano=today.year, mes=today.month, dia=None,
-                               segundos=None, platina_segundos=None, notas='', origem='manual')
+                               segundos=None, platina_segundos=None, platina_concluida=False, notas='', origem='manual')
             record = self._new_completion(body, template)
             self.c.zerados.guardar(record)
             return {'saved_id': record.id, 'selected_year': record.ano}
@@ -305,7 +320,7 @@ class PhoneRecords:
                     self.window.deleted_completions = []
                 self.window.deleted_completions.append(Conclusao(
                     value['name'], value['year'], value['month'], value['seconds'], value['day'],
-                    value['platinum_seconds'], value['notes'], value['type'], value['id'], value['origin'], value['dlc']))
+                    value['platinum_seconds'], value['notes'], value['type'], value['id'], value['origin'], value['dlc'], value['platinum_completed'], value['game_id']))
         if result.pop('pop_completion_undo', False):
             self.window.deleted_completions.pop()
 
