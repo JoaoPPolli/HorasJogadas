@@ -94,3 +94,13 @@ Valide as regras do cronômetro e as rotas com `python -m unittest tests_qt.test
 O cálculo compartilhado em `horas_jogadas_qt/platinum.py` é somente de leitura: usa o total salvo do contador mais a sessão aberta, subtraindo a duração da conclusão. O formulário confirma a gravação. Referências ambíguas e múltiplas conclusões do mesmo contador exigem conferência manual; nunca tente deduzir a campanha por aproximação de nome.
 
 `Conclusao.platina_concluida` e `jogo_id` são serializados em metadados na raiz de `zerados.json`, mantendo os registros individuais legíveis por versões anteriores. Preserve esses campos ao desfazer exclusões, editar e restaurar backups. Uma nova jogada reinicia a marca de platina concluída. Valide com `python -m unittest tests_qt.test_platinum tests_qt.test_phone_records` e `node scripts/verify_phone_desktop_browser.cjs --python python`.
+
+## Retrospectiva, detalhes e detecção
+
+`insights.py` consulta sessões e conclusões sem mutação; retrospectivas usam `Sessao.segundos_por_dia()` para respeitar viradas de mês/ano e não somam horas de Zerados ao histórico. `recap_image.py` desenha o PNG localmente e usa `QSaveFile` na exportação. `phone_insights.py` fornece os mesmos dados e PNG ao painel autenticado; não transmite caminhos de executáveis.
+
+`detection.py` consulta psutil em um `Task` fora da thread dos widgets. O estado transitório `present/owned` impede retomar uma sessão encerrada ou pausada manualmente. Só timers iniciados pelo serviço são encerrados automaticamente; duas leituras de ausência confirmam o fechamento. Falhas de leitura e processos ambíguos preservam o estado. Reconfigurar outros jogos mantém a propriedade das sessões existentes; trocar controlador ou desativar um vínculo deixa o timer anterior sob controle manual. Não remova a limpeza do cache do psutil: `exec` no Linux pode trocar o executável sem trocar o PID.
+
+Os vínculos são preferências locais explícitas. Revisões não iniciam a consulta automática. Nunca execute o caminho configurado, envie listas de processos à rede ou altere timers existentes para tentar deduzir horas anteriores à observação.
+
+Valide com `python -m unittest tests_qt.test_detection tests_qt.test_insights` e `node scripts/verify_insights_browser.cjs --python python`. O autoteste do pacote confere geração do PNG, detalhes e extensão nativa de consulta de processos.
