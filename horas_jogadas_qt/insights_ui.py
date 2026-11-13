@@ -49,7 +49,7 @@ def build_game(window):
     from . import preferences
     window.covers_enabled=bool(preferences.read(window.c.folder).get('covers_enabled',False));window.icons_enabled=bool(preferences.read(window.c.folder).get('icons_enabled',True))
     window.cover_store=CoverStore(window.c.folder);window.icon_store=CoverStore(window.c.folder,'icon')
-    card=GameCard(window,key);window.detail_card=card;box.addWidget(card)
+    card=GameCard(window,key,detail=True);window.detail_card=card;box.addWidget(card)
     box.addWidget(row(metric(tr('game_saved'),formatar_duracao(data['saved_seconds'])),metric(tr('sessions'),str(data['session_count'])),metric(tr('average'),formatar_duracao(data['average_seconds']))))
     def date_text(value):return datetime.fromisoformat(value).strftime('%Y-%m-%d %H:%M' if i18n.idioma_atual()=='en' else '%d/%m/%Y %H:%M') if value else '—'
     dates=QFrame();dates.setObjectName('card');dates_box=QVBoxLayout(dates);dates_box.addWidget(label(tr('game_first')+': '+date_text(data['first']),'muted'));dates_box.addWidget(label(tr('game_last')+': '+date_text(data['last']),'muted'));box.addWidget(dates)

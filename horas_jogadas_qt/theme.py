@@ -14,6 +14,8 @@ PALETTES = {
 
 
 def apply_theme(app, name='dark'):
+    from .wheel_guard import install
+    install(app)
     bg, side, card, border, text, muted, accent, on_accent = PALETTES.get(name, PALETTES['dark'])
     app.setProperty('horasTheme', name)
     app.setProperty('horasPrimaryText', on_accent)

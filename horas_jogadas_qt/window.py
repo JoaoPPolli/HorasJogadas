@@ -32,7 +32,7 @@ from .icons import icon
 
 
 class GameCard(QFrame):
-    def __init__(self, window, key):
+    def __init__(self, window, key, *, detail=False):
         super().__init__()
         self.owner, self.key = window, key
         self.setObjectName('gameCard')
@@ -43,7 +43,7 @@ class GameCard(QFrame):
         game = window.c.repo.jogo_por_id(key)
         if window.covers_enabled:
             from .cover_widget import GameCover
-            cover=GameCover(game.nome,window.cover_store.path(key))
+            cover=GameCover(game.nome,window.cover_store.path(key),fit='contain' if detail else 'cover',height=260 if detail else 132)
             cover.clicked.connect(lambda:window.manage_covers(key))
             box.addWidget(cover)
         title = ElidedLabel(game.nome)

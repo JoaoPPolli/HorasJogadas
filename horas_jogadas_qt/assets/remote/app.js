@@ -1,6 +1,19 @@
 "use strict";
 
 (() => {
+  // A roda navega pelo conteúdo sem alterar valores dos campos sob o cursor.
+  document.addEventListener("wheel",event=>{
+    if(event.ctrlKey||event.metaKey||!(event.target instanceof Element))return;
+    const control=event.target.closest('select,input[type="number"],input[type="date"],input[type="time"],input[type="datetime-local"],input[type="range"]');
+    if(!control)return;
+    try{if(control.matches('select:open'))return;}catch(_){}
+    event.preventDefault();
+    let parent=control.parentElement;
+    while(parent&&!(parent.scrollHeight>parent.clientHeight+1&&/(auto|scroll)/.test(getComputedStyle(parent).overflowY)))parent=parent.parentElement;
+    const scale=event.deltaMode===1?16:event.deltaMode===2?(parent?.clientHeight||innerHeight):1;
+    if(parent)parent.scrollBy({top:event.deltaY*scale,left:event.deltaX*scale,behavior:'instant'});
+    else window.scrollBy({top:event.deltaY*scale,left:event.deltaX*scale,behavior:'instant'});
+  },{capture:true,passive:false});
   const $ = id => document.getElementById(id);
   const copy = {
     pt: {

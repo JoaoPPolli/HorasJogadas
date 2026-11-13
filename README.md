@@ -27,7 +27,7 @@ Os executáveis não possuem assinatura digital. O Windows pode exibir uma verif
 ## Já usava a versão anterior?
 
 1. Feche o app antigo antes de abrir o novo.
-2. Instale ou extraia a versão 3.9.0.
+2. Instale ou extraia a versão 3.9.1.
 3. Abra o HorasJogadas: ele usa a **mesma pasta de dados**, sem precisar importar nada.
 
 Antes de carregar registros existentes pela primeira vez, a nova versão cria uma cópia verificada de todos os arquivos de dados em uma pasta vizinha chamada `HorasJogadas-Backups-de-Versao`. Se essa cópia falhar, a abertura é interrompida. Não apague sua pasta de dados.
@@ -153,3 +153,7 @@ O HorasJogadas precisa ficar aberto. A consulta ocorre em segundo plano a cada 2
 A detecção só encerra contadores que ela mesma iniciou. Pausar ou encerrar manualmente impede um novo início enquanto o mesmo jogo continuar aberto. Ajustes de tempo continuam sendo incluídos no salvamento automático. Sessões já abertas ou pausadas não são sobrescritas. Ao desativar a detecção, o contador atual continua disponível para controle manual.
 
 O controle geral nas Configurações permite suspender a detecção sem esquecer os vínculos. No celular, você pode ativar/desativar um vínculo já configurado; a seleção do executável é feita no PC. Nenhuma lista de processos é enviada à rede ou salva em relatórios. A função começa desativada e cópias de revisão nunca iniciam a consulta automaticamente.
+
+## Rolagem e seletores
+
+A roda do mouse rola o conteúdo sem trocar o valor de seletores, anos, datas ou campos numéricos. Com a lista aberta, a roda navega pelas opções; clique para confirmar. Botões, digitação e navegação por teclado continuam disponíveis. Na página do jogo, o banner preserva a proporção da imagem e mostra a arte inteira, inclusive em janelas largas.

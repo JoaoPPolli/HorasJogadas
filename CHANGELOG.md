@@ -2,6 +2,13 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.9.1
+
+- Corrigido o banner da página do jogo: exibe a imagem inteira com a proporção original, sem ampliação e recorte excessivos em janelas largas. As miniaturas da biblioteca mantêm o formato anterior.
+- A roda do mouse deixa de alterar seletores, anos, datas e campos numéricos no app. Sobre esses campos, a roda continua rolando a página quando há conteúdo rolável.
+- Listas abertas continuam permitindo rolar as opções e confirmar a escolha por clique. Cliques e navegação por teclado permanecem disponíveis.
+- A mesma proteção contra alteração por roda foi aplicada aos campos do controle conectado pelo navegador.
+
 ## 3.9.0
 
 - Retrospectiva mensal ou anual nas Estatísticas, com prévia no tema do app e exportação PNG 1080 × 1350 para compartilhar. Inclui horas, jogos, sessões, zerados, dias jogados e os cinco mais jogados; usa sessões salvas e respeita a distribuição por dia em viradas de mês/ano.
