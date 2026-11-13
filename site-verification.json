@@ -1,7 +1,7 @@
 {
   "ok": true,
   "site_url": "https://joaoppolli.github.io/HorasJogadas/",
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/43323870097",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/43345938216",
   "site_http": 200,
   "companion": {
     "url": "https://joaoppolli.github.io/HorasJogadas/celular/",
@@ -12,6 +12,7 @@
     "url": "https://joaoppolli.github.io/HorasJogadas/changelog/",
     "http": 200,
     "versions": [
+      "3.9.0",
       "3.8.0",
       "3.7.1",
       "3.7.0",
@@ -39,15 +40,15 @@
   "assets": {
     "HorasJogadas-Windows-Setup.exe": {
       "http": 200,
-      "sha256": "ff12d93a92c3943aedd8a2b94236dde3ed869cbb2ad98c6b654478f195a0770e"
+      "sha256": "22c839dca942ad09fa733841683f6e3495f31f5d937a83b857a5b147eeaedd4f"
     },
     "HorasJogadas-Windows-Portable.zip": {
       "http": 200,
-      "sha256": "9cf79a4976051b2f4ab1d81c0a7b737f7afdd38f8b8759054068c10f93d77dc7"
+      "sha256": "4552553c77155d7ad3187a9853bcad4800f112b13ec03953c23d45969a6f65f1"
     },
     "HorasJogadas-Linux-x86_64.tar.gz": {
       "http": 200,
-      "sha256": "b513aa581c3d435c79a96284d8106cfc3b4c383cee633fe644a5d955fc168d87"
+      "sha256": "564bbd34b79b7ee299e4bfa22ee5c86f4088e377453a70f875d3ad6b18ad8561"
     }
   }
 }
