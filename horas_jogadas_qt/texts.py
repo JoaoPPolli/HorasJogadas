@@ -263,3 +263,6 @@ TEXTS['en']['detect_all_files']='All files (*)'
 
 TEXTS['pt'].update({'game_first':'Primeira sessão','game_last':'Última sessão','detect_link_on':'Vínculo de detecção habilitado','detect_link_off':'Detecção desativada para este jogo','detect_unconfigured':'Detecção ainda não configurada'})
 TEXTS['en'].update({'game_first':'First session','game_last':'Latest session','detect_link_on':'Detection profile enabled','detect_link_off':'Detection disabled for this game','detect_unconfigured':'Detection is not configured yet'})
+
+TEXTS['pt'].update({'recap_individual':'Retrospectiva do jogo','recap_individual_intro':'Escolha um período para ver somente as sessões salvas deste jogo: horas, média, maior sessão e evolução do tempo jogado.'})
+TEXTS['en'].update({'recap_individual':'Game recap','recap_individual_intro':'Choose a period to see only this game’s saved sessions: playtime, average, longest session and activity over time.'})

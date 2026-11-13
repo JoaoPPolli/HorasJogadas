@@ -2,6 +2,8 @@
 (()=>{
  const H=window.HorasPhone,D=window.HorasDesktop,n=D.node,b=D.button;
  const words={pt:{details:'Página do jogo',back:'Voltar',sessions:'Sessões',saved:'Tempo salvo',current:'Sessão atual',total:'Total',completions:'Conclusões e platina',empty:'Nenhuma conclusão vinculada.',recent:'Sessões recentes',recap:'Retrospectiva',intro:'Escolha o período e gere sua imagem para compartilhar.',year:'Ano',month:'Mês',all:'Ano inteiro',preview:'Atualizar prévia',download:'Baixar PNG',detect:'Detecção automática',enable:'Ativar neste jogo',disable:'Desativar neste jogo',configure:'Escolha o executável nas Configurações do aplicativo no PC.',global:'A detecção geral está desativada no PC.',history:'Histórico',first:'Primeira sessão',last:'Última sessão',start:'Iniciar',resume:'Retomar',pause:'Pausar',finish:'Encerrar e salvar',confirm:'Salvar esta sessão no histórico do PC?',close:'Fechar',failed:'Não foi possível concluir. Confira a conexão.'},en:{details:'Game page',back:'Back',sessions:'Sessions',saved:'Saved playtime',current:'Current session',total:'Total',completions:'Completions and platinum',empty:'No linked completions.',recent:'Recent sessions',recap:'Gaming recap',intro:'Choose a period and create an image to share.',year:'Year',month:'Month',all:'Entire year',preview:'Update preview',download:'Download PNG',detect:'Automatic detection',enable:'Enable for this game',disable:'Disable for this game',configure:'Choose the executable in the PC app settings.',global:'Global detection is disabled on the PC.',history:'History',first:'First session',last:'Latest session',start:'Start',resume:'Resume',pause:'Pause',finish:'Finish and save',confirm:'Save this session to PC history?',close:'Close',failed:'Could not finish. Check your connection.'}};
+ Object.assign(words.pt,{individual:'Retrospectiva do jogo',individualIntro:'Somente as sessões salvas deste jogo: horas, média, maior sessão e evolução no período.'});
+ Object.assign(words.en,{individual:'Game recap',individualIntro:'Only this game’s saved sessions: playtime, average, longest session and activity over time.'});
  const t=k=>words[H.language()==='en'?'en':'pt'][k]||k;
  const view=(name,values)=>H.api('/api/view/'+name+'?'+new URLSearchParams(values));
  async function showGame(id){
@@ -23,22 +25,25 @@
    body.append(n('h3','',t('completions')));if(!data.completions.length)body.append(n('p','insight-muted',t('empty')));
    for(const r of data.completions){const card=n('section','insight-entry');card.append(n('strong','',r.name),n('p','insight-muted',`${r.month}/${r.year} · ${r.seconds===null?'—':H.clock(r.seconds)}`));if(r.platinum_seconds!==null)card.append(n('p','insight-muted','✦ '+H.clock(r.platinum_seconds)+(r.platinum_completed?' ✓':'')));if(r.notes)card.append(n('p','',r.notes));body.append(card);}
    body.append(n('h3','',t('recent')));for(const s of data.sessions){const line=n('div','insight-session');line.append(n('span','',s.end),n('strong','',H.clock(s.seconds)));body.append(line);}
-   body.append(b(t('history'),()=>{form.dialog.close();D.navigate('history');}));
+   const recapButton=b(t('individual'),()=>{form.dialog.close();showRecap(id);});recapButton.id='game-recap-open';
+   const recapActions=n('div','insight-actions');recapActions.append(recapButton,b(t('history'),()=>{form.dialog.close();D.navigate('history');}));body.append(recapActions);
   }
   async function reload(){if(!form.dialog.open)return;data=await view('game',{id});render();}
   render();const unsubscribe=H.subscribe((state,connected)=>{game=state?.games.find(g=>g.id===id);baseAt=performance.now();counter();if(state&&revision&&revision!==state.workspace_revision)reload().catch(error=>{form.error.textContent=H.errorText(error.code);});revision=state?.workspace_revision||'';});
   const timer=setInterval(counter,250);form.dialog.addEventListener('close',()=>{clearInterval(timer);unsubscribe();},{once:true});
  }
- async function showRecap(){
-  const now=new Date();let data;try{data=await view('recap',{year:now.getFullYear(),month:0});}catch(e){D.notice(H.errorText(e.code));return;}
+ async function showRecap(gameId=null){
+  const scope=gameId?{game_id:gameId}:{};
+  const now=new Date();let data;try{data=await view('recap',{year:now.getFullYear(),month:0,...scope});}catch(e){D.notice(H.errorText(e.code));return;}
   const years=data.years.map(y=>[y,String(y)]),months=[[0,t('all')],...Array.from({length:12},(_,i)=>[i+1,new Intl.DateTimeFormat(H.language()==='en'?'en':'pt-BR',{month:'long'}).format(new Date(2024,i,1))])];
-  const image=n('img','insight-recap-image');image.alt=t('recap');image.id='recap-image';let epoch=0;
+  const image=n('img','insight-recap-image');image.alt=data.game?t('individual')+' · '+data.game.name:t('recap');image.id='recap-image';let epoch=0,filename=data.filename;
   const preview=b(t('preview'),()=>load());preview.id='recap-preview';
-  const form=D.formDialog(t('recap'),[{name:'year',label:t('year'),type:'select',value:now.getFullYear(),options:years},{name:'month',label:t('month'),type:'select',value:0,options:months},{type:'html',element:preview},{type:'html',element:image}],async()=>{await H.download('/api/export/recap_png?'+new URLSearchParams({year:form.inputs.year.value,month:form.inputs.month.value}),`HorasJogadas-${form.inputs.year.value}-${form.inputs.month.value}.png`);return false;},{description:t('intro'),wide:true,submitLabel:t('download')});
-  async function load(){const call=++epoch;preview.disabled=true;form.error.textContent='';try{const result=await H.api('/api/query',{query:'recap_preview',year:Number(form.inputs.year.value),month:Number(form.inputs.month.value)});if(call===epoch&&form.dialog.open)image.src=result.image;}catch(e){if(form.dialog.open)form.error.textContent=H.errorText(e.code);}finally{preview.disabled=false;}}
+  const form=D.formDialog(data.game?t('individual')+' · '+data.game.name:t('recap'),[{name:'year',label:t('year'),type:'select',value:now.getFullYear(),options:years},{name:'month',label:t('month'),type:'select',value:0,options:months},{type:'html',element:preview},{type:'html',element:image}],async()=>{await H.download('/api/export/recap_png?'+new URLSearchParams({year:form.inputs.year.value,month:form.inputs.month.value,...scope}),filename);return false;},{description:t(data.game?'individualIntro':'intro'),wide:true,submitLabel:t('download')});
+  form.dialog.dataset.gameId=gameId||'';
+  async function load(){const call=++epoch;preview.disabled=true;form.form.querySelector('#desktop-submit').disabled=true;form.error.textContent='';try{const result=await H.api('/api/query',{query:'recap_preview',year:Number(form.inputs.year.value),month:Number(form.inputs.month.value),...scope});if(call===epoch&&form.dialog.open){image.src=result.image;filename=result.filename;form.form.querySelector('#desktop-submit').disabled=false;}}catch(e){if(call===epoch&&form.dialog.open)form.error.textContent=H.errorText(e.code);}finally{if(call===epoch)preview.disabled=false;}}
   form.inputs.year.addEventListener('change',load);form.inputs.month.addEventListener('change',load);await load();
  }
  window.HorasInsights={showGame,showRecap};
- function addRecap(){const tools=document.querySelector('#desktop-stats .desk-tools');if(tools&&!document.querySelector('#recap-open')){const button=b(t('recap'),showRecap);button.id='recap-open';tools.prepend(button);}}
+ function addRecap(){const tools=document.querySelector('#desktop-stats .desk-tools');if(tools&&!document.querySelector('#recap-open')){const button=b(t('recap'),()=>showRecap());button.id='recap-open';tools.prepend(button);}}
  new MutationObserver(addRecap).observe(document.querySelector('#desktop-stats'),{childList:true,subtree:true});
 })();

@@ -154,7 +154,9 @@ Em **Estatísticas → Retrospectiva**, escolha o ano e o mês (ou **Ano inteiro
 
 Na biblioteca, clique no nome do jogo ou use **Mais ações → Página do jogo**. A página reúne o timer, tempo salvo, sessões, média, primeira/última partida e conclusões com platina e observações. Mostra as últimas 100 sessões; o histórico completo continua disponível em Histórico. No PC, duplo clique numa sessão abre sua edição.
 
-Os detalhes e a retrospectiva também estão no controle conectado: menu do jogo → **Página do jogo**, e **Estatísticas → Retrospectiva**, com download do PNG.
+Na **Página do jogo → Retrospectiva do jogo**, a imagem contém somente as sessões salvas daquele jogo no período escolhido: tempo, sessões, dias jogados, média e maior sessão, além da evolução por mês ou por dia. A primeira e a última data também se referem ao período. O nome do jogo aparece na imagem e no arquivo PNG. A retrospectiva geral continua em Estatísticas.
+
+Os detalhes e as duas retrospectivas também estão no controle conectado: menu do jogo → **Página do jogo → Retrospectiva do jogo**, ou **Estatísticas → Retrospectiva** para todos os jogos, com download do PNG.
 
 ## Detecção automática de jogos
 

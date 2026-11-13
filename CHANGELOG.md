@@ -2,6 +2,13 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.9.2
+
+- O botão na página de cada jogo agora abre **Retrospectiva do jogo**, com dados somente daquele título no mês ou ano escolhido.
+- Imagem individual com nome do jogo, horas salvas, sessões, dias jogados, média, maior sessão, primeira/última data do período e gráfico mensal ou diário. O PNG segue o tema e idioma do app e inclui o nome do jogo no arquivo.
+- O filtro é preservado ao mudar o período e ao exportar, também no controle conectado pelo celular. A retrospectiva geral continua nas Estatísticas.
+- Consulta somente de leitura, sem alterar os registros ou somar sessões abertas e horas de conclusão novamente.
+
 ## 3.9.1
 
 - Corrigido o banner da página do jogo: exibe a imagem inteira com a proporção original, sem ampliação e recorte excessivos em janelas largas. As miniaturas da biblioteca mantêm o formato anterior.

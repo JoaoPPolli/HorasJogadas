@@ -1,7 +1,8 @@
 """Consultas somente de leitura para a página do jogo e a retrospectiva."""
 from collections import defaultdict
+from calendar import monthrange
 from datetime import date
-from horas_jogadas import stats
+import re
 from .platinum import matched_game
 
 
@@ -23,26 +24,47 @@ def game_details(c, key):
                              for r in c.zerados.registros if matched_game(c,r)==key])
 
 
-def recap(c,year,month=0):
+def recap(c,year,month=0,game_id=None):
     if type(year) is not int or not 1900<=year<=9999 or type(month) is not int or not 0<=month<=12:raise ValueError('Invalid period')
+    game=None
+    if game_id is not None:
+        if not isinstance(game_id,str) or not (game:=c.repo.jogo_por_id(game_id)):raise ValueError('Game not found')
     totals=defaultdict(int);names={g.id:g.nome for g in c.repo.jogos};days=defaultdict(int);count=0;longest=0
     for s in c.repo.sessoes:
+        if game is not None and s.jogo_id!=game_id:continue
         portions={d:seconds for d,seconds in s.segundos_por_dia().items() if d.year==year and (not month or d.month==month)}
         seconds=sum(portions.values())
         if not seconds:continue
         count+=1;longest=max(longest,seconds)
         key=s.jogo_id or 'legacy:'+s.jogo.casefold();names.setdefault(key,s.jogo);totals[key]+=seconds
         for day,value in portions.items():days[day]+=value
-    completions=[r for r in c.zerados.registros if r.ano==year and (not month or r.mes==month)]
-    return dict(year=year,month=month,total_seconds=sum(totals.values()),sessions=count,games=len(totals),
+    completions=[r for r in c.zerados.registros if r.ano==year and (not month or r.mes==month) and (game is None or matched_game(c,r)==game_id)]
+    data=dict(year=year,month=month,total_seconds=sum(totals.values()),sessions=count,games=len(totals),
                 days=len(days),longest_seconds=longest,
+                average_seconds=sum(totals.values())//count if count else 0,
                 completed=sum(r.tipo=='zerado' and not r.dlc for r in completions),
                 dlcs=sum(r.tipo=='zerado' and r.dlc for r in completions),
                 top=[dict(id=key,name=names[key],seconds=value) for key,value in sorted(totals.items(),key=lambda item:(-item[1],names[item[0]].casefold()))[:5]],
                 activity=[dict(date=d.isoformat(),seconds=value) for d,value in sorted(days.items())])
+    if game is not None:
+        buckets=defaultdict(int)
+        for day,seconds in days.items():buckets[day.day if month else day.month]+=seconds
+        data['game']=dict(id=game.id,name=game.nome)
+        data['timeline']=[dict(index=i,seconds=buckets[i]) for i in range(1,(monthrange(year,month)[1] if month else 12)+1)]
+    return data
 
 
-def available_years(c):
-    years={date.today().year}|{r.ano for r in c.zerados.registros}
-    for s in c.repo.sessoes:years.update(d.year for d in s.segundos_por_dia())
+def available_years(c,game_id=None):
+    years={date.today().year}|{r.ano for r in c.zerados.registros if game_id is None or matched_game(c,r)==game_id}
+    for s in c.repo.sessoes:
+        if game_id is None or s.jogo_id==game_id:years.update(d.year for d in s.segundos_por_dia())
     return sorted(years,reverse=True)
+
+
+def recap_filename(data):
+    name=''
+    if data.get('game'):
+        title=re.sub(r'[<>:"/\\|?*\x00-\x1f]', '-',data['game']['name']).strip(' .')[:80]
+        title=title.encode('utf-8')[:160].decode('utf-8','ignore').rstrip(' .') or 'Jogo'
+        name='-'+title
+    return f"HorasJogadas{name}-{data['year']}-{data['month']:02d}.png"

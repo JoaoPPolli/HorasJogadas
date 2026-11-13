@@ -9,16 +9,20 @@ from horas_jogadas.i18n import t_status
 from horas_jogadas.utils import formatar_duracao,formatar_hhmmss
 from horas_jogadas.zerados import MESES,MESES_EN,duracao_texto
 from .widgets import label,button,row,metric,table
-from .insights import game_details,recap,available_years
+from .insights import game_details,recap,available_years,recap_filename
 from .recap_image import render,save_png
 from .texts import tr
 
 
-def show_recap(window):
-    d=QDialog(window);d.setWindowTitle(tr('recap_title'));d.resize(600,810);box=QVBoxLayout(d);box.setContentsMargins(22,20,22,20);box.setSpacing(12)
-    box.addWidget(label(tr('recap_title'),'gameName'));box.addWidget(label(tr('recap_intro'),'muted',True))
+def show_recap(window,game_id=None):
+    game=window.c.repo.jogo_por_id(game_id) if game_id is not None else None
+    if game_id is not None and game is None:
+        window.notify(tr('game_missing'));return
+    title=tr('recap_individual') if game else tr('recap_title')
+    d=QDialog(window);d.setObjectName('recapDialog');d.setProperty('gameId',game_id or '');d.setWindowTitle(title+(' · '+game.nome if game else ''));d.resize(600,810);box=QVBoxLayout(d);box.setContentsMargins(22,20,22,20);box.setSpacing(12)
+    box.addWidget(label(game.nome if game else title,'gameName',True));box.addWidget(label(tr('recap_individual_intro') if game else tr('recap_intro'),'muted',True))
     year=QComboBox();year.setObjectName('recapYear')
-    for value in available_years(window.c):year.addItem(str(value),value)
+    for value in available_years(window.c,game_id):year.addItem(str(value),value)
     year.setCurrentIndex(max(0,year.findData(date.today().year)))
     month=QComboBox();month.setObjectName('recapMonth');month.addItem(tr('recap_year'),0)
     for i,name in enumerate(MESES_EN if i18n.idioma_atual()=='en' else MESES,1):month.addItem(name,i)
@@ -26,15 +30,17 @@ def show_recap(window):
     preview=QLabel();preview.setObjectName('recapPreview');preview.setAlignment(Qt.AlignCenter)
     scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setFrameShape(QFrame.NoFrame);scroll.setWidget(preview);box.addWidget(scroll,1)
     def update():
-        data=recap(window.c,year.currentData(),month.currentData());preview.setPixmap(QPixmap.fromImage(render(data,window.theme_name(),i18n.idioma_atual())).scaled(480,600,Qt.KeepAspectRatio,Qt.SmoothTransformation))
+        data=recap(window.c,year.currentData(),month.currentData(),game_id);preview.setPixmap(QPixmap.fromImage(render(data,window.theme_name(),i18n.idioma_atual())).scaled(480,600,Qt.KeepAspectRatio,Qt.SmoothTransformation))
     year.currentIndexChanged.connect(update);month.currentIndexChanged.connect(update);update()
     def export():
-        path,_=QFileDialog.getSaveFileName(d,tr('recap_export'),f'HorasJogadas-{year.currentData()}-{month.currentData():02d}.png','PNG (*.png)')
+        data=recap(window.c,year.currentData(),month.currentData(),game_id)
+        path,_=QFileDialog.getSaveFileName(d,tr('recap_export'),recap_filename(data),'PNG (*.png)')
         if path:
             if not path.lower().endswith('.png'):path+='.png'
-            try:save_png(path,recap(window.c,year.currentData(),month.currentData()),window.theme_name(),i18n.idioma_atual());window.notify(tr('recap_exported'))
+            try:save_png(path,data,window.theme_name(),i18n.idioma_atual());window.notify(tr('recap_exported'))
             except OSError as error:QMessageBox.warning(d,tr('error'),str(error))
-    box.addWidget(row(button(tr('close'),d.reject),None,button(tr('recap_export'),export,'primary')));d.exec()
+    export_button=button(tr('recap_export'),export,'primary');export_button.setObjectName('recapExport')
+    box.addWidget(row(button(tr('close'),d.reject),None,export_button));d.exec()
 
 
 def build_game(window):
@@ -58,7 +64,8 @@ def build_game(window):
     profile=profiles(window.c.folder).get(key,{})
     state='detect_unconfigured' if not profile.get('executable') else 'detect_link_on' if profile.get('enabled') and preferences.read(window.c.folder).get('detection_enabled',False) else 'detect_link_off'
     box.addWidget(label(tr(state),'muted'))
-    box.addWidget(row(button(tr('detect_configure'),lambda:configure(window,key)),button(tr('recap_title'),lambda:show_recap(window)),None))
+    recap_button=button(tr('recap_individual'),lambda:show_recap(window,key));recap_button.setObjectName('gameRecap')
+    box.addWidget(row(button(tr('detect_configure'),lambda:configure(window,key)),recap_button,None))
     box.addWidget(label(tr('completed'),'gameName'))
     records={r.id:r for r in window.c.zerados.registros}
     for record in data['completions']:
