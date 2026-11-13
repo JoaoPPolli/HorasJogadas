@@ -1,25 +1,189 @@
 {
   "phase": "release",
   "version": "3.9.1",
-  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/43348731940",
-  "commit": "b4f1209fd2a1d545c00acf0dc3c9d6e05c4a00db",
+  "run_url": "https://github.com/JoaoPPolli/HorasJogadas/actions/runs/43349837498",
+  "commit": "6e66dcbbb414ed47d30ccbcf91d1a94b38fe7d0a",
   "build": "success",
-  "publish": "skipped",
+  "publish": "success",
   "pages": "separate-workflow",
-  "release_url": "",
+  "release_url": "https://github.com/JoaoPPolli/HorasJogadas/releases/tag/v3.9.1",
   "site_url": "https://joaoppolli.github.io/HorasJogadas/",
   "diagnostics": {
     "tests-tests_qt-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "'>\n  _warnings.warn(warn_message, ResourceWarning)\nC:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\tempfile.py:940: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\horas-phone-restore-y533vp01'>\n  _warnings.warn(warn_message, ResourceWarning)\n.................................................................s..s.....ss..........\n----------------------------------------------------------------------\nRan 270 tests in 86.170s\n\nOK (skipped=6)\n"
+      "log_tail": ">\n  _warnings.warn(warn_message, ResourceWarning)\nC:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\tempfile.py:940: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\horas-phone-restore-tjk4n1yi'>\n  _warnings.warn(warn_message, ResourceWarning)\n.................................................................s..s.....ss..........\n----------------------------------------------------------------------\nRan 270 tests in 113.852s\n\nOK (skipped=6)\n"
     },
     "tests-tests-windows": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 1.643s\n\nOK\n"
+      "log_tail": "aliza\u00e7\u00e3o; revertendo\nTraceback (most recent call last):\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\horas_jogadas\\updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"D:\\a\\HorasJogadas\\HorasJogadas\\tests\\test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 2.804s\n\nOK\n"
     },
     "jobs": [
+      {
+        "conclusion": "success",
+        "name": "build (windows-latest, windows)",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Linux desktop prerequisites"
+          },
+          {
+            "conclusion": "success",
+            "name": "Dependencies"
+          },
+          {
+            "conclusion": "success",
+            "name": "Validate tag version"
+          },
+          {
+            "conclusion": "success",
+            "name": "Core tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Qt and data transition tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Dependency license texts"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Evaluate public cover source"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build and test Windows bundle"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Build and test Linux bundle"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify Linux update and actual restart"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Verify update on Arch Linux"
+          },
+          {
+            "conclusion": "success",
+            "name": "Windows installer"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify installer before publication"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "name": "phone-browser",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-node@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Phone control dependencies"
+          },
+          {
+            "conclusion": "success",
+            "name": "Real phone browser and desktop integration"
+          },
+          {
+            "conclusion": "success",
+            "name": "Connected phone desktop pages and records"
+          },
+          {
+            "conclusion": "success",
+            "name": "Connected phone settings, artwork and backups"
+          },
+          {
+            "conclusion": "success",
+            "name": "Game details, detection profiles and recap PNG in browser"
+          },
+          {
+            "conclusion": "success",
+            "name": "OBS transparent browser widget and real timers"
+          },
+          {
+            "conclusion": "success",
+            "name": "Remembered phone browser restart and authorization recovery"
+          },
+          {
+            "conclusion": "success",
+            "name": "Installed companion and offline session integrity"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-node@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
       {
         "conclusion": "success",
         "name": "build (ubuntu-22.04, linux)",
@@ -112,7 +276,7 @@
       },
       {
         "conclusion": "success",
-        "name": "build (windows-latest, windows)",
+        "name": "publish",
         "steps": [
           {
             "conclusion": "success",
@@ -124,145 +288,15 @@
           },
           {
             "conclusion": "success",
-            "name": "Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Linux desktop prerequisites"
+            "name": "Run actions/download-artifact@v4"
           },
           {
             "conclusion": "success",
-            "name": "Dependencies"
+            "name": "Checksums"
           },
           {
             "conclusion": "success",
-            "name": "Validate tag version"
-          },
-          {
-            "conclusion": "success",
-            "name": "Core tests"
-          },
-          {
-            "conclusion": "success",
-            "name": "Qt and data transition tests"
-          },
-          {
-            "conclusion": "success",
-            "name": "Dependency license texts"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Evaluate public cover source"
-          },
-          {
-            "conclusion": "success",
-            "name": "Build and test Windows bundle"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Build and test Linux bundle"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Verify Linux update and actual restart"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Verify update on Arch Linux"
-          },
-          {
-            "conclusion": "success",
-            "name": "Windows installer"
-          },
-          {
-            "conclusion": "success",
-            "name": "Verify installer before publication"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Post Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Complete job"
-          }
-        ]
-      },
-      {
-        "conclusion": "failure",
-        "name": "phone-browser",
-        "steps": [
-          {
-            "conclusion": "success",
-            "name": "Set up job"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/checkout@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-python@v5"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/setup-node@v4"
-          },
-          {
-            "conclusion": "success",
-            "name": "Phone control dependencies"
-          },
-          {
-            "conclusion": "success",
-            "name": "Real phone browser and desktop integration"
-          },
-          {
-            "conclusion": "success",
-            "name": "Connected phone desktop pages and records"
-          },
-          {
-            "conclusion": "failure",
-            "name": "Connected phone settings, artwork and backups"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Game details, detection profiles and recap PNG in browser"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "OBS transparent browser widget and real timers"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Remembered phone browser restart and authorization recovery"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Installed companion and offline session integrity"
-          },
-          {
-            "conclusion": "success",
-            "name": "Run actions/upload-artifact@v4"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Post Run actions/setup-node@v4"
-          },
-          {
-            "conclusion": "skipped",
-            "name": "Post Run actions/setup-python@v5"
+            "name": "Publish release"
           },
           {
             "conclusion": "success",
@@ -311,11 +345,6 @@
             "name": "Post Run actions/checkout@v4"
           }
         ]
-      },
-      {
-        "conclusion": "skipped",
-        "name": "publish",
-        "steps": []
       }
     ],
     "linux": {
@@ -355,7 +384,7 @@
       "stop_revoked": true
     },
     "artwork-catalogs": {
-      "commit": "b4f1209fd2a1d545c00acf0dc3c9d6e05c4a00db",
+      "commit": "6e66dcbbb414ed47d30ccbcf91d1a94b38fe7d0a",
       "checks": [
         {
           "kind": "cover",
@@ -577,6 +606,47 @@
       "ok": true,
       "exit_code": 0
     },
+    "phone-reconnect": {
+      "ok": true,
+      "remember_opt_in": true,
+      "browser_restart_expired_qr": true,
+      "expired_session_recovered": true,
+      "command_unauthorized_recovers_without_retry": true,
+      "temporary_resume_failure_retains_authorization": true,
+      "transient_state_unauthorized_retains_authorization": true,
+      "browser_restart_plain_address": true,
+      "explicit_disconnect_revokes": true,
+      "fresh_qr_fallback_after_rejected_credential": true
+    },
+    "companion-browser": {
+      "ok": true,
+      "service_worker_and_install": true,
+      "offline_reload": true,
+      "offline_start_pause_resume_finish": true,
+      "export_keeps_original": true,
+      "desktop_import_roundtrip": true,
+      "library_and_favorites": true,
+      "themes_and_responsive": true,
+      "single_writer_tabs": true,
+      "storage_failure_preserves_data": true,
+      "clock_changes_require_review": true,
+      "corrupt_storage_preserved": true,
+      "storage_access_retry_recovers": true,
+      "failed_finish_preserves_active": true,
+      "no_external_data_requests": true
+    },
+    "obs-browser": {
+      "ok": true,
+      "transparent_white_minimal": true,
+      "start_and_pause": true,
+      "live_style_color_name": true,
+      "total_time": true,
+      "refresh_keeps_authorization": true,
+      "independent_of_phone": true,
+      "disconnect_hides_stale_time": true,
+      "stable_link_reconnect": true,
+      "safe_local_render": true
+    },
     "linux-arch-update": {
       "version": "3.9.1",
       "ok": true,
@@ -681,22 +751,42 @@
     "tests-tests_qt-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n.........................This plugin does not support raise()\nThis plugin does not support grabbing the keyboard\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n.\n----------------------------------------------------------------------\nRan 270 tests in 87.652s\n\nOK\n"
+      "log_tail": "not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n..This plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n.........................This plugin does not support raise()\nThis plugin does not support grabbing the keyboard\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\n.\n----------------------------------------------------------------------\nRan 270 tests in 83.326s\n\nOK\n"
     },
     "phone-management-browser": {
-      "ok": false,
+      "ok": true,
       "settings_saved_on_pc": true,
       "stale_settings_preserved": true,
-      "failed_case": "backups_create_download",
-      "error": "Backup not created on PC",
-      "messages": [
-        "Os dados mudaram no PC ou em outro aparelho. Recarregue as prefer\u00eancias, ou feche e abra esta janela para conferir antes de salvar."
-      ]
+      "backup_create_and_download": true,
+      "backup_preview_cancel_safe": true,
+      "backup_upload_restore": true,
+      "backup_saved_on_pc_restore": true,
+      "legacy_backup_restore": true,
+      "phone_json_import_review": true,
+      "phone_json_reimport_duplicate": true,
+      "individual_remembered_device_revocation": true,
+      "art_local_and_remove": true,
+      "art_search_preview_import": true,
+      "updates_check_source_safe": true,
+      "packaged_update_button_lifecycle": true,
+      "responsive_and_translated": true,
+      "disable_control_preserves_remembered": true,
+      "no_browser_or_csp_errors": true
+    },
+    "insights-browser": {
+      "ok": true,
+      "game_page_from_menu": true,
+      "game_page_start_pause_resume_finish": true,
+      "detection_toggle_existing_profile": true,
+      "wheel_scroll_preserves_fields": true,
+      "recap_preview_period_png": true,
+      "four_themes_three_widths": true,
+      "safe_dom_and_csp": true
     },
     "tests-tests-linux": {
       "ok": true,
       "exit_code": 0,
-      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 1.746s\n\nOK\n"
+      "log_tail": "back (most recent call last):\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/horas_jogadas/updater.py\", line 248, in aplicar_zip\n    _mover(os.path.join(staging, PACOTE), pacote)\n  File \"/home/runner/work/HorasJogadas/HorasJogadas/tests/test_updater.py\", line 175, in falha_na_segunda\n    raise OSError(\"disco cheio (simulado)\")\nOSError: disco cheio (simulado)\n..................................\n----------------------------------------------------------------------\nRan 101 tests in 0.996s\n\nOK\n"
     }
   }
 }
