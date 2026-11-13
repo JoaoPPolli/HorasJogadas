@@ -11,8 +11,8 @@
     let parent=control.parentElement;
     while(parent&&!(parent.scrollHeight>parent.clientHeight+1&&/(auto|scroll)/.test(getComputedStyle(parent).overflowY)))parent=parent.parentElement;
     const scale=event.deltaMode===1?16:event.deltaMode===2?(parent?.clientHeight||innerHeight):1;
-    if(parent)parent.scrollBy({top:event.deltaY*scale,left:event.deltaX*scale,behavior:'instant'});
-    else window.scrollBy({top:event.deltaY*scale,left:event.deltaX*scale,behavior:'instant'});
+    if(parent)parent.scrollBy({top:event.deltaY*scale,left:event.deltaX*scale,behavior:'auto'});
+    else window.scrollBy({top:event.deltaY*scale,left:event.deltaX*scale,behavior:'auto'});
   },{capture:true,passive:false});
   const $ = id => document.getElementById(id);
   const copy = {

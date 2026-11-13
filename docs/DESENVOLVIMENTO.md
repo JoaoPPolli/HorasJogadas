@@ -104,3 +104,9 @@ O cálculo compartilhado em `horas_jogadas_qt/platinum.py` é somente de leitura
 Os vínculos são preferências locais explícitas. Revisões não iniciam a consulta automática. Nunca execute o caminho configurado, envie listas de processos à rede ou altere timers existentes para tentar deduzir horas anteriores à observação.
 
 Valide com `python -m unittest tests_qt.test_detection tests_qt.test_insights` e `node scripts/verify_insights_browser.cjs --python python`. O autoteste do pacote confere geração do PNG, detalhes e extensão nativa de consulta de processos.
+
+## Roda do mouse e banners
+
+`wheel_guard.py` instala um único filtro por QApplication durante a aplicação do tema. A roda sobre seletores ou campos numéricos é encaminhada ao viewport rolável mais próximo e consumida uma única vez; ela não modifica o valor do campo. A janela do popup é um limite separado: listas abertas mantêm sua rolagem nativa e confirmam a escolha por clique. Preserve cliques, digitação, teclado e barras de rolagem. O painel conectado usa a mesma regra nos campos HTML.
+
+`GameCover` mantém o recorte compacto da biblioteca como padrão e usa `fit='contain'` na página de detalhes. A área de destino respeita a proporção da imagem inteira. Valide com `python -m unittest tests_qt.test_wheel_and_banner` e `node scripts/verify_insights_browser.cjs --python python`.
