@@ -8,6 +8,7 @@ Mudanças conhecidas por versão. A publicação do código e a distribuição d
 - A roda do mouse deixa de alterar seletores, anos, datas e campos numéricos no app. Sobre esses campos, a roda continua rolando a página quando há conteúdo rolável.
 - Listas abertas continuam permitindo rolar as opções e confirmar a escolha por clique. Cliques e navegação por teclado permanecem disponíveis.
 - A mesma proteção contra alteração por roda foi aplicada aos campos do controle conectado pelo navegador.
+- Recarregar as Configurações conectadas sincroniza o estado antes de permitir novos comandos, evitando conflitos ao criar um backup logo depois.
 
 ## 3.9.0
 

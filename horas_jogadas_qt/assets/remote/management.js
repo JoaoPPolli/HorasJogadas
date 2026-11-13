@@ -72,7 +72,7 @@
     state.host.replaceChildren(heading, grid);
   }
   function appearance(data) {
-    const c = card(t("appearance"), t("appearance_help")), form = e("form", "management-form"), columns = e("div", "management-two-cols"); c.node.id = "management-appearance"; c.heading.append(button(t("reload"), () => { state.dirty = false; refresh(true); }, "quiet"));
+    const c = card(t("appearance"), t("appearance_help")), form = e("form", "management-form"), columns = e("div", "management-two-cols"); c.node.id = "management-appearance"; c.heading.append(button(t("reload"), async () => { const editSerial=state.editSerial;state.dirty=false;await H().refresh();if(editSerial!==state.editSerial)return;await refresh(true,editSerial); }, "quiet"));
     const theme = field(t("theme"), "select", data.theme || "dark", ["dark", "original", "violet", "light"].map(key => [key, t(key)]));
     const language = field(t("language"), "select", data.language || "pt", [["pt", "Português (Brasil)"], ["en", "English"]]);
     const auto = check(t("auto_updates"), data.check_updates !== false), covers = check(t("covers"), Boolean(data.covers_enabled)), icons = check(t("icons"), data.icons_enabled !== false);

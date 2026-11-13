@@ -49,7 +49,9 @@ async function control(value) { const nonce = Math.random().toString(36), target
   await page.waitForFunction(()=>document.querySelector("#phone-settings-theme").value==="original"); result.stale_settings_preserved=true;
 
   stage = "backups_create_download";
+  const backupAcknowledged=page.waitForResponse(response=>response.url().endsWith('/api/command')&&response.request().postDataJSON()?.action==='backup_create');
   await page.locator("#phone-backup-create").click();
+  const backupResponse=await backupAcknowledged;check(backupResponse.status()===200,"Backup creation was rejected: "+backupResponse.status());
   await page.waitForFunction(()=>!document.querySelector("#phone-backup-create").disabled);
   const backupList = await api("/api/view/backups"); check(backupList.full.length>0,"Backup not created on PC");
   const [backupDownload] = await Promise.all([page.waitForEvent("download"),page.locator("#phone-backup-download").click()]);
