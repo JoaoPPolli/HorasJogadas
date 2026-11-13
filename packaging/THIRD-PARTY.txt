@@ -35,3 +35,7 @@ Nenhuma arte de jogo desses serviços acompanha os pacotes do aplicativo.
 qrcode 8.2: BSD 3-Clause. https://github.com/lincolnloop/python-qrcode
 Usado para gerar o QR Code de pareamento local, sem serviços externos.
 Texto integral: QRCode-LICENSE.txt nesta pasta.
+
+psutil 7.0.0: BSD 3-Clause. https://github.com/giampaolo/psutil
+Usado somente para consultar processos locais na detecção opcional de jogos.
+Texto integral: Psutil-LICENSE.txt nesta pasta.

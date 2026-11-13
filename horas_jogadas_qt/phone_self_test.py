@@ -78,7 +78,7 @@ def run_phone_self_test(window, app):
                 raise RuntimeError('Corpo HTTP incompleto no autoteste do celular')
             return status, json.loads(response) if response_headers['content-type'].startswith('application/json') else response
 
-        for path in ('/', '/app.css', '/app.js', '/desktop.js', '/desktop.css', '/management.js', '/management.css', '/icon.ico'):
+        for path in ('/', '/app.css', '/app.js', '/desktop.js', '/desktop.css', '/management.js', '/management.css', '/insights.js', '/insights.css', '/icon.ico'):
             status, content = request(path)
             if status != 200 or not isinstance(content, bytes) or not content:
                 raise RuntimeError('Página do controle pelo celular ausente do pacote: ' + path)

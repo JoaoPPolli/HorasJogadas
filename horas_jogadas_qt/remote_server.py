@@ -289,7 +289,7 @@ class RemoteServer(QObject):
             # Acesso sem pareamento mantém o limite menor; ambos são limitados.
             # O painel autenticado não consome a cota anônima dos assets e
             # do resume: fechar o navegador descarta seu Bearer temporário.
-            static_asset = method == 'GET' and path in ('/', '/app.js', '/app.css', '/desktop.js', '/desktop.css', '/management.js', '/management.css', '/icon.ico')
+            static_asset = method == 'GET' and path in ('/', '/app.js', '/app.css', '/desktop.js', '/desktop.css', '/management.js', '/management.css', '/insights.js', '/insights.css', '/icon.ico')
             peer_requests = self._requests if authenticated or static_asset else self._unauth_requests
             peer_budget = 360 if authenticated or static_asset else 90
             if len(self._requests) >= 1200 or sum(source == peer for _, source in peer_requests) >= peer_budget:
@@ -352,12 +352,14 @@ class RemoteServer(QObject):
             return 200, self.query(payload), None
         if method == 'GET' and path == '/icon.ico':
             return 200, Path(__file__).resolve().parent.parent.joinpath('icon.ico').read_bytes(), 'image/vnd.microsoft.icon'
-        if method == 'GET' and path in ('/', '/app.css', '/app.js', '/desktop.js', '/desktop.css', '/management.js', '/management.css'):
+        if method == 'GET' and path in ('/', '/app.css', '/app.js', '/desktop.js', '/desktop.css', '/management.js', '/management.css', '/insights.js', '/insights.css'):
             filename, mime = {'/': ('index.html', 'text/html; charset=utf-8'),
                               '/app.css': ('app.css', 'text/css; charset=utf-8'),
                               '/app.js': ('app.js', 'text/javascript; charset=utf-8'),
                               '/desktop.js': ('desktop.js', 'text/javascript; charset=utf-8'),
                               '/desktop.css': ('desktop.css', 'text/css; charset=utf-8'),
+                              '/insights.js': ('insights.js', 'text/javascript; charset=utf-8'),
+                              '/insights.css': ('insights.css', 'text/css; charset=utf-8'),
                               '/management.js': ('management.js', 'text/javascript; charset=utf-8'),
                               '/management.css': ('management.css', 'text/css; charset=utf-8')}[path]
             try:

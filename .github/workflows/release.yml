@@ -140,6 +140,8 @@ jobs:
         run: node scripts/verify_phone_desktop_browser.cjs --python python --result build-diagnostics/phone-desktop-browser.json
       - name: Connected phone settings, artwork and backups
         run: node scripts/verify_phone_management_browser.cjs --python python --result build-diagnostics/phone-management-browser.json
+      - name: Game details, detection profiles and recap PNG in browser
+        run: node scripts/verify_insights_browser.cjs --python python --result build-diagnostics/insights-browser.json
       - name: OBS transparent browser widget and real timers
         run: node scripts/verify_obs_browser.cjs --python python --result build-diagnostics/obs-browser.json
       - name: Remembered phone browser restart and authorization recovery

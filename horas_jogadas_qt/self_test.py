@@ -135,6 +135,8 @@ def run_self_test(result_path):
 
                 from .phone_self_test import run_phone_self_test
                 result.update(run_phone_self_test(window, app))
+                from .insights_self_test import run_insights_self_test
+                result.update(run_insights_self_test(window))
                 from .obs_self_test import run_obs_self_test
                 result.update(run_obs_self_test(window, app))
                 if before != inventory(source): raise RuntimeError('A origem do teste foi alterada')

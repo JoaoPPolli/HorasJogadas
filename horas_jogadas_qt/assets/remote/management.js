@@ -15,6 +15,7 @@
   Object.assign(words.en,{disable_control:"Disable PC phone control",disable_control_help:"All phone connections will close. Timers keep running and remembered devices are preserved. To reconnect, enable phone control again in the PC settings.",control_disabled:"Connection closed. Enable phone control on your PC when you want to return."});
   Object.assign(words.pt,{startup_login:"Abrir HorasJogadas ao entrar no computador",startup_phone:"Ativar controle pelo celular ao abrir o app"});
   Object.assign(words.en,{startup_login:"Open HorasJogadas when signing in",startup_phone:"Enable phone control when opening the app"});
+  Object.assign(words.pt,{detect_global:"Ativar detecção dos jogos vinculados no PC"});Object.assign(words.en,{detect_global:"Enable detection for PC-linked games"});
   const $ = id => document.getElementById(id);
   const H = () => window.HorasPhone;
   const t = key => words[H() && H().language() === "en" ? "en" : "pt"][key] || key;
@@ -79,9 +80,10 @@
     columns.append(theme.host, language.host); form.append(columns, auto.host, covers.host, icons.host);
     const login = check(t("startup_login"), Boolean(data.launch_at_login)), phoneAuto = check(t("startup_phone"), Boolean(data.phone_auto_start));
     if (data.startup_available) form.append(login.host, phoneAuto.host);
+    const detection=check(t("detect_global"),Boolean(data.detection_enabled));form.append(detection.host);
     const save = button(t("save"), () => {} , "primary"); save.id = "phone-settings-save"; save.type = "submit"; form.append(save); c.before(form);
     form.addEventListener("change", () => { state.dirty = true; state.editSerial++; });
-    form.addEventListener("submit", event => { event.preventDefault(); const editSerial = state.editSerial; busy(save, c.notice, async () => { await action("settings_save", {workspace_revision: data.revision || state.revision, theme: theme.input.value, language: language.input.value, ...(data.startup_available ? {launch_at_login:login.input.checked,phone_auto_start:phoneAuto.input.checked}:{}), check_updates: auto.input.checked, covers_enabled: covers.input.checked, icons_enabled: icons.input.checked}); await H().refresh(); if (editSerial !== state.editSerial) return; state.dirty = false; await refresh(true, editSerial); }); });
+    form.addEventListener("submit", event => { event.preventDefault(); const editSerial = state.editSerial; busy(save, c.notice, async () => { await action("settings_save", {workspace_revision: data.revision || state.revision, theme: theme.input.value, language: language.input.value, ...(data.startup_available ? {launch_at_login:login.input.checked,phone_auto_start:phoneAuto.input.checked}:{}), detection_enabled:detection.input.checked, check_updates: auto.input.checked, covers_enabled: covers.input.checked, icons_enabled: icons.input.checked}); await H().refresh(); if (editSerial !== state.editSerial) return; state.dirty = false; await refresh(true, editSerial); }); });
     return c.node;
   }
   function backupCard(data) {

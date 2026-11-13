@@ -105,6 +105,7 @@ class PhoneManagement(QObject):
                         startup_available=getattr(self.w, 'mode', 'review') == 'release',
                         launch_at_login=startup.enabled() if getattr(self.w, 'mode', 'review') == 'release' else False,
                         phone_auto_start=bool(prefs.get('phone_auto_start', False)),
+                        detection_enabled=bool(prefs.get('detection_enabled',False)),
                         check_updates=bool(prefs.get('check_updates', True)),
                         covers_enabled=bool(prefs.get('covers_enabled', False)),
                         icons_enabled=bool(prefs.get('icons_enabled', True)), revision=self._revision())
@@ -345,7 +346,7 @@ class PhoneManagement(QObject):
                 if body['language'] not in ('pt', 'en'): raise RemoteError(400, 'invalid')
                 self.w.c.config['idioma'] = body['language']
                 self.w.c.repo.salvar_config(self.w.c.config)
-            for key in ('check_updates', 'covers_enabled', 'icons_enabled'):
+            for key in ('check_updates', 'covers_enabled', 'icons_enabled','detection_enabled'):
                 if key in body:
                     if type(body[key]) is not bool: raise RemoteError(400, 'invalid')
                     changes[key] = body[key]
@@ -358,6 +359,7 @@ class PhoneManagement(QObject):
                 startup.save_options(self.w.c.folder, body.get('launch_at_login', startup.enabled()),
                                      body.get('phone_auto_start', preferences.read(self.w.c.folder).get('phone_auto_start', False)))
             else:preferences.save(self.w.c.folder, **changes)
+            if 'detection_enabled' in body and hasattr(self.w,'game_detection'):self.w.game_detection.reset()
             return dict(saved=True)
         if action in ('art_local', 'art_remove'):
             kind = self._kind(body)

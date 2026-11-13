@@ -66,6 +66,10 @@ def build():
     qr_license=next((p for p in qr_distribution.files or [] if p.name=='LICENSE'),None)
     if qr_license is None:raise RuntimeError('Licença do qrcode ausente')
     shutil.copy2(qr_distribution.locate_file(qr_license),licenses/'QRCode-LICENSE.txt')
+    process_distribution=importlib.metadata.distribution('psutil')
+    process_license=next((p for p in process_distribution.files or [] if p.name in {'LICENSE','LICENSE.txt'}),None)
+    if process_license is None:raise RuntimeError('Licença do psutil ausente')
+    shutil.copy2(process_distribution.locate_file(process_license),licenses/'Psutil-LICENSE.txt')
     # Textos integrais dos componentes são copiados de fontes oficiais pelo workflow.
     legal=ROOT/'build'/'legal'
     if legal.exists():

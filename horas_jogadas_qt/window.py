@@ -47,6 +47,8 @@ class GameCard(QFrame):
             cover.clicked.connect(lambda:window.manage_covers(key))
             box.addWidget(cover)
         title = ElidedLabel(game.nome)
+        title.setCursor(Qt.PointingHandCursor); title.setToolTip(tr('game_details'))
+        title.mouseReleaseEvent=lambda event: window.show_game(key) if event.button()==Qt.LeftButton else None
         self.status = label(t_status(game.status).upper(), 'statusPill')
         self.status.setProperty('status', game.status)
         self.status.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
@@ -128,6 +130,7 @@ class Window(QMainWindow):
         self.c, self.lock = controller, lock
         self.mode = mode
         self.page = 'library'
+        self.selected_game = None
         self.view_states = {}
         self.displayed_page = None
         self.totals = self.c.repo.totais_por_jogo_id()
@@ -141,6 +144,8 @@ class Window(QMainWindow):
         from .obs import ObsControl
         self.obs_control = ObsControl(self)
         self.closing_allowed = False
+        from .detection import GameDetection
+        self.game_detection = GameDetection(self)
         self.last_heartbeat, self.last_backup = time.monotonic(), time.monotonic()
         self.setWindowTitle('HorasJogadas '+VERSION if self.mode=='release' else 'HorasJogadas · '+self.ui_text('review'))
         self.setMinimumSize(840, 620)
@@ -236,11 +241,19 @@ class Window(QMainWindow):
     def navigate(self, page):
         self.page = page
         for key, item in self.nav_buttons.items():
-            item.setChecked(key == page)
-        self.title.setText(tr(page))
+            item.setChecked(key == page or page=='game' and key=='library')
+        self.title.setText(tr(page));self.title.setWordWrap(page=='game')
         self.subtitle.setText(tr('subtitle') if page == 'library' else tr('independent') if page == 'completed' else '')
         self.subtitle.setVisible(page in ('library', 'completed'))
         self.refresh()
+
+    def show_game(self,key):
+        if key not in self.c.timers or self.page=='game' and self.selected_game==key:return
+        self.selected_game=key;self.navigate('game')
+
+    def build_game(self):
+        from .insights_ui import build_game
+        return build_game(self)
 
     def remember_view(self):
         page = self.displayed_page
@@ -297,6 +310,7 @@ class Window(QMainWindow):
         if hasattr(self,'autoscroll'):self.autoscroll.stop()
         if preserve_view:
             self.remember_view()
+        if self.page=='game' and self.selected_game in self.c.timers:self.title.setText(self.c.repo.jogo_por_id(self.selected_game).nome)
         old = self.pages.get(self.page)
         widget = getattr(self, 'build_' + self.page)()
         self.pages[self.page] = widget
@@ -475,14 +489,23 @@ class Window(QMainWindow):
             if self.page == 'library':
                 self.cards[key].update_timer()
                 self.reorder_cards()
+            elif self.page=='game' and self.selected_game==key:
+                if action=='finish':self.refresh()
+                else:self.detail_card.update_timer()
             self.update_activity()
 
     def adjust_timer(self, key):
         TimeDialog(self,key).exec()
 
+    def configure_detection(self,key):
+        from .detection_ui import configure
+        configure(self,key)
+
     def game_menu(self, key, anchor):
         game = self.c.repo.jogo_por_id(key)
         menu = QMenu(self)
+        menu.addAction(tr('game_details'),lambda:self.show_game(key))
+        menu.addAction(tr('detect_configure'),lambda:self.configure_detection(key))
         menu.addAction(tr('rename'), lambda: self.rename_game(key))
         statuses = menu.addMenu(tr('status'))
         for status in STATUS_OPCOES:
@@ -497,7 +520,7 @@ class Window(QMainWindow):
         menu.addSeparator()
         for end, text in [(False,'move_top'), (True,'move_end')]:
             action = menu.addAction(tr(text), lambda checked=False, bottom=end: self.move_game(key,bottom))
-            action.setEnabled(self.order.currentData() == 'manual')
+            action.setEnabled(self.page=='library' and self.order.currentData() == 'manual')
         menu.addSeparator()
         discard = menu.addAction(tr('discard'), lambda: self.discard_timer(key))
         discard.setEnabled(self.c.timers[key].pending)
@@ -627,8 +650,10 @@ class Window(QMainWindow):
                 QMessageBox.critical(self,tr('error'),str(error))
 
     def build_stats(self):
+        from .insights_ui import show_recap
         scroll = QScrollArea(); scroll.setWidgetResizable(True)
         host=QWidget(); box=QVBoxLayout(host); box.setContentsMargins(0,0,12,0); box.setSpacing(18)
+        box.addWidget(row(button(tr('recap_title'),lambda:show_recap(self),'primary'),None))
         groups=stats.agrupar_por_jogo(self.c.repo.jogos,self.c.repo.sessoes)
         summary=stats.resumo_geral(groups,self.c.repo.sessoes)
         current,best=stats.sequencias(self.c.repo.sessoes)
@@ -923,6 +948,8 @@ class Window(QMainWindow):
         box.addWidget(PhoneOfflineCard(self))
         from .obs_card import ObsCard
         box.addWidget(ObsCard(self.obs_control))
+        from .detection_ui import DetectionCard
+        box.addWidget(DetectionCard(self))
         appearance=QFrame(); appearance.setObjectName('card'); form=QVBoxLayout(appearance)
         form.setContentsMargins(22,20,22,20); form.setSpacing(14)
         form.addWidget(label(tr('theme'),'gameName'))
@@ -1167,6 +1194,8 @@ class Window(QMainWindow):
                 for key,card in self.cards.items():
                     if self.c.timers[key].pending:
                         card.update_timer()
+            elif self.page=='game' and self.selected_game in self.c.timers:
+                self.detail_card.update_timer()
             self.update_activity()
             self.overlay.definir(icone_barra.estado_do_icone(self.c.timers.values()))
             if instancia.consumir_sinal(str(self.c.folder)):

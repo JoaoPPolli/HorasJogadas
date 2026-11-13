@@ -101,6 +101,9 @@ def main():
                 if data.get('obs_action'):
                     if data['obs_action'] == 'stop_phone':server.stop()
                     else:getattr(window.c.timers[game.id], data['obs_action'])()
+                if data.get('detect_profile'):
+                    from horas_jogadas_qt.detection import save_profile
+                    save_profile(window,game.id,True,str(folder/'SyntheticGame.exe'),'path')
                 if data.get('renew'):
                     server.regenerate_pairing()
                 if data.get('restart'):

@@ -21,7 +21,7 @@ GAME_ACTIONS = frozenset(('game_rename', 'game_status', 'game_move', 'timer_adju
 
 
 class PhoneDesktop:
-    actions = GAME_ACTIONS | frozenset(('device_revoke', 'device_revoke_all', 'pc_open_data',
+    actions = GAME_ACTIONS | frozenset(('detection_toggle', 'device_revoke', 'device_revoke_all', 'pc_open_data',
                                        'pc_create_review', 'pending_recover', 'update_download',
                                        'update_install', 'update_cancel', 'library_order', 'control_disable'))
 
@@ -101,7 +101,14 @@ class PhoneDesktop:
     def execute(self, body):
         action = body['action']
         if action in GAME_ACTIONS:return self.game_action(body)
-        if action == 'library_order':
+        if action == 'detection_toggle':
+            from .detection import profiles,save_profile
+            key=body.get('game_id');value=profiles(self.w.c.folder).get(key) if isinstance(key,str) else None
+            if value is None:raise RemoteError(400,'configure_on_pc')
+            if type(body.get('enabled')) is not bool:raise RemoteError(400,'invalid')
+            with self.w.c.transaction():save_profile(self.w,key,body['enabled'],value['executable'],value['mode'])
+            self.w.game_detection.reset()
+        elif action == 'library_order':
             order = body.get('order')
             if order not in ('manual', 'nome', 'horas', 'recente'):raise RemoteError(400, 'invalid')
             with self.w.c.transaction():

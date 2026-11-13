@@ -2,6 +2,15 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.9.0
+
+- Retrospectiva mensal ou anual nas Estatísticas, com prévia no tema do app e exportação PNG 1080 × 1350 para compartilhar. Inclui horas, jogos, sessões, zerados, dias jogados e os cinco mais jogados; usa sessões salvas e respeita a distribuição por dia em viradas de mês/ano.
+- Página de cada jogo pela biblioteca: contador, totais, média, primeira/última sessão, histórico recente, conclusões, platina e observações. Capas e ícones seguem as preferências existentes.
+- Detecção automática opcional: vínculo explícito ao executável, início quando o processo aparece e salvamento ao confirmar seu fechamento. Caminho exato por padrão e modo por nome para Wine/Proton.
+- Pausas e encerramentos manuais são respeitados; ajustes de tempo mantêm o salvamento automático. Desativar a detecção preserva a sessão atual para controle manual. Leituras incertas e vínculos ambíguos não encerram ou duplicam sessões.
+- Detalhes e retrospectiva também no controle conectado pelo celular, com download do PNG. Vínculos configurados no PC podem ser ativados/desativados pelo painel; a escolha do executável permanece no PC.
+- Consulta de processos local e em segundo plano, sem enviar listas de programas. Detecção desativada por padrão e sem execução automática em cópias de revisão.
+
 ## 3.8.0
 
 - Botão Usar tempo extra no formulário de Zerados: preenche a platina adicional com o total do contador menos a duração ao zerar, incluindo a sessão aberta, sem somar novamente a cada clique.

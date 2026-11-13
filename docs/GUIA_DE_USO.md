@@ -147,3 +147,21 @@ Em **Zerados → Editar**, confira a **Duração** de quando zerou, escolha o **
 Ao terminar os troféus, marque **Platina concluída** e salve. O botão de cálculo fica bloqueado, preservando o tempo da platina se você jogar mais depois. Você pode corrigir o valor manualmente ou desmarcar a opção para recalcular. A função também está no controle conectado pelo celular.
 
 Se houver várias conclusões do mesmo contador, informe o extra manualmente para não misturar campanhas. Confira o contador e a duração se o total for menor que o tempo ao zerar; o valor existente permanece preservado. Os metadados de vínculo e platina concluída acompanham os backups completos; a exportação TXT continua no formato de tempos já existente.
+
+## Retrospectiva e página do jogo
+
+Em **Estatísticas → Retrospectiva**, escolha o ano e o mês (ou **Ano inteiro**), confira a prévia e use **Salvar imagem PNG**. A imagem tem 1080 × 1350 pixels e segue o tema e idioma do app. Ela contém jogos e tempos pessoais: confira a prévia antes de compartilhar. A exportação acontece no seu dispositivo, sem envio automático. Somente sessões salvas entram nas horas; conclusões são contadas separadamente, sem somar novamente duração de campanha ou platina. Sessões que atravessam meses e anos são distribuídas conforme os dias registrados.
+
+Na biblioteca, clique no nome do jogo ou use **Mais ações → Página do jogo**. A página reúne o timer, tempo salvo, sessões, média, primeira/última partida e conclusões com platina e observações. Mostra as últimas 100 sessões; o histórico completo continua disponível em Histórico. No PC, duplo clique numa sessão abre sua edição.
+
+Os detalhes e a retrospectiva também estão no controle conectado: menu do jogo → **Página do jogo**, e **Estatísticas → Retrospectiva**, com download do PNG.
+
+## Detecção automática de jogos
+
+Na página do jogo ou em **Configurações → Detecção automática de jogos**, escolha **Configurar detecção**. Selecione o executável real do jogo, marque **Detectar este jogo automaticamente** e salve. Não selecione Steam, outro launcher ou o próprio HorasJogadas. O modo **Caminho exato** é o recomendado para Windows e jogos Linux nativos. No Wine/Proton, o modo **Nome do executável** oferece uma alternativa; use um nome específico para evitar ambiguidades. Nem todo launcher ou ambiente restringido permite identificar o processo; nesses casos, use o contador manual.
+
+O HorasJogadas precisa ficar aberto. A consulta ocorre em segundo plano a cada 2 segundos; o fechamento é confirmado em duas verificações. A contagem começa quando o processo é observado, sem inventar tempo anterior à abertura do app. Vários processos do mesmo jogo pertencem à mesma sessão; ela só é salva quando todos fecham.
+
+A detecção só encerra contadores que ela mesma iniciou. Pausar ou encerrar manualmente impede um novo início enquanto o mesmo jogo continuar aberto. Ajustes de tempo continuam sendo incluídos no salvamento automático. Sessões já abertas ou pausadas não são sobrescritas. Ao desativar a detecção, o contador atual continua disponível para controle manual.
+
+O controle geral nas Configurações permite suspender a detecção sem esquecer os vínculos. No celular, você pode ativar/desativar um vínculo já configurado; a seleção do executável é feita no PC. Nenhuma lista de processos é enviada à rede ou salva em relatórios. A função começa desativada e cópias de revisão nunca iniciam a consulta automaticamente.

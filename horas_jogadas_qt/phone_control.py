@@ -73,6 +73,8 @@ class PhoneControl(QObject):
         self.records = PhoneRecords(self)
         self.management = PhoneManagement(self)
         self.desktop = PhoneDesktop(self)
+        from .phone_insights import PhoneInsights
+        self.insights = PhoneInsights(self)
         self.actions = frozenset(('start', 'pause', 'finish', 'add', 'favorite')) | self.records.actions | self.management.TRANSACTIONAL_ACTIONS | self.management.SPECIAL_ACTIONS | self.desktop.actions
         self.server = RemoteServer(self.snapshot, self.command, self,
                                    trust_store=self.trust_store, media=self.media, library=self.library,
@@ -111,6 +113,7 @@ class PhoneControl(QObject):
         return hashlib.sha256(json.dumps(fields, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
     def view(self, page, values):
+        if page in ('game','recap'):return self.insights.view(page,values)
         if page in ('history', 'stats', 'completed'):
             return self.records.view(page, values)
         if page == 'updates' or page == 'job' and values.get('id') == 'update':
@@ -119,6 +122,7 @@ class PhoneControl(QObject):
 
     def query(self, body):
         if not isinstance(body, dict):raise RemoteError(400, 'invalid')
+        if body.get('query') == 'recap_preview':return self.insights.preview(body)
         if body.get('query') == 'completion_extra':
             self.ensure_ready()
             return self.records.preview_extra(body)
@@ -130,6 +134,7 @@ class PhoneControl(QObject):
         return self.management.query(body)
 
     def export(self, kind, values):
+        if kind == 'recap_png':return self.insights.export(values)
         if kind == 'full_backup' and not values.get('id'):
             self.ensure_ready()
         if kind in ('history_csv', 'summary_csv', 'completions_txt'):
