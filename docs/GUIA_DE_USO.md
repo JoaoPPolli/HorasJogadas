@@ -156,7 +156,9 @@ Na biblioteca, clique no nome do jogo ou use **Mais ações → Página do jogo*
 
 Na **Página do jogo → Retrospectiva do jogo**, a imagem contém somente as sessões salvas daquele jogo no período escolhido: tempo, sessões, dias jogados, média e maior sessão, além da evolução por mês ou por dia. A primeira e a última data também se referem ao período. O nome do jogo aparece na imagem e no arquivo PNG. A retrospectiva geral continua em Estatísticas.
 
-Os detalhes e as duas retrospectivas também estão no controle conectado: menu do jogo → **Página do jogo → Retrospectiva do jogo**, ou **Estatísticas → Retrospectiva** para todos os jogos, com download do PNG.
+Em **Zerados → Retrospectiva**, a imagem usa somente os registros dessa lista, mesmo sem biblioteca ou histórico de sessões. Ela abre no ano selecionado na página e permite escolher um mês ou o ano inteiro. Mostra jogos zerados, DLCs, experiências, platinas marcadas como concluídas, tempo registrado e os registros mais recentes. O resumo anual inclui um gráfico de jogos e DLCs concluídos por mês. Os tempos base e de platina adicional aparecem separados, e o total inclui ambos uma única vez, como na página Zerados. Durações e dias desconhecidos continuam indicados; cada nova jogada conta como um registro. A data considerada é a do registro na lista, inclusive para as platinas vinculadas a ele.
+
+As três retrospectivas também estão no controle conectado pelo celular, com prévia e download do PNG nas respectivas páginas.
 
 ## Detecção automática de jogos
 

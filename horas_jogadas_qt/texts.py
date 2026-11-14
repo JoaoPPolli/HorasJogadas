@@ -266,3 +266,6 @@ TEXTS['en'].update({'game_first':'First session','game_last':'Latest session','d
 
 TEXTS['pt'].update({'recap_individual':'Retrospectiva do jogo','recap_individual_intro':'Escolha um período para ver somente as sessões salvas deste jogo: horas, média, maior sessão e evolução do tempo jogado.'})
 TEXTS['en'].update({'recap_individual':'Game recap','recap_individual_intro':'Choose a period to see only this game’s saved sessions: playtime, average, longest session and activity over time.'})
+
+TEXTS['pt'].update({'recap_completed':'Retrospectiva de Zerados','recap_completed_intro':'Escolha um período da lista de Zerados. Campanhas e platina adicional entram uma única vez, pelas datas registradas na lista; cada nova jogada conta como um registro.'})
+TEXTS['en'].update({'recap_completed':'Completion recap','recap_completed_intro':'Choose a period from your completion list. Campaign and extra platinum time are counted once, using the dates in the list; each replay counts as a record.'})

@@ -1,7 +1,7 @@
 """Páginas de detalhes e retrospectiva para o painel conectado, sem expor caminhos."""
 import base64
 from horas_jogadas import i18n
-from .insights import game_details,recap,available_years,recap_filename
+from .insights import game_details,recap,available_years,recap_filename,completed_recap,completed_years
 from .recap_image import png_bytes
 from .detection import profiles
 from . import preferences
@@ -28,8 +28,12 @@ class PhoneInsights:
             data['detection']=dict(configured=bool(profile.get('executable')),enabled=bool(profile.get('enabled')),active=bool(preferences.read(self.w.c.folder).get('detection_enabled',False)))
         else:
             year,month=self.period(values);key=values.get('game_id')
+            source=values.get('source','sessions')
+            if not isinstance(source,str) or source not in ('sessions','completed') or source=='completed' and 'game_id' in values:raise RemoteError(400,'invalid')
             if 'game_id' in values and (not isinstance(key,str) or key not in self.w.c.timers):raise RemoteError(404,'not_found')
-            data=recap(self.w.c,year,month,key);data['years']=sorted(set(available_years(self.w.c,key))|{year},reverse=True)
+            data=completed_recap(self.w.c,year,month) if source=='completed' else recap(self.w.c,year,month,key)
+            years=completed_years(self.w.c) if source=='completed' else available_years(self.w.c,key)
+            data['years']=sorted(set(years)|{year},reverse=True)
             data['filename']=recap_filename(data)
         return dict(data,revision=self.control.workspace_revision())
     def preview(self,values):

@@ -737,7 +737,10 @@ class Window(QMainWindow):
         self.year_picker=YearPicker({date.today().year,self.year} | {record.ano for record in self.c.zerados.registros},self.year)
         year=self.year_picker
         year.currentIndexChanged.connect(lambda:self.change_year(year.currentData()))
+        from .insights_ui import show_recap
+        recap_button=button(tr('recap_title'),lambda:show_recap(self,source='completed',initial_year=self.year));recap_button.setObjectName('completedRecap')
         box.addWidget(row(label(tr('year')),year,None,
+            recap_button,
             button(tr('import_txt'),self.import_txt),button(tr('export_txt'),self.export_txt),
             button('+ '+tr('new_record'),lambda:self.edit_completion(), 'primary')))
         summary=resumo_ano(self.c.zerados.registros,self.year)

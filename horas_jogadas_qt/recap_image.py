@@ -16,7 +16,42 @@ def render(data,theme='original',language='pt'):
     rect(64,62,12,42,accent,4);text(96,56,800,50,'HORASJOGADAS',26,bold=True)
     period=str(data['year']) if not data['month'] else (MESES_EN if en else MESES)[data['month']-1]+' '+str(data['year'])
     def duration(seconds):return f'{seconds//3600}h {seconds%3600//60:02d}m' if seconds>=3600 else f'{seconds//60}m {seconds%60:02d}s'
-    if data.get('game'):
+    if data.get('source')=='completed':
+        text(64,147,950,40,'YOUR COMPLETION RECAP' if en else 'SUA RETROSPECTIVA DE ZERADOS',16,muted,True)
+        text(64,196,950,70,period,42,bold=True)
+        total='—' if data['records'] and not data['has_time'] else duration(data['total_seconds'])
+        text(64,297,950,110,total,64,accent,True)
+        text(68,412,940,38,'Recorded time · campaign + extra platinum' if en else 'Tempo registrado · campanha + platina adicional',20,muted)
+        campaign=duration(data['campaign_seconds']) if data['campaign_known'] or not data['records'] else '—'
+        platinum=duration(data['platinum_seconds']) if data['platinum_known'] or not data['records'] else '—'
+        text(68,455,940,32,('Campaign: ' if en else 'Campanha: ')+campaign+('   ·   Extra platinum: ' if en else '   ·   Platina adicional: ')+platinum,17,muted)
+        labels=['GAMES BEATEN','DLCS','EXPERIENCES','PLATINUM DONE'] if en else ['JOGOS ZERADOS','DLCS','EXPERIÊNCIAS','PLATINA CONCLUÍDA']
+        values=[data['games'],data['dlcs'],data['experiences'],data['platinum_completed']]
+        for i,value in enumerate(values):
+            x=64+i*242;rect(x,516,224,138,card);text(x+20,531,184,57,value,32,bold=True);text(x+20,592,184,38,labels[i],10,muted,True)
+        text(64,672,950,32,(f"{data['records']} records · {data['without_time']} without campaign duration" if en else f"{data['records']} registros · {data['without_time']} sem duração de campanha"),16,muted)
+        if not data['month']:
+            text(64,722,950,40,'COMPLETIONS THROUGHOUT THE YEAR' if en else 'CONCLUSÕES AO LONGO DO ANO',21,bold=True)
+            text(64,764,950,28,'Games + DLCs · by the dates in your list' if en else 'Jogos + DLCs · pelas datas da sua lista',14,muted)
+            rect(64,808,952,132,card);maximum=max((item['count'] for item in data['timeline']),default=0) or 1
+            for i,item in enumerate(data['timeline']):
+                x=100+i*(880/12);height=56*item['count']/maximum
+                if height:rect(x+14,898-height,30,height,accent,3);text(x,809,60,30,item['count'],14,ink,align=Qt.AlignHCenter)
+                else:rect(x+14,896,30,2,border,1)
+                text(x-4,903,68,29,(MESES_EN if en else MESES)[i][:3],12,muted,align=Qt.AlignHCenter)
+        limit=5 if data['month'] else 3;recent=data['recent'][:limit];heading_y=724 if data['month'] else 957
+        text(64,heading_y,950,40,'LATEST RECORDS' if en else 'ÚLTIMOS REGISTROS',21,bold=True)
+        text(64,heading_y+42,950,28,(f"{len(recent)} of {data['records']} records · full list in the app" if en else f"{len(recent)} de {data['records']} registros · lista completa no app"),14,muted)
+        if not recent:text(64,heading_y+100,950,110,'No completion records in this period.' if en else 'Nenhum registro de Zerados neste período.',22,muted)
+        for i,item in enumerate(recent):
+            y=heading_y+83+i*(82 if data['month'] else 58)
+            text(64,y,706,32,item['name'],19,bold=True)
+            text(792,y,224,32,duration(item['seconds']) if item['seconds'] is not None else '—',18,muted,align=Qt.AlignRight)
+            when=(MESES_EN if en else MESES)[item['month']-1]
+            if item['day'] is not None:when=f"{item['day']:02d} "+when
+            kind=('Experience' if en else 'Experiência') if item['type']=='experiencia' else 'DLC' if item['dlc'] else ('Game beaten' if en else 'Jogo zerado')
+            text(64,y+30,950,23,when+' · '+kind+(' · '+('Platinum complete' if en else 'Platina concluída') if item['platinum_completed'] else '')+(' · '+('partial time' if en else 'tempo parcial') if item['seconds'] is not None and item['partial'] else ''),12,muted)
+    elif data.get('game'):
         text(64,147,950,40,'YOUR GAME RECAP' if en else 'SUA HISTÓRIA NESTE JOGO',16,muted,True)
         # Até duas linhas para o título, inclusive nomes longos sem espaços.
         title=data['game']['name'];font=QFont('Sans Serif',34,QFont.Bold);metrics=QFontMetrics(font)
@@ -71,7 +106,8 @@ def render(data,theme='original',language='pt'):
             rect(126,y+49,max(3,890*item['seconds']/maximum),6,accent,3)
         if not data['top']:text(64,800,950,70,'Your next adventure starts here.' if en else 'Sua próxima aventura começa aqui.',24,muted)
     p.setPen(QColor(border));p.drawLine(64,1232,1016,1232)
-    text(64,1254,950,35,'Saved sessions • generated on your device' if en else 'Sessões salvas • gerado no seu dispositivo',15,muted)
+    footer=('Completion list • generated on your device' if en else 'Lista de Zerados • gerado no seu dispositivo') if data.get('source')=='completed' else ('Saved sessions • generated on your device' if en else 'Sessões salvas • gerado no seu dispositivo')
+    text(64,1254,950,35,footer,15,muted)
     text(64,1291,950,30,'HorasJogadas • '+('Every game counts.' if en else 'Cada partida conta.'),13,muted)
     p.end();return image
 

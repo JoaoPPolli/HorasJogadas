@@ -2,6 +2,13 @@
 
 Mudanças conhecidas por versão. A publicação do código e a distribuição de executáveis são etapas separadas.
 
+## 3.10.0
+
+- Nova **Retrospectiva de Zerados**, acessível na própria página Zerados. Abre no ano selecionado e permite escolher o ano inteiro ou um mês.
+- PNG 1080 × 1350 no tema e idioma do app com jogos zerados, DLCs, experiências, platinas concluídas, tempos de campanha e platina adicional, total registrado e os registros mais recentes. A imagem anual traz um gráfico de conclusões por mês.
+- Usa somente a lista de Zerados, sem depender de cronômetros ou histórico. Mantém os totais da página, conta novas jogadas como registros e sinaliza durações e dias desconhecidos.
+- Disponível também no controle conectado pelo celular, preservando origem e período na prévia e no download. A geração da retrospectiva não altera os registros existentes.
+
 ## 3.9.2
 
 - O botão na página de cada jogo agora abre **Retrospectiva do jogo**, com dados somente daquele título no mês ou ano escolhido.

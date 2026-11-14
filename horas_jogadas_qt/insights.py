@@ -4,6 +4,7 @@ from calendar import monthrange
 from datetime import date
 import re
 from .platinum import matched_game
+from horas_jogadas.zerados import resumo_ano
 
 
 def game_details(c, key):
@@ -61,8 +62,35 @@ def available_years(c,game_id=None):
     return sorted(years,reverse=True)
 
 
+def completed_years(c):
+    return sorted({date.today().year}|{r.ano for r in c.zerados.registros},reverse=True)
+
+
+def completed_recap(c,year,month=0):
+    """Cada registro representa uma jogada; datas e tempos desconhecidos são preservados."""
+    if type(year) is not int or not 1900<=year<=9999 or type(month) is not int or not 0<=month<=12:raise ValueError('Invalid period')
+    records=[r for r in c.zerados.registros if r.ano==year and (not month or r.mes==month)]
+    summary=resumo_ano(records,year)
+    recent=sorted(enumerate(records),key=lambda pair:(pair[1].mes,pair[1].dia or 0,pair[0]),reverse=True)
+    return dict(source='completed',year=year,month=month,records=summary.registros,
+                games=summary.jogos_zerados,dlcs=summary.dlcs_zeradas,experiences=summary.experiencias,
+                total_seconds=summary.segundos_registrados,
+                campaign_seconds=sum(r.segundos for r in records if r.segundos is not None),
+                platinum_seconds=summary.platina_segundos,
+                platinum_completed=sum(r.platina_concluida for r in records),
+                without_time=summary.sem_tempo,
+                has_time=any(r.segundos is not None or r.platina_segundos is not None for r in records),
+                campaign_known=any(r.segundos is not None for r in records),
+                platinum_known=any(r.platina_segundos is not None for r in records),
+                timeline=[dict(index=i,count=sum(r.mes==i and r.tipo=='zerado' for r in records)) for i in range(1,13)],
+                recent=[dict(id=r.id,name=r.nome,month=r.mes,day=r.dia,type=r.tipo,dlc=r.dlc,
+                             seconds=(r.segundos or 0)+(r.platina_segundos or 0) if r.segundos is not None or r.platina_segundos is not None else None,
+                             partial=r.segundos is None,
+                             platinum_completed=r.platina_concluida) for _,r in recent[:5]])
+
+
 def recap_filename(data):
-    name=''
+    name='-Zerados' if data.get('source')=='completed' else ''
     if data.get('game'):
         title=re.sub(r'[<>:"/\\|?*\x00-\x1f]', '-',data['game']['name']).strip(' .')[:80]
         title=title.encode('utf-8')[:160].decode('utf-8','ignore').rstrip(' .') or 'Jogo'

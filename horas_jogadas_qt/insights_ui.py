@@ -9,31 +9,37 @@ from horas_jogadas.i18n import t_status
 from horas_jogadas.utils import formatar_duracao,formatar_hhmmss
 from horas_jogadas.zerados import MESES,MESES_EN,duracao_texto
 from .widgets import label,button,row,metric,table
-from .insights import game_details,recap,available_years,recap_filename
+from .insights import game_details,recap,available_years,recap_filename,completed_recap,completed_years
 from .recap_image import render,save_png
 from .texts import tr
 
 
-def show_recap(window,game_id=None):
+def show_recap(window,game_id=None,*,source='sessions',initial_year=None):
+    if source not in ('sessions','completed') or source=='completed' and game_id is not None:raise ValueError('Invalid recap source')
+    completed=source=='completed'
     game=window.c.repo.jogo_por_id(game_id) if game_id is not None else None
     if game_id is not None and game is None:
         window.notify(tr('game_missing'));return
-    title=tr('recap_individual') if game else tr('recap_title')
+    title=tr('recap_completed') if completed else tr('recap_individual') if game else tr('recap_title')
     d=QDialog(window);d.setObjectName('recapDialog');d.setProperty('gameId',game_id or '');d.setWindowTitle(title+(' · '+game.nome if game else ''));d.resize(600,810);box=QVBoxLayout(d);box.setContentsMargins(22,20,22,20);box.setSpacing(12)
-    box.addWidget(label(game.nome if game else title,'gameName',True));box.addWidget(label(tr('recap_individual_intro') if game else tr('recap_intro'),'muted',True))
+    d.setProperty('recapSource',source)
+    box.addWidget(label(game.nome if game else title,'gameName',True));box.addWidget(label(tr('recap_completed_intro') if completed else tr('recap_individual_intro') if game else tr('recap_intro'),'muted',True))
     year=QComboBox();year.setObjectName('recapYear')
-    for value in available_years(window.c,game_id):year.addItem(str(value),value)
-    year.setCurrentIndex(max(0,year.findData(date.today().year)))
+    years=completed_years(window.c) if completed else available_years(window.c,game_id)
+    selected_year=initial_year if initial_year is not None else date.today().year
+    for value in sorted(set(years)|{selected_year},reverse=True):year.addItem(str(value),value)
+    year.setCurrentIndex(max(0,year.findData(selected_year)))
     month=QComboBox();month.setObjectName('recapMonth');month.addItem(tr('recap_year'),0)
     for i,name in enumerate(MESES_EN if i18n.idioma_atual()=='en' else MESES,1):month.addItem(name,i)
     box.addWidget(row(year,month))
     preview=QLabel();preview.setObjectName('recapPreview');preview.setAlignment(Qt.AlignCenter)
     scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setFrameShape(QFrame.NoFrame);scroll.setWidget(preview);box.addWidget(scroll,1)
+    def query():return completed_recap(window.c,year.currentData(),month.currentData()) if completed else recap(window.c,year.currentData(),month.currentData(),game_id)
     def update():
-        data=recap(window.c,year.currentData(),month.currentData(),game_id);preview.setPixmap(QPixmap.fromImage(render(data,window.theme_name(),i18n.idioma_atual())).scaled(480,600,Qt.KeepAspectRatio,Qt.SmoothTransformation))
+        data=query();preview.setPixmap(QPixmap.fromImage(render(data,window.theme_name(),i18n.idioma_atual())).scaled(480,600,Qt.KeepAspectRatio,Qt.SmoothTransformation))
     year.currentIndexChanged.connect(update);month.currentIndexChanged.connect(update);update()
     def export():
-        data=recap(window.c,year.currentData(),month.currentData(),game_id)
+        data=query()
         path,_=QFileDialog.getSaveFileName(d,tr('recap_export'),recap_filename(data),'PNG (*.png)')
         if path:
             if not path.lower().endswith('.png'):path+='.png'
